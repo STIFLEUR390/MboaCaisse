@@ -2,7 +2,7 @@
 
 > Application interne de gestion pour bar / restaurant / épicerie.
 > **Devise** : FCFA | **Réseau** : LAN local, sans internet obligatoire.
-> **Stack** : Tauri 2 + Axum embarqué + libsql (Turso) + Nuxt 4.
+> **Stack** : Tauri 2 + Axum embarqué + SQLite + Nuxt 4.
 
 ## Stack
 
@@ -10,7 +10,7 @@
 |---|---|
 | Desktop | Tauri 2 (fenêtre native + tray icon) |
 | Serveur HTTP | Axum (tokio) — intégré dans le processus Tauri |
-| Base de données | libsql (embarqué, thread-safe, async, SQLite-compatible) |
+| Base de données | SQLite (via libsql, embarqué, thread-safe, async) |
 | Frontend | Nuxt 4 + NuxtUI v4 (Vue 3, TailwindCSS v4) |
 | Langage | Rust |
 | Package manager | [bun](https://bun.sh) (enforced) |
@@ -37,7 +37,7 @@ Voir [`FEATURES.md`](./FEATURES.md) pour la roadmap complète priorisée (P0–P
 
 ### Socle (P0)
 - Serveur HTTP Axum embarqué
-- Base de données libsql
+- Base de données SQLite
 - Authentification & sessions (4 rôles)
 - Fenêtre native & tray icon
 - Découverte réseau mDNS

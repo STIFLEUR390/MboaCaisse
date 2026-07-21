@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"packageManager": "bun@1.3.6",
-	"description": "Application interne de gestion pour bar / restaurant / épicerie — Tauri + Turso/libsql",
+	"description": "Application interne de gestion pour bar / restaurant / épicerie — Tauri + SQLite",
 	"author": "STIFLEUR390 <heroldtamko39@gmail.com>",
 	"license": "MIT",
 	"scripts": {

@@ -19,8 +19,8 @@ Déployé chez Jean à Douala. FCFA. Open-source.
 | C1 | **Offline-first** | Zéro internet. LAN/WiFi local uniquement. Pas d'appel API externe. |
 | C2 | **Multi-postes** | Serveur HTTP Axum embarqué dans Tauri. Fenêtre native = caissier/admin. Clients navigateur = vendeurs/stock. |
 | C3 | **Dev locale** | Dev solo Herold, sessions IA. Fedora/Linux. `bun` obligatoire. |
-| C4 | **Stack** | Tauri 2 + Nuxt 4 + NuxtUI 4 + Axum + libsql (Turso) + Vue 3. SSR désactivé. |
-| C5 | **DB** | libsql fichier unique (`mboacaisse.db`). WAL mode. foreign_keys ON. Backup par copie fichier. |
+| C4 | **Stack** | Tauri 2 + Nuxt 4 + NuxtUI 4 + Axum + SQLite + Vue 3. SSR désactivé. |
+| C5 | **DB** | SQLite fichier unique (`mboacaisse.db`). WAL mode. foreign_keys ON. Backup par copie fichier. |
 | C6 | **FCFA** | Prix en entier. Pas de décimales en base. |
 | C7 | **Rust natif** | Pas de lib Python/C interop. ESC/POS via pur Rust ou window.print(). |
 | C8 | **Expédition** | Aucune deadline. Heures perdues = features en moins. Phase gated. |
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS _migrations (
 | # | Tâche | Fichiers | Dépend |
 |---|-------|----------|--------|
 | T0.1 | Init Rust workspace modules : `db`, `auth`, `api`, `migrations` dans `src-tauri/src/` | `src-tauri/src/db/mod.rs`, `src-tauri/src/auth/mod.rs`, `src-tauri/src/api/mod.rs`, `src-tauri/src/migrations/mod.rs` | — |
-| T0.2 | Connexion libsql : ouvrir `mboacaisse.db`, PRAGMA WAL + foreign_keys ON | `src-tauri/src/db/mod.rs` | T0.1 |
+| T0.2 | Connexion SQLite : ouvrir `mboacaisse.db`, PRAGMA WAL + foreign_keys ON | `src-tauri/src/db/mod.rs` | T0.1 |
 | T0.3 | Serveur HTTP Axum embarqué : plugin Tauri, écoute `0.0.0.0:PORT`, afficher URL au démarrage | `src-tauri/src/api/mod.rs`, `src-tauri/src/lib.rs` | T0.2 |
 | T0.4 | Système de migrations : table `_migrations`, SQL dans Rust avec checksum, exécution ordonnée au démarrage | `src-tauri/src/migrations/mod.rs` | T0.2 |
 | T0.5 | Auth : table `users`, argon2 hash, endpoint login/logout, session token, middleware Axum | `src-tauri/src/auth/mod.rs` | T0.3, T0.4 |

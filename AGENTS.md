@@ -1,7 +1,7 @@
 # MboaCaisse (fork of Nuxtor)
 
 Nuxt 4 + Tauri 2 desktop app. SSR off, Axum embedded in Tauri process,
-Turso/libsql DB (file `mboacaisse.db`), LAN-only (no internet).
+SQLite DB (file `mboacaisse.db`), LAN-only (no internet).
 
 ## Commands
 

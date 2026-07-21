@@ -2,7 +2,7 @@
 
 > App interne Rust/Tauri pour bar/restaurant/épicerie.
 > **Devise** : FCFA | **Réseau** : LAN local, sans internet obligatoire.
-> **Stack** : Tauri 2 + Axum embarqué + libsql (Turso) + Nuxt 4.
+> **Stack** : Tauri 2 + Axum embarqué + SQLite + Nuxt 4.
 
 ---
 
@@ -67,11 +67,11 @@ fn publish_mdns(port: u16) {
 
 Alternative sans binaire externe : crate `mdns-sd` pour mDNS pur Rust (multi-plateforme, pas de dépendance Avahi).
 
-### P0.2 Base de données libsql embarquée
+### P0.2 Base de données SQLite
 
 | Feature | Detail |
 |---------|--------|
-| **libsql (Turso)** | SQLite-compatible, async-first, writes concurrents |
+| **SQLite** | Embarqué, thread-safe, async, fichier unique |
 | **Fichier unique** | `mboacaisse.db` dans `$APP_DATA_DIR` |
 | **Connexion Rust** | `libsql::Database::open()` dans le contexte Tauri |
 
