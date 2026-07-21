@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MboaCaisse — Brainstorm Expansion 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green-deep: #1a3c2a;
+    --green: #2d6a4f;
+    --green-mid: #40916c;
+    --green-light: #95d5b2;
+    --green-pale: #d8f3dc;
+    --gold: #d4a017;
+    --gold-light: #f5d742;
+    --gold-pale: #fef3c7;
+    --terracotta: #b74b2c;
+    --terracotta-light: #e07a5f;
+    --terracotta-pale: #f4d0c4;
+    --cream: #faf6ee;
+    --warm-dark: #2c1810;
+    --warm-gray: #5c4a3a;
+    --off-white: #fdfbf7;
+    --shadow: 0 4px 24px rgba(44,24,16,.08);
+    --shadow-lg: 0 8px 40px rgba(44,24,16,.14);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--cream);
+    color: var(--warm-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 0% 100%, rgba(45,106,79,.06) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 100% 0%, rgba(212,160,23,.05) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 100% 100%, rgba(183,75,44,.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 24px 80px; }
+  .hero {
+    padding: 60px 0 48px;
+    text-align: center;
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--green-mid), var(--terracotta), transparent);
+    border-radius: 2px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--green);
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, var(--green-deep) 0%, var(--green) 40%, var(--gold) 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    max-width: 640px;
+    margin: 16px auto 0;
+    color: var(--warm-gray);
+    font-size: 1.1rem;
+  }
+  .hero-meta {
+    margin-top: 12px;
+    font-size: .82rem;
+    color: var(--warm-gray);
+    opacity: .7;
+  }
+  .section {
+    margin-top: 64px;
+    position: relative;
+  }
+  .section-number {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -.01em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .section-title .highlight {
+    background: linear-gradient(120deg, var(--gold-pale) 0%, var(--gold-pale) 40%, transparent 80%);
+    padding: 0 6px;
+    display: inline;
+  }
+  .section-sub {
+    color: var(--warm-gray);
+    font-size: .95rem;
+    max-width: 600px;
+    margin-bottom: 32px;
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--off-white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(44,24,16,.06);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .card h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .card p {
+    font-size: .88rem;
+    color: var(--warm-gray);
+    line-height: 1.55;
+  }
+  .card .tag {
+    display: inline-block;
+    font-size: .65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 2px 10px;
+    border-radius: 100px;
+    margin-top: 10px;
+  }
+  .tag-decision { background: var(--green-pale); color: var(--green-deep); }
+  .tag-idea     { background: var(--gold-pale); color: #7a5c00; }
+  .tag-insight  { background: var(--terracotta-pale); color: var(--terracotta); }
+  .tag-coach    { background: #e8e0f0; color: #5a4080; }
+  .flow-section { margin: 40px 0 20px; }
+  .flow-label {
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--warm-gray);
+    opacity: .5;
+    margin-bottom: 12px;
+  }
+  .flow-diagram {
+    background: var(--off-white);
+    border-radius: var(--radius);
+    padding: 32px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(44,24,16,.06);
+    overflow-x: auto;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .flow-node {
+    background: var(--green);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    font-size: .82rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+  .flow-node.warm   { background: var(--terracotta); }
+  .flow-node.gold   { background: var(--gold); color: var(--warm-dark); }
+  .flow-node.outline { background: transparent; border: 2px solid var(--green); color: var(--green); }
+  .flow-node.small   { font-size: .72rem; padding: 6px 12px; }
+  .flow-arrow {
+    color: var(--warm-gray);
+    font-size: 1.2rem;
+    opacity: .5;
+    flex-shrink: 0;
+  }
+  .flow-arrow-text {
+    font-size: .6rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--warm-gray);
+    opacity: .6;
+    text-align: center;
+    margin: 2px 0;
+  }
+  .flow-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .flow-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(44,24,16,.1), transparent);
+    margin: 24px 0;
+  }
+  .bundle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .bundle-card {
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(44,24,16,.06);
+    position: relative;
+    overflow: hidden;
+    background: var(--off-white);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .bundle-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  .bundle-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+  .bundle-card:nth-child(1)::before { background: var(--green); }
+  .bundle-card:nth-child(2)::before { background: var(--gold); }
+  .bundle-card:nth-child(3)::before { background: var(--terracotta); }
+  .bundle-card:nth-child(4)::before { background: #7b4f9a; }
+  .bundle-card:nth-child(5)::before { background: #2c7a7a; }
+  .bundle-card:nth-child(6)::before { background: #c05621; }
+  .bundle-card h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .bundle-card .bundle-sub {
+    font-size: .78rem;
+    color: var(--warm-gray);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .bundle-card p {
+    font-size: .85rem;
+    color: var(--warm-gray);
+    line-height: 1.55;
+  }
+  .bundle-card .bundle-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .bundle-card .bundle-tags span {
+    font-size: .62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--green-pale);
+    color: var(--green-deep);
+  }
+  .bundle-card:nth-child(2) .bundle-tags span { background: var(--gold-pale); color: #7a5c00; }
+  .bundle-card:nth-child(3) .bundle-tags span { background: var(--terracotta-pale); color: var(--terracotta); }
+  .bundle-card:nth-child(4) .bundle-tags span { background: #ede6f5; color: #5a4080; }
+  .bundle-card:nth-child(5) .bundle-tags span { background: #d4ecec; color: #1a5c5c; }
+  .bundle-card:nth-child(6) .bundle-tags span { background: #f0ddd0; color: #8b3a0f; }
+  .bundle-license-note {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(45,106,79,.06), rgba(212,160,23,.06));
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--gold);
+    font-size: .85rem;
+    color: var(--warm-gray);
+  }
+  .bundle-license-note strong { color: var(--green-deep); }
+  .triangle-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0 10px;
+  }
+  .triangle-svg {
+    width: 100%;
+    max-width: 460px;
+    height: auto;
+  }
+  .priority-list {
+    list-style: none;
+    counter-reset: prio;
+  }
+  .priority-list li {
+    counter-increment: prio;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--off-white);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(44,24,16,.06);
+    margin-bottom: 12px;
+  }
+  .priority-list li::before {
+    content: '#' counter(prio);
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    background: var(--green);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .priority-list li:nth-child(2)::before { background: var(--gold); color: var(--warm-dark); }
+  .priority-list li:nth-child(3)::before { background: var(--terracotta); }
+  .priority-list li h4 { font-size: .95rem; font-weight: 700; }
+  .priority-list li p { font-size: .85rem; color: var(--warm-gray); margin-top: 2px; }
+  .thread-box {
+    background: linear-gradient(135deg, var(--green-deep), #1f4d34);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    margin-top: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .thread-box::before {
+    content: '\260E';
+    position: absolute;
+    right: -10px; bottom: -20px;
+    font-size: 8rem;
+    opacity: .08;
+    transform: rotate(12deg);
+  }
+  .thread-box h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--gold-light);
+  }
+  .thread-box p {
+    font-size: .95rem;
+    opacity: .9;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+  .synergy-callout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 28px 0 16px;
+  }
+  .synergy-item {
+    background: var(--off-white);
+    border-radius: var(--radius-sm);
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(44,24,16,.06);
+  }
+  .synergy-item .emoji { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+  .synergy-item h5 { font-size: .82rem; font-weight: 700; }
+  .synergy-item p { font-size: .75rem; color: var(--warm-gray); margin-top: 4px; }
+  .footnote {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(44,24,16,.08);
+    text-align: center;
+    font-size: .78rem;
+    color: var(--warm-gray);
+    opacity: .6;
+  }
+  @media (max-width: 640px) {
+    .page { padding: 0 16px 60px; }
+    .hero { padding: 40px 0 32px; }
+    .flow-row { gap: 4px; }
+    .flow-node { padding: 6px 12px; font-size: .72rem; min-width: 60px; }
+    .bundle-grid { grid-template-columns: 1fr; }
+    .synergy-callout { grid-template-columns: 1fr; }
+    .thread-box { padding: 28px 20px; }
+    .bundle-card { padding: 24px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="hero-badge">Brainstorm &middot; 21 juillet 2026</div>
+    <h1>MboaCaisse<br>Expansion &amp; March&eacute;</h1>
+    <p>Wallet, fid&eacute;lit&eacute;, bundles, r&eacute;silience&nbsp;&mdash;&nbsp;planter les drapeaux pour la prochaine phase de croissance.</p>
+    <div class="hero-meta">Session partner &middot; statut complete &middot; 57 lignes de memlog</div>
+  </header>
+
+  <section class="section">
+    <div class="section-number">Technique 1</div>
+    <h2 class="section-title">Le Client Roi <span class="highlight">&mdash;</span></h2>
+    <p class="section-sub">Pr&eacute;-commande, QR table, Mobile Money, fid&eacute;lit&eacute;&nbsp;: tout part du wallet client.</p>
+
+    <div class="flow-section">
+      <div class="flow-label">Architecture Wallet &mdash; source de v&eacute;rit&eacute; en SQLite locale</div>
+      <div class="flow-diagram">
+        <div class="flow-row">
+          <div class="flow-group">
+            <div class="flow-node gold small">Cash</div>
+            <div class="flow-node gold small" style="background:#c97a1a;">MoMo</div>
+            <div class="flow-node gold small" style="background:#a86b0d;">Orange Money</div>
+          </div>
+          <div class="flow-group">
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-arrow-text">approvisionnement</span>
+          </div>
+          <div class="flow-node" style="min-width:120px;">Wallet Client<br><span style="font-weight:400;font-size:.72rem;opacity:.8;">solde = SUM(amount)</span></div>
+          <div class="flow-group">
+            <span class="flow-arrow">&rarr;</span>
+            <span class="flow-arrow-text">paiement</span>
+          </div>
+          <div class="flow-node warm">Commande</div>
+        </div>
+
+        <div style="margin:16px 0 10px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;">
+          <span class="flow-node outline small">Gift</span>
+          <span class="flow-node outline small">Cashback 5%</span>
+          <span class="flow-node outline small">Transfer</span>
+          <span class="flow-node outline small" style="border-color:var(--terracotta);color:var(--terracotta);">CLI-XXXX</span>
+        </div>
+
+        <div class="flow-divider"></div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:20px;justify-content:center;">
+          <div style="text-align:center;">
+            <div style="font-size:.82rem;font-weight:600;color:var(--green);">QR par table</div>
+            <div style="font-size:.7rem;color:var(--warm-gray);">URL encode table ID</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:.82rem;font-weight:600;color:var(--green);">Cycle commande</div>
+            <div style="font-size:.7rem;color:var(--warm-gray);">pending_payment &rarr; paid_preparing &rarr; ready &rarr; delivered</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:.82rem;font-weight:600;color:var(--green);">Cashback progressif</div>
+            <div style="font-size:.7rem;color:var(--warm-gray);">3% &rarr; 5% &rarr; 8% selon nb commandes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <span class="card-icon">&#128241;</span>
+        <h4>Pr&eacute;-commande client</h4>
+        <p>Menu public non-auth servi par Axum. Cinq &eacute;crans&nbsp;: landing QR &rarr; menu &rarr; panier &rarr; identification t&eacute;l&eacute;phone &rarr; confirmation.</p>
+        <span class="tag tag-idea">Idea</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128196;</span>
+        <h4>QR code par table</h4>
+        <p>G&eacute;n&eacute;ration serveur, impression papier. Fallback admin pour saisie manuelle du num&eacute;ro.</p>
+        <span class="tag tag-decision">Decision</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128184;</span>
+        <h4>Mobile Money</h4>
+        <p>Routeur paiement MTN MoMo + Orange Money. Webhook + statut transaction. Point d'inflexion : MoMo d&eacute;bloque le d&eacute;p&ocirc;t client.</p>
+        <span class="tag tag-coach">Coach</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#11088;</span>
+        <h4>Fid&eacute;lit&eacute; &amp; Parrainage</h4>
+        <p>Points, cagnotte, cr&eacute;dit client. Cashback auto 5% sur chaque commande wallet. Parrainage : 1000 FCFA sur deux wallets.</p>
+        <span class="tag tag-insight">Insight</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128274;</span>
+        <h4>Wallet multi-sources</h4>
+        <p>Cash, MoMo, Gift, Cashback, Transfer. Solde jamais stock&eacute; &mdash; SUM(amount) WHERE client_id. Pas de d&eacute;rive.</p>
+        <span class="tag tag-insight">Insight</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128104;&#8205;&#127806;</span>
+        <h4>Client sans t&eacute;l&eacute;phone</h4>
+        <p>ID interne CLI-XXXX, wallet rattach&eacute;. Pas de pr&eacute;-commande, reste fonctionnel en caisse.</p>
+        <span class="tag tag-idea">Idea</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#9888;&#65039;</span>
+        <h4>D&eacute;p&ocirc;t de garantie</h4>
+        <p>Feature optionnelle d&eacute;sactiv&eacute;e par d&eacute;faut. Avertissement setup &mdash; zone grise r&eacute;gulation financi&egrave;re.</p>
+        <span class="tag tag-decision">Decision</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128202;</span>
+        <h4>Paiement avant validation</h4>
+        <p>Wallet check imm&eacute;diat. Solde insuffisant = message clair. Wallet n&eacute;gatif = choix admin, pas d&eacute;faut.</p>
+        <span class="tag tag-decision">Decision</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-number">Technique 2</div>
+    <h2 class="section-title">Module D&eacute;coupeur <span class="highlight">&mdash; 6 Bundles</span></h2>
+    <p class="section-sub">M&ecirc;me code, pas de forks. Feature flags via licensing Ed25519. L'API m&eacute;tier-agnostique, les flags contr&ocirc;lent l'UI.</p>
+
+    <div class="bundle-grid">
+      <div class="bundle-card">
+        <h3>Mboa Cash</h3>
+        <div class="bundle-sub">&Eacute;picerie de quartier</div>
+        <p>Wallet, cash, fid&eacute;lit&eacute;, rapports basiques. L'entr&eacute;e de gamme pour les petites surfaces.</p>
+        <div class="bundle-tags"><span>wallet</span><span>cash</span><span>fid&eacute;lit&eacute;</span><span>rapports</span></div>
+      </div>
+      <div class="bundle-card">
+        <h3>Mboa Resto</h3>
+        <div class="bundle-sub">Bar / Restaurant</div>
+        <p>Cash + MoMo, pr&eacute;-commande, kitchen display, tables. Le coeur de cible actuel.</p>
+        <div class="bundle-tags"><span>MoMo</span><span>pr&eacute;-commande</span><span>kitchen display</span><span>tables</span></div>
+      </div>
+      <div class="bundle-card">
+        <h3>Mboa Stock</h3>
+        <div class="bundle-sub">&Eacute;picerie + Resto + Retail</div>
+        <p>Resto + inventaire fournisseurs, alertes seuil, devis, multi-d&eacute;p&ocirc;t. Pour ceux qui g&egrave;rent des stocks.</p>
+        <div class="bundle-tags"><span>inventaire</span><span>alertes seuil</span><span>devis</span><span>multi-d&eacute;p&ocirc;t</span></div>
+      </div>
+      <div class="bundle-card">
+        <h3>Mboa Traiteur</h3>
+        <div class="bundle-sub">Traiteur / Catering</div>
+        <p>Resto + planning commandes date/heure retrait, acomptes, calendrier prod, fiches techniques.</p>
+        <div class="bundle-tags"><span>planning</span><span>acomptes</span><span>calendrier prod</span><span>fiches tech</span></div>
+      </div>
+      <div class="bundle-card">
+        <h3>Mboa H&ocirc;tel</h3>
+        <div class="bundle-sub">Petit h&ocirc;tel / Auberge</div>
+        <p>Resto + chambres check-in/out, minibar, facture s&eacute;jour. H&ocirc;tellerie l&eacute;g&egrave;re.</p>
+        <div class="bundle-tags"><span>chambres</span><span>check-in/out</span><span>minibar</span><span>facture s&eacute;jour</span></div>
+      </div>
+      <div class="bundle-card">
+        <h3>Mboa Market</h3>
+        <div class="bundle-sub">Sup&eacute;rette / Retail</div>
+        <p>Stock + multi-d&eacute;p&ocirc;t, code-barres, inventaire tournant, commandes fournisseurs, marge auto.</p>
+        <div class="bundle-tags"><span>code-barres</span><span>inventaire tournant</span><span>commandes fournisseurs</span><span>marge auto</span></div>
+      </div>
+    </div>
+
+    <div class="bundle-license-note">
+      <strong>Licensing Ed25519</strong> &mdash; 6 bundles = feature flags. M&ecirc;me code, pas de forks, pas de branches.
+      Le licensing P4 existe d&eacute;j&agrave;. Cod&eacute; t&ocirc;t = pas de refactor. Les flags contr&ocirc;lent l'UI ; l'API reste m&eacute;tier-agnostique
+      (<code>POST /api/orders</code> = &laquo;&nbsp;client veut qqch&nbsp;&raquo;).
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-number">Technique 3</div>
+    <h2 class="section-title">Le Bug du Succ&egrave;s &mdash; <span class="highlight">R&eacute;silience</span></h2>
+    <p class="section-sub">Quand la croissance tape dans les limites du design initial. wallet_ledger, impression queue, scaling.</p>
+
+    <div class="triangle-wrap">
+      <svg class="triangle-svg" viewBox="0 0 460 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="230,30 410,350 50,350" stroke="#2d6a4f" stroke-width="3" fill="none" stroke-linejoin="round"/>
+        <polygon points="230,30 410,350 50,350" fill="url(#triGrad)" opacity=".08"/>
+        <defs>
+          <linearGradient id="triGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2d6a4f"/>
+            <stop offset="100%" stop-color="#d4a017"/>
+          </linearGradient>
+        </defs>
+        <circle cx="230" cy="130" r="40" fill="#d4a017" stroke="#fff" stroke-width="3"/>
+        <circle cx="100" cy="310" r="40" fill="#b74b2c" stroke="#fff" stroke-width="3"/>
+        <circle cx="360" cy="310" r="40" fill="#2d6a4f" stroke="#fff" stroke-width="3"/>
+        <text x="230" y="138" text-anchor="middle" fill="#2c1810" font-size="15" font-weight="700">Ledger</text>
+        <text x="100" y="318" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Wallet</text>
+        <text x="360" y="318" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Impression</text>
+        <text x="165" y="205" text-anchor="middle" fill="#5c4a3a" font-size="11" font-weight="600" transform="rotate(-18,165,205)">INSERT-only</text>
+        <text x="295" y="205" text-anchor="middle" fill="#5c4a3a" font-size="11" font-weight="600" transform="rotate(18,295,205)">retry + fallback</text>
+        <text x="230" y="360" text-anchor="middle" fill="#5c4a3a" font-size="11" font-weight="600">solde local</text>
+        <text x="230" y="240" text-anchor="middle" fill="#1a3c2a" font-size="20" font-weight="800" opacity=".12">R&Eacute;SILIENCE</text>
+      </svg>
+    </div>
+
+    <p style="text-align:center;font-size:.88rem;color:var(--warm-gray);margin:-10px 0 24px;">
+      <strong style="color:var(--green-deep);">Triangle r&eacute;silient</strong> &mdash; chacun tient si un autre tombe.
+    </p>
+
+    <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));">
+      <div class="card" style="border-left:3px solid var(--gold);">
+        <span class="card-icon">&#128210;</span>
+        <h4>wallet_ledger</h4>
+        <p>Table append-only (INSERT-only, jamais UPDATE/DELETE) pour chaque transaction wallet. Backup toutes les 5 min.</p>
+        <span class="tag tag-coach">Coach</span>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green);">
+        <span class="card-icon">&#128424;</span>
+        <h4>Impression queue async</h4>
+        <p>Avec retry + fallback ticket num&eacute;rique (&eacute;cran client) quand l'imprimante est hors service.</p>
+        <span class="tag tag-coach">Coach</span>
+      </div>
+      <div class="card" style="border-left:3px solid var(--terracotta);">
+        <span class="card-icon">&#127991;</span>
+        <h4>mDNS personnalisable</h4>
+        <p>Nom au setup (chezbob.local) au lieu de mboacaisse. Fallback admin. P1 &mdash; pas prioritaire.</p>
+        <span class="tag tag-idea">Idea</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128260;</span>
+        <h4>Migration r&eacute;tro-compatible</h4>
+        <p>Cr&eacute;er ledger + rejouer historique commandes pay&eacute;es. Ledger vide = crash mortel &agrave; &eacute;viter.</p>
+        <span class="tag tag-idea">Idea</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128250;</span>
+        <h4>Pas de sync groupe</h4>
+        <p>Wallet par instance = solde diff&eacute;rent dans chaque &eacute;tablissement. OK pour 3 ans. P2 sync groupe.</p>
+        <span class="tag tag-insight">Insight</span>
+      </div>
+      <div class="card">
+        <span class="card-icon">&#128202;</span>
+        <h4>Tier architecture</h4>
+        <p>P0 : wallet_ledger + impression queue. P1 : mDNS. P2 : sync groupe.</p>
+        <span class="tag tag-decision">Decision</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-number">Synth&egrave;se</div>
+    <h2 class="section-title">Le Fil Rouge &amp; <span class="highlight">les Priorit&eacute;s</span></h2>
+    <p class="section-sub">Ce qui reste sur la table apr&egrave;s 57 lignes de memlog.</p>
+
+    <div class="thread-box">
+      <h3>&#128241; Le t&eacute;l&eacute;phone = cl&eacute; universelle</h3>
+      <p>Wallet + fid&eacute;lit&eacute; + reconnaissance + historique. Pas de login, pas de carte, pas d'app. Juste un num&eacute;ro. Le client arrive, son t&eacute;l&eacute;phone ouvre tout.</p>
+    </div>
+
+    <h3 style="margin-top:36px;font-size:1.1rem;font-weight:700;color:var(--green-deep);">Top 3 Priorit&eacute;s</h3>
+    <ol class="priority-list" style="margin-top:14px;">
+      <li>
+        <div>
+          <h4>Wallet noyau dur + ledger append-only</h4>
+          <p>Le wallet est la source de v&eacute;rit&eacute;. Ledger INSERT-only, backup 5 min. Tout le reste est cosm&eacute;tique sans &ccedil;a.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Impression queue async</h4>
+          <p>Maillon critique de cr&eacute;dibilit&eacute; pro. Retry + fallback ticket num&eacute;rique. Sans impression fiable, pas de passage en production.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h4>Feature flags via licensing Ed25519</h4>
+          <p>6 bundles = m&ecirc;me code, flags d&egrave;s maintenant. Le licensing P4 existe d&eacute;j&agrave;. Cod&eacute; t&ocirc;t = pas de refactor.</p>
+        </div>
+      </li>
+    </ol>
+
+    <h3 style="margin-top:36px;font-size:1.1rem;font-weight:700;color:var(--green-deep);">Synergie : le Triangle R&eacute;silient</h3>
+    <div class="synergy-callout">
+      <div class="synergy-item" style="border-top:3px solid var(--gold);">
+        <span class="emoji">&#128210;</span>
+        <h5>Ledger</h5>
+        <p>INSERT-only, backup 5 min. Trace immuable de chaque transaction.</p>
+      </div>
+      <div class="synergy-item" style="border-top:3px solid var(--terracotta);">
+        <span class="emoji">&#128188;</span>
+        <h5>Wallet</h5>
+        <p>Solde local, multi-sources. Source de v&eacute;rit&eacute; pour le paiement.</p>
+      </div>
+      <div class="synergy-item" style="border-top:3px solid var(--green);">
+        <span class="emoji">&#128424;</span>
+        <h5>Impression Queue</h5>
+        <p>Async, retry, fallback num&eacute;rique. Cr&eacute;dibilit&eacute; professionnelle.</p>
+      </div>
+    </div>
+    <p style="font-size:.85rem;color:var(--warm-gray);text-align:center;max-width:500px;margin:0 auto;">
+      Chacun tient si un autre tombe. Le wallet enregistre dans le ledger et d&eacute;clenche l'impression.
+      Le ledger peut &ecirc;tre rejou&eacute;. L'impression peut tomber en ticket num&eacute;rique. Le wallet tourne en local.
+    </p>
+
+    <div style="margin-top:28px;padding:18px 22px;background:var(--off-white);border-radius:var(--radius-sm);box-shadow:var(--shadow);border:1px solid rgba(44,24,16,.06);">
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-size:1.4rem;flex-shrink:0;">&#127860;</span>
+        <div>
+          <h4 style="font-size:.9rem;font-weight:700;color:var(--green-deep);">Menu public = test d'usage pour les 6 bundles</h4>
+          <p style="font-size:.82rem;color:var(--warm-gray);margin-top:2px;">Traiteur QR takeaway, Resto QR table. M&ecirc;me logique, vue diff&eacute;rente. Un seul menu public sert tous les bundles.</p>
+          <span class="tag tag-coach" style="margin-top:8px;">Coach</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footnote">
+    MboaCaisse Brainstorm Expansion &middot; 21 juillet 2026 &middot; G&eacute;n&eacute;r&eacute; depuis .memlog.md
+  </div>
+
+</div>
+</body>
+</html>
