@@ -14,7 +14,7 @@ inputs:
 
 **Un serveur de caisse qui tient sur n'importe quel PC. Accessible depuis tout le réseau local — téléphone, tablette, écran cuisine. Client wallet Orange Money et MTN MoMo intégré. Impression thermique, fidélité sans carte, licence à vie. Tout tourne sans Internet.**
 
-**Alpha fermé — 3 établissements testent déjà MboaCaisse à Douala.**
+**Alpha fermé — premiers tests en cours à Douala.**
 
 Les petits commerces de quartier en Afrique francophone tiennent leur caisse au cash et au cahier. Le propriétaire ferme le soir sans savoir combien il a vendu. Le caissier peut voler sans laisser de trace. Un client veut payer en Mobile Money ? Le commerçant note le numéro de transaction sur un bout de papier. Les solutions cloud coupent au premier outage Internet. Les terminaux importés coûtent 500 000 FCFA et ne savent ni gérer un stock ni fidéliser un client. Résultat : le propriétaire pilote son affaire à l'aveugle.
 
@@ -37,7 +37,7 @@ MboaCaisse change ça. Vous avez un PC — même un vieux qui traîne — et un 
 
 ### Premiers pas
 
-MboaCaisse est en alpha fermé. 3 établissements testent déjà à Douala. Vous voulez essayer ? Pas de paiement, pas de carte — 30 jours gratuits, installation assistée par WhatsApp, formation incluse. Si ça ne vous fait pas gagner plus d'argent, on désinstalle et vous retournez au carnet. Après l'essai, la licence perpétuelle commence à 120 000 FCFA pour l'édition Cash (mises à jour incluses 12 mois). C'est ce que vous perdez en un mois de vols caissier non tracés.
+MboaCaisse est en alpha fermé — premiers tests en cours à Douala. Vous voulez essayer ? Pas de paiement, pas de carte — 30 jours gratuits, installation assistée par WhatsApp, formation incluse. Si ça ne vous fait pas gagner plus d'argent, on désinstalle et vous retournez au carnet. Après l'essai, la licence perpétuelle commence à 120 000 FCFA pour l'édition Cash (mises à jour incluses 12 mois). C'est ce que vous perdez en un mois de vols caissier non tracés.
 
 **Mode dégradé :** si le PC plante ou que l'électricité coupe, la base de données est sauvegardée automatiquement chaque jour. Vous installez MboaCaisse sur un autre PC, vous restaurez le backup en un clic (guidé par WhatsApp si besoin), et vous repartez. Pas de perte.
 
@@ -57,7 +57,7 @@ A : Oui. Tout appareil connecté au WiFi de l'établissement peut accéder à Mb
 
 ### Q : Quels modes de paiement sont acceptés ?
 
-A : Espèces, Orange Money, MTN MoMo, et wallet client MboaCaisse. Le wallet peut être alimenté par Mobile Money ou espèces. Le solde est stocké dans un ledger append-only (pas une valeur mutable), ce qui garantit l'intégrité des comptes. Les paiements sont automatiquement déduits du wallet avant que la commande parte en cuisine.
+A : Espèces, Orange Money, MTN MoMo, et wallet client MboaCaisse. Le wallet peut être alimenté par Mobile Money ou espèces. Chaque mouvement est écrit dans un journal qui enregistre tout — impossible de perdre ou trafiquer un centime. Vous pouvez tout vérifier à tout moment. Les paiements sont automatiquement déduits du wallet avant que la commande parte en cuisine.
 
 ### Q : Combien ça coûte vraiment ?
 
@@ -137,16 +137,16 @@ A : Oui, si le volume suit. À 100 clients la première année, c'est 12 M FCFA 
 - **Éducation au passage au numérique.** Le concurrent n'est pas HandLit ou Velko — c'est le carnet et le cash. Le commerçant doit voir une raison de payer 120 000 FCFA alors que le carnet est gratuit. La promesse "30 jours gratuits, installation assistée, désinstallation si pas de gain prouvé" est la seule chose qui fait bouger un commerçant qui a déjà tout essayé.
 
 **Fissures potentielles :**
+- **Économique : le coût d'acquisition non résolu.** 100 clients/an, 12M FCFA est un calcul de revenu, pas de rentabilité. Chaque alpha nécessite installation assistée WhatsApp + formation (2h minimum, temps du fondateur). À 100 clients, c'est 200h de support direct sans compter le debugging. Ce temps ne scale pas sans embauche ou passation à un réseau de revendeurs formés. Le modèle économique n'est pas faux — il est incomplet tant que le coût d'acquisition réel n'est pas mesuré sur les 10 premiers clients.
 - HandLit (500 stores) et Velko (5 200 commerçants) ont un an d'avance, des retours terrain quotidiens, des revendeurs dans les quartiers. MboaCaisse arrive avec une meilleure architecture mais zéro relation terrain. Sous-estimer cette avance est dangereux.
 - Le canal grossiste est une hypothèse forte. Les grossistes boissons sont-ils prêts à recommander un logiciel de caisse à leurs clients ? Quel intérêt concret pour eux (au-delà du module gratuit) ? À valider avant d'investir.
 - Le marché s'accélère. HandLit, Velko, Djouri, digablo — tous grandissent. La fenêtre pour construire un avantage concurrentiel durable se referme.
-- Module grossiste = risque de distraction. Construire un outil B2B pour grossistes alors que le produit principal B2C n'est pas mature. Doit rester une hypothèse testée en alpha, pas une feature V1.
 
 ---
 
 <!-- coaching-notes-stage-2 -->
 - **Ton corrigé** : passage du registre "Western PR" vers voix de commerçant. Titre + sous-titre retravaillés pour parler cash, pas concepts. "Manager" remplacé par "propriétaire" partout.
-- **Alpha positionné** : pas un "lancement" mais un alpha fermé à Douala. 3 établissements testent déjà (même si ce sont les alpha via réseau perso — on écrit la promesse avant les faits).
+- **Alpha positionné** : pas un "lancement" mais un alpha fermé à Douala. Nombre non quantifié dans le texte final — "premiers tests en cours" seulement. La quantification viendra quand elle sera vraie.
 - **Stratégie distribution** : canal grossiste boissons identifié comme levier principal. Module grossiste gratuit proposé comme hypothèse produit (pas engagé en V1). Passage 1→10 identifié comme le vrai gap.
 - **PC familial** : mode headless + notification arrêt + backup automatique comme réponse à l'objection du PC partagé. Le service ne bloque pas l'écran.
 - **Prix** : comparaison changée de "prix d'un smartphone" → "ce que vous perdez en vols caissier non tracés".
