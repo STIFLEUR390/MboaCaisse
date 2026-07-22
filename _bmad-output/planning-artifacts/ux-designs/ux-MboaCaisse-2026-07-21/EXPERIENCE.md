@@ -14,7 +14,7 @@ updated: 2026-07-21
 
 ## Foundation
 
-**Client QR :** navigateur mobile (Chrome, Safari), écran 4", tactile uniquement, pas d'app installée, pas de session persistante. Le client arrive par scan QR (IP fixe : `http://192.168.1.42:PORT/menu/{table}`). Pas de WebSocket en V1 — le flux est synchrone, request-response HTTP. Le statut commande est un confort visuel (rafraîchissement manuel).
+**Client QR :** navigateur mobile (Chrome, Safari), écran 4", tactile uniquement, pas d'app installée, pas de session persistante. Le client arrive par scan QR (`http://{host}:{PORT}/menu?table={id}`). Pas de WebSocket en V1 — le flux est synchrone, request-response HTTP. Le statut commande est un confort visuel (rafraîchissement manuel).
 
 **Caisse/Cuisine :** desktop navigateur plein écran, clavier + souris. Kitchen display reçoit les commandes par polling HTTP.
 
@@ -30,7 +30,7 @@ updated: 2026-07-21
 
 | Surface | Atteinte depuis | But |
 |---|---|---|
-| Landing QR | Scan QR / `GET /menu/{table}` | Affiche numéro de table ou mode takeaway, CTA "Voir le menu" |
+| Landing QR | Scan QR / `GET /menu?table={id}` | Affiche numéro de table ou mode takeaway, CTA "Voir le menu" |
 | Menu | Landing → bouton / navigation directe | Parcourir catégories et produits, prix FCFA, options de personnalisation |
 | Panier | Menu → ajout produit | Réviser la sélection, modifier quantités, entrer téléphone |
 | Identification | Panier → bouton "Commander" | Saisie téléphone (ou déjà connu), choix du mode de paiement |

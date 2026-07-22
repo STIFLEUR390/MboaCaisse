@@ -174,7 +174,7 @@ Cycle complet de la vente : CRUD produits et catégories, création commande, pa
 
 **FRs covered:** FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15
 
-### Epic 2: Fidélité (après E3)
+### Epic 2 (E2b): Fidélité (après E3)
 Cashback automatique 5% (progressif 3/5/8%) sur chaque paiement wallet. Parrainage 1000 FCFA à l'enregistrement. Règles métier branchées sur le ledger existant.
 
 **Dépend sur:** E1.5 (Wallet ledger), E3 (volume de ventes)
@@ -672,8 +672,8 @@ So que les clients scannent et commandent depuis leur table.
 
 **Given** POST /api/tables avec { label }
 **When** la table est créée
-**Then** l'URL du QR est générée côté client (ou serveur) : `http://{host}:{port}/menu?table={id}`
-**And** un QR code PNG est encodé (bibliothèque qrcode npm côté frontend)
+**Then** l'URL du QR est générée côté client : `http://{host}:{port}/menu?table={id}`
+**And** un QR code PNG est encodé (bibliothèque `qrcode` npm, côté frontend uniquement)
 
 **Given** GET /api/tables
 **When** appelé
@@ -856,7 +856,7 @@ So que je ne suis jamais bloqué sans savoir quoi faire.
 **Then** pleine largeur, marges 16px (UX-DR17)
 **And** contenu centré, max-width 600px sur écrans plus larges
 
-## Epic 2: Fidélité
+## Epic 2 (E2b): Fidélité
 
 Cashback automatique 5% sur chaque paiement wallet. Parrainage 1000 FCFA à l'enregistrement. Règles métier branchées sur le ledger existant.
 
