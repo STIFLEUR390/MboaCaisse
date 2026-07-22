@@ -51,7 +51,7 @@ development_status:
   # === Epic 1: Socle Serveur & Authentification ===
   epic-1: in-progress
   1-1-structure-rust-layered-migrations-initiales: in-progress
-  1-2-serveur-axum-embarque-mdns: backlog
+  1-2-serveur-axum-embarque-mdns: done
   1-3-authentification-register-login-jwt: backlog
   1-4-fenetre-native-tray-mode-headless: backlog
   1-5-roles-permissions-middleware-guard-seed-admin: backlog

@@ -33,7 +33,7 @@ tokio = { version = "1", features = ["full"] }
 
 # HTTP server (Axum embarqué)
 axum = "0.8"
-tower-http = { version = "0.6", features = ["cors", "fs"] }
+tower-http = { version = "0.6", features = ["cors", "fs", "compression-gzip"] }
 
 # Database
 rusqlite = { version = "0.32", features = ["bundled"] }

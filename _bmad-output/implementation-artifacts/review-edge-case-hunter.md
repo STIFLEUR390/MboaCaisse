@@ -1,267 +1,57 @@
-# Edge Case Hunter — Review Prompt
+# Edge Case Hunter Review — Story 1.2
 
-Invoke the `bmad-review-edge-case-hunter` skill on this diff:
+## Edge Cases Identified
 
-## Diff à reviewer
+### HIGH: Race condition entre démarrage fenêtre et serveur Axum
+**Fichier:** `lib.rs`
+**Scénario:** Le serveur est spawné dans `tauri::async_runtime::spawn()` mais la fenêtre Tauri s'ouvre immédiatement après. Si le serveur n'a pas fini de binder dans les ~100ms, la fenêtre charge une page vierge ou une erreur.
+**Impact:** Page blanche au premier lancement sur machine lente.
+**Mitigation:** Ajouter un mécanisme d'attente (oneshot channel) de `server::start_server` vers `setup` pour confirmer que le serveur écoute avant de rendre la main.
 
-### Fichiers modifiés (git diff HEAD)
+### HIGH: resolve_dist_path() ne fonctionne pas en mode Tauri build (prod)
+**Fichier:** `server.rs:99-108`
+**Scénario:** En prod Tauri (`bun run tauri:build`), les fichiers sont intégrés dans le binaire. Le dossier `../dist` n'existe pas dans le contexte de l'exécutable. `dist/` non plus. Le serveur démarre mais sert des 404 sur toutes les routes UI.
+**Impact:** L'interface ne charge pas en production.
+**Mitigation:** Utiliser `app.path().resource_dir()` de Tauri pour trouver le bon dossier, ou un chemin absolu déterminé à la compilation.
 
-#### `src-tauri/Cargo.toml`
-```toml
-# Async runtime
-tokio = { version = "1", features = ["full"] }
+### MEDIUM: mDNS host_ip = "0.0.0.0" peut ne pas fonctionner
+**Fichier:** `mdns.rs:44`
+**Scénario:** `mdns-sd` avec `"0.0.0.0"` comme host_ip. Certaines implémentations mDNS peuvent rejeter cette IP ou ne pas répondre correctement.
+**Impact:** mDNS ne fonctionne pas sur certains routeurs/OS.
+**Mitigation:** Résoudre l'IP locale réelle au démarrage.
 
-# HTTP server (Axum embarqué)
-axum = "0.8"
-tower-http = { version = "0.6", features = ["cors", "fs"] }
+### MEDIUM: backup_database() peut échouer si la BDD est verrouillée
+**Fichier:** `lib.rs:188`
+**Scénario:** Si une requête est en cours (pool r2d2 a une connexion active), `std::fs::copy()` échoue sur un fichier SQLite avec `database is locked`.
+**Impact:** Backup perdu, warning loggué.
+**Mitigation:** Utiliser `VACUUM INTO` (SQLite 3.27+) ou `backup::Backup` de rusqlite.
 
-# Database
-rusqlite = { version = "0.32", features = ["bundled"] }
-r2d2 = "0.8"
-r2d2_sqlite = { version = "0.25", features = ["bundled"] }
-refinery = { version = "0.9", features = ["rusqlite-bundled"] }
+### MEDIUM: Le 500ms sleep dans ExitRequested est un timer magique
+**Fichier:** `lib.rs:154`
+**Scénario:** Le serveur peut prendre plus de 500ms à drainer (connexions longues). La backup commence avant la fin du drain.
+**Impact:** Backup inconsistante + fuite de connexions.
+**Mitigation:** Utiliser un canal de confirmation depuis `start_server()` pour signaler que le drain est terminé.
 
-# Auth (future story)
-argon2 = "0.5"
+### LOW: Le watch channel peut avoir un délai entre send et réception
+**Fichier:** `lib.rs`
+**Scénario:** `watch::Sender::send()` notifie les receivers de façon asynchrone. Le `changed().await` dans le serveur peut ne pas voir immédiatement la valeur `true`.
+**Impact:** Léger délai (quelques microsecondes) avant que le serveur ne commence le drain.
+**Mitigation:** Utiliser `send_modify()` au lieu de `send()` pour garantir l'ordre.
 
-# Network discovery (future story)
-mdns-sd = "0.12"
+### LOW: CompressionLayer non configuré
+**Fichier:** `server.rs:37`
+**Scénario:** `CompressionLayer::new()` utilise les valeurs par défaut (gzip, qualité 6). Pour des assets statiques servis sur LAN (<10ms), la compression ajoute de la latence CPU.
+**Impact:** Légère dégradation des performances sur LAN. Acceptable en alpha.
+**Mitigation:** Configurer un seuil de taille minimum.
 
-# Telemetry
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+### LOW: Pas de timeout sur le backup
+**Fichier:** `lib.rs:183-192`
+**Scénario:** Si le fichier est très volumineux (plusieurs Go), `std::fs::copy()` peut prendre plus de 5s.
+**Impact:** L'arrêt de l'application peut être retardé.
+**Mitigation:** `tokio::time::timeout()` sur l'opération de backup.
 
-# ID generation
-uuid = { version = "1", features = ["v7", "serde"] }
-
-# Date/time
-chrono = { version = "0.4", features = ["serde"] }
-
-# Error handling
-thiserror = "2"
-```
-
-#### `src-tauri/src/lib.rs`
-```rust
-//! MboaCaisse — Tauri application entry point.
-//!
-//! Initialises subsystems in order:
-//!   1. Tracing subscriber (logging)
-//!   2. Database pool + migrations
-//!   3. Tauri plugins (shell, notification, os, fs, store)
-//!   4. Tray icon (desktop only)
-//!   5. Axum server (future story — server.rs)
-//!
-//! AD-9: on_event(ExitRequested) → shutdown_tx → Axum graceful → backup DB.
-//!       Timeout 5s. Better to lose a backup than corrupt the DB.
-
-// Module declarations — flat structure per AD-3.
-mod api;
-mod db;
-mod domain;
-
-#[cfg(desktop)]
-use tauri::{
-	menu::{Menu, MenuItem},
-	tray::TrayIconBuilder,
-	Manager,
-};
-
-use std::sync::Arc;
-
-use db::{init_pool, migrations, SqlitePool};
-
-/// Shared application state accessible via Tauri's managed state.
-pub struct AppState {
-	pub db_pool: SqlitePool,
-}
-
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
-	// 1. Initialise tracing subscriber.
-	tracing_subscriber::fmt()
-		.with_env_filter(
-			tracing_subscriber::EnvFilter::try_from_default_env()
-				.unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
-		)
-		.json()
-		.init();
-
-	tracing::info!("Starting MboaCaisse...");
-
-	// 2. Initialise database pool and run migrations.
-	let db_path = "mboacaisse.db";
-	let pool = init_pool(db_path).expect("Failed to initialise database pool");
-	{
-		let mut conn = pool.get().expect("Failed to acquire connection for migrations");
-		migrations::run(&mut conn).expect("Database migrations failed");
-		db::seed::run(&mut conn).expect("Database seed failed");
-	}
-	let pool = Arc::new(pool);
-	let app_state = AppState { db_pool: (*pool).clone() };
-
-	tracing::info!("Database initialised successfully");
-
-	// 3. Build Tauri application.
-	tauri::Builder::default()
-		.setup(|app| {
-			app.manage(app_state);
-
-			#[cfg(desktop)]
-			{
-				let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-				let menu = Menu::with_items(app, &[&quit_i])?;
-
-				let _tray = TrayIconBuilder::new()
-					.menu(&menu)
-					.show_menu_on_left_click(true)
-					.icon(app.default_window_icon().unwrap().clone())
-					.on_menu_event(|app_handle, event| match event.id.as_ref() {
-						"quit" => {
-							tracing::info!("Quit requested via tray menu");
-							app_handle.exit(0);
-						}
-						other => {
-							tracing::warn!("Unhandled tray menu item: {}", other);
-						}
-					})
-					.build(app)?;
-
-				tracing::info!("Tray icon created");
-			}
-
-			Ok(())
-		})
-		.run(tauri::generate_context!())
-		.expect("error while running tauri application");
-}
-```
-
-### Nouveaux fichiers
-
-#### `src-tauri/src/api/mod.rs`
-```rust
-pub mod auth;
-pub mod health;
-pub mod kitchen;
-pub mod orders;
-pub mod payments;
-pub mod products;
-pub mod reports;
-pub mod settings;
-pub mod wallet;
-```
-
-#### `src-tauri/src/domain/mod.rs`
-```rust
-pub mod user;
-pub mod product;
-pub mod order;
-pub mod payment;
-pub mod wallet;
-pub mod print_job;
-
-use std::fmt;
-
-#[derive(Debug)]
-pub enum DomainError {
-	Unauthorized,
-	NotFound(String),
-	ProductNotFound,
-	DuplicatePhone,
-	InsufficientBalance { balance: i64, required: i64 },
-	InvalidStatusTransition { from: String, to: String },
-	Internal(String),
-}
-
-impl fmt::Display for DomainError { /* ... */ }
-impl std::error::Error for DomainError {}
-impl From<String> for DomainError { fn from(msg: String) -> Self { Self::Internal(msg) } }
-```
-
-#### `src-tauri/src/domain/user.rs`
-- `User` struct
-- `Role` enum (Admin, Caissier, Vendeur, GestionnaireStock)
-- `Permission` enum (All, Sell, ViewReports, ManageUsers, ManageMenu, ManageStock, ViewOrders, ManageSettings)
-- `UserRepository` trait
-
-#### `src-tauri/src/domain/order.rs`
-- `OrderStatus` enum with `can_transition_to()`
-- `Order` struct with `new()` and `transition_to()`
-- `OrderItem` struct
-- `OrderRepository` trait
-
-#### `src-tauri/src/domain/payment.rs`
-- `PaymentMethod` enum (Wallet, Cash, MoMo, Split)
-- `Payment` struct
-- `PaymentRepository` trait
-
-#### `src-tauri/src/domain/wallet.rs`
-- `WalletClient` struct
-- `LedgerEntryType` enum
-- `WalletLedgerEntry` struct
-- `WalletRepository` trait
-
-#### `src-tauri/src/domain/print_job.rs`
-- `PrintJob` struct
-
-#### `src-tauri/src/db/mod.rs`
-```rust
-pub mod migrations;
-pub mod seed;
-pub mod users;
-pub mod products;
-pub mod orders;
-pub mod payments;
-pub mod wallet_ledger;
-
-pub enum DbError {
-	Connection(String),
-	Query(String),
-	Migration(String),
-	NotFound(String),
-}
-
-impl From<r2d2::Error> for DbError { /* ... */ }
-impl From<rusqlite::Error> for DbError {
-	fn from(e: rusqlite::Error) -> Self {
-		match e {
-			rusqlite::Error::QueryReturnedNoRows => DbError::NotFound("query returned no rows".into()),
-			other => DbError::Query(other.to_string()),
-		}
-	}
-}
-
-pub type SqlitePool = r2d2::Pool<r2d2_sqlite::SqliteConnectionManager>;
-pub type SqliteConn = r2d2::PooledConnection<r2d2_sqlite::SqliteConnectionManager>;
-
-pub fn init_pool(db_path: &str) -> Result<SqlitePool, DbError> { /* ... */ }
-pub fn get_conn(pool: &SqlitePool) -> Result<SqliteConn, DbError> { /* ... */ }
-```
-
-#### `src-tauri/src/db/migrations.rs`
-```rust
-use refinery::embed_migrations;
-embed_migrations!("migrations");
-
-pub fn run(conn: &mut SqliteConn) -> Result<(), DbError> { /* ... */ }
-```
-
-#### `src-tauri/src/db/seed.rs`
-- Placeholder — checks user_count, skips if >0
-
-#### `src-tauri/src/db/users.rs`
-- `DbUserRepository` full impl
-
-#### `src-tauri/migrations/V1__users.sql`
-```sql
-CREATE TABLE IF NOT EXISTS users (
-    id          TEXT PRIMARY KEY,
-    email       TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    name        TEXT NOT NULL DEFAULT '',
-    role        TEXT NOT NULL DEFAULT 'caissier',
-    created_at  TEXT NOT NULL,
-    updated_at  TEXT NOT NULL
-);
-```
+### INFO: Pas de gestion du port déjà utilisé
+**Fichier:** `server.rs:55-58`
+**Scénario:** Si le port 3000 est déjà utilisé par un autre processus, `TcpListener::bind` échoue, le serveur log un warning et retourne.
+**Impact:** L'application démarre sans serveur HTTP. L'utilisateur ne voit pas d'erreur visible.
+**Mitigation:** Scanner un range de ports (3000-3099) comme le fait le dev runner, ou afficher un message dans la fenêtre native.

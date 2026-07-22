@@ -1,121 +1,66 @@
-# Acceptance Auditor — Review Prompt
+# Acceptance Auditor Review — Story 1.2 vs Spec
 
-You are an Acceptance Auditor. Review the provided diff against `_bmad-output/implementation-artifacts/1-1-structure-rust-layered-migrations-initiales.md` and any loaded context docs. Check for: violations of acceptance criteria, deviations from spec intent, missing implementation of specified behavior, contradictions between spec constraints and actual code. Output findings as a Markdown list. Each finding: one-line title, which AC/constraint it violates, and evidence from the diff.
+Spec file: _bmad-output/implementation-artifacts/1-2-serveur-axum-embarque-mdns.md
 
-## Spec: Story 1.1 — Structure Rust Layered & Migrations Initiales
+## AC-1: Fichiers server.rs et mdns.rs créés
+**Statut: ✅ PASS**
+- `server.rs` créé avec `pub async fn start_server(port, shutdown_rx)`
+- `mdns.rs` créé avec `pub fn start_mdns(port) -> Option<ServiceDaemon>`
+- `cargo check` compile sans erreur
 
-### AC-1: Dépendances Rust installées (cargo check passe)
-Expected deps: tokio (1, full), axum (0.8), tower-http (cors,fs), rusqlite (bundled), r2d2, r2d2-rusqlite (bundled), refinery (rusqlite), refinery-core, argon2, mdns-sd, tracing, tracing-subscriber (env-filter,json), uuid (v7,serde), chrono (serde), thiserror
+## AC-2: Routeur Axum sert fichiers statiques + API
+**Statut: ✅ PASS** (avec réserve)
+- Router construit avec `.nest("/api", api_router).fallback_service(fs_serve)`
+- `CompressionLayer` appliqué
+- `api::router()` monte `/health`
+- Réserve : `not_found_service` redondant (deux ServeDir)
 
-### AC-2: Structure api/domain/db créée
-Expected: api/mod.rs, domain/mod.rs + user.rs, db/mod.rs + migrations.rs + seed.rs + users.rs, lib.rs with mod declarations
+## AC-3: Port configurable (défaut 3000, plage 3000-3099)
+**Statut: ✅ PASS**
+- `resolve_port()` lit `TAURI_DEV_PORT` (validé 3000-3099) ou fallback 3000
+- Signature `start_server(port, ...)` accepte u16
 
-### AC-3: Migration V1 — table users
-Expected SQL in `migrations/V1__users.sql`
+## AC-4: Frontend accessible sur le LAN
+**Statut: ✅ PASS**
+- Serveur écoute sur `0.0.0.0:PORT`
+- Fenêtre native pointe sur `http://localhost:PORT` (config Tauri)
 
-### AC-4: Runner refinery au startup
-Expected: executed in setup() before server listens, _schema_version table managed
+## AC-5: mDNS — publication de mboacaisse.local
+**Statut: ✅ PASS**
+- Service enregistré : `_http._tcp.local.` → `"mboacaisse"`
+- Échec silencieux loggué en warning
+- `None::<HashMap<...>>` pour les propriétés TXT
 
-### AC-5: Role enum avec permissions dérivées
-Expected: Role::Admin/Caissier/Vendeur/GestionnaireStock, Permission::All/Sell/ViewReports/ManageUsers/ManageMenu/ManageStock/ViewOrders/ManageSettings, Role::permissions()
+## AC-6: Graceful shutdown via on_event(ExitRequested)
+**Statut: ✅ PASS**
+- Canal `watch::channel(false)` créé avant setup
+- `RunEvent::ExitRequested` → `shutdown_tx.send(true)`
+- `axum::serve(...).with_graceful_shutdown(...)` dans server.rs
+- **Réserve :** pas de mécanisme d'attente de confirmation d'arrêt
 
-### AC-6: DbError / DomainError — 3 couches
-Expected: DbError { Connection, Query, Migration, NotFound }, DomainError { InsufficientBalance, ProductNotFound, InvalidStatusTransition, DuplicatePhone, Unauthorized, NotFound, Internal }, impl std::error::Error + Display
+## AC-7: Backup BDD avant arrêt
+**Statut: ⚠️ PARTIEL**
+- `backup_database()` créée avec `std::fs::copy()`
+- Fichier : `mboacaisse-before-shutdown.db`
+- Timeout : pas de timeout explicite sur l'opération de copy
+- Backup en mode WAL non géré (pas de checkpoint)
+- La spec mentionnait `rusqlite::backup::Backup` ou `std::fs::copy` comme options
 
-### AC-7: Pool r2d2 initialisé
-Expected: init_pool() → r2d2 pool, 5 max 1 min, Arc<Pool> in Tauri state
+## AC-8: Axum démarré dans tokio::spawn pendant setup Tauri
+**Statut: ✅ PASS**
+- `tauri::async_runtime::spawn(async move { server::start_server(...).await })`
+- Exécuté après pool+migrations et BEFORE création de fenêtre
+- `start_mdns()` en tâche de fond via `std::thread::spawn`
 
----
+## Résumé des écarts AC
 
-## Diff content
-
-### `src-tauri/Cargo.toml` (modifié)
-```toml
-tokio = { version = "1", features = ["full"] }
-axum = "0.8"
-tower-http = { version = "0.6", features = ["cors", "fs"] }
-rusqlite = { version = "0.32", features = ["bundled"] }
-r2d2 = "0.8"
-r2d2_sqlite = { version = "0.25", features = ["bundled"] }
-refinery = { version = "0.9", features = ["rusqlite-bundled"] }
-argon2 = "0.5"
-mdns-sd = "0.12"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-uuid = { version = "1", features = ["v7", "serde"] }
-chrono = { version = "0.4", features = ["serde"] }
-thiserror = "2"
-```
-
-### `src-tauri/src/lib.rs` (modifié)
-```rust
-mod api;
-mod db;
-mod domain;
-
-use std::sync::Arc;
-use db::{init_pool, migrations, SqlitePool};
-
-pub struct AppState {
-	pub db_pool: SqlitePool,
-}
-
-pub fn run() {
-	tracing_subscriber::fmt()
-		.with_env_filter(
-			tracing_subscriber::EnvFilter::try_from_default_env()
-				.unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
-		)
-		.json()
-		.init();
-
-	let db_path = "mboacaisse.db";
-	let pool = init_pool(db_path).expect("...");
-	{
-		let mut conn = pool.get().expect("...");
-		migrations::run(&mut conn).expect("...");
-		db::seed::run(&mut conn).expect("...");
-	}
-	let pool = Arc::new(pool);
-	let app_state = AppState { db_pool: (*pool).clone() };
-
-	tauri::Builder::default()
-		.setup(|app| {
-			app.manage(app_state);
-			// tray icon setup...
-			Ok(())
-		})
-		.run(tauri::generate_context!())
-		.expect("error while running tauri application");
-}
-```
-
-### `src-tauri/src/domain/mod.rs`
-- DomainError enum with: Unauthorized, NotFound(String), ProductNotFound, DuplicatePhone, InsufficientBalance{balance,required}, InvalidStatusTransition{from,to}, Internal(String)
-- impl Display, Error, From<String>
-
-### `src-tauri/src/domain/user.rs`
-- User struct (id, email, password_hash, name, role, created_at, updated_at)
-- Role enum (Admin, Caissier, Vendeur, GestionnaireStock) with permissions(): Admin→all 8, Caissier→Sell/ViewReports/ViewOrders, Vendeur→ViewOrders/ManageMenu, GestionnaireStock→ManageStock/ViewReports
-- Permission enum with 8 variants
-- UserRepository trait (find_by_email, find_by_id, create, update, delete, list_all)
-
-### `src-tauri/src/db/mod.rs`
-- DbError enum (Connection, Query, Migration, NotFound) with Display + Error + From impls
-- SqlitePool / SqliteConn type aliases
-- init_pool() and get_conn()
-
-### `src-tauri/src/db/migrations.rs`
-- embed_migrations!("migrations")
-- run() calling migrations_runner().run(conn)
-
-### `src-tauri/src/db/seed.rs`
-- Placeholder — checks user_count, skips if >0
-
-### `src-tauri/src/db/users.rs`
-- DbUserRepository full impl with conn(), row_to_user(), all UserRepository methods
-
-### `src-tauri/migrations/V1__users.sql`
-```sql
-CREATE TABLE IF NOT EXISTS users (...);
-```
+| AC | Statut | Détail |
+|---|---|---|
+| AC-1 | ✅ | OK |
+| AC-2 | ✅ | ServeDir not_found_service redondant |
+| AC-3 | ✅ | Pas de lecture store (différé story 1.4) |
+| AC-4 | ✅ | OK |
+| AC-5 | ✅ | OK |
+| AC-6 | ✅ | Pas de confirmation d'arrêt |
+| AC-7 | ⚠️ | Pas de timeout, pas de checkpoint WAL |
+| AC-8 | ✅ | OK |

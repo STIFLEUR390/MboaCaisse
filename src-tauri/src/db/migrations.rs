@@ -3,14 +3,15 @@
 //! AD-15: refinery::Runner runs embedded SQL migrations at startup.
 //!        On failure → log error + exit. No server startup without a valid schema.
 
-use refinery::embed_migrations;
-use tracing::{error, info};
+use tracing::info;
 
 use super::{DbError, SqliteConn};
 
 // Embed the migrations/ directory at compile time.
-// Each file must follow the naming convention: V{version}__{description}.sql
-embed_migrations!("migrations");
+// In refinery 0.9, this generates a module `migrations` with a `runner()` function.
+// The generated Runner::run<C>() takes `&mut C` where C: Migrate.
+// Migrate is implemented for rusqlite::Connection (aliased as RqlConnection in refinery-core).
+refinery::embed_migrations!("migrations");
 
 /// Run all pending migrations against the given connection.
 ///
@@ -18,12 +19,16 @@ embed_migrations!("migrations");
 /// listening. If migrations fail, the process should exit immediately.
 ///
 /// AD-15: Embedded SQL, table `_schema_version` auto-managed by refinery.
-	pub fn run(conn: &mut SqliteConn) -> Result<(), DbError> {
-		info!("Running database migrations...");
+pub fn run(conn: &mut SqliteConn) -> Result<(), DbError> {
+	info!("Running database migrations...");
 
-		let report = migrations_runner()
-			.run(&mut *conn)
-			.map_err(|e| DbError::Migration(format!("Migration failed: {}", e)))?;
+	// Dereference the PooledConnection to get a &mut rusqlite::Connection,
+	// which implements refinery::Migrate.
+	let raw_conn: &mut rusqlite::Connection = &mut *conn;
+
+	let report = migrations::runner()
+		.run(raw_conn)
+		.map_err(|e| DbError::Migration(format!("Migration failed: {}", e)))?;
 
 	for migration in report.applied_migrations() {
 		info!("Applied migration: V{} — {}", migration.version(), migration.name());
