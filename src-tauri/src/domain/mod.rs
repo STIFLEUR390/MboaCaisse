@@ -11,6 +11,8 @@ pub mod order;
 pub mod payment;
 pub mod wallet;
 pub mod print_job;
+pub mod jwt;
+pub mod crypto;
 
 use std::fmt;
 
@@ -19,15 +21,15 @@ use std::fmt;
 /// These are the only errors that api/ handlers should deal with.
 /// AD-8: DomainError is an enum with named cases. No anyhow in domain/.
 #[derive(Debug)]
-	pub enum DomainError {
-		/// The authenticated user lacks the required permission.
-		Unauthorized,
-		/// The requested entity was not found.
-		NotFound(String),
-		/// A provided string value is not a valid variant of an enum.
-		InvalidValue(String),
-		/// A product referenced by an operation does not exist.
-		ProductNotFound,
+pub enum DomainError {
+	/// The authenticated user lacks the required permission.
+	Unauthorized,
+	/// The requested entity was not found.
+	NotFound(String),
+	/// A provided string value is not a valid variant of an enum.
+	InvalidValue(String),
+	/// A product referenced by an operation does not exist.
+	ProductNotFound,
 	/// A wallet client with this phone already exists.
 	DuplicatePhone,
 	/// Wallet balance is insufficient for the requested operation.
@@ -44,13 +46,13 @@ use std::fmt;
 	Internal(String),
 }
 
-	impl fmt::Display for DomainError {
-		fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-			match self {
-				Self::Unauthorized => write!(f, "Unauthorized"),
-				Self::NotFound(s) => write!(f, "Not found: {}", s),
-				Self::InvalidValue(s) => write!(f, "Invalid value: {}", s),
-				Self::ProductNotFound => write!(f, "Product not found"),
+impl fmt::Display for DomainError {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::Unauthorized => write!(f, "Unauthorized"),
+			Self::NotFound(s) => write!(f, "Not found: {}", s),
+			Self::InvalidValue(s) => write!(f, "Invalid value: {}", s),
+			Self::ProductNotFound => write!(f, "Product not found"),
 			Self::DuplicatePhone => write!(f, "Duplicate phone number"),
 			Self::InsufficientBalance { balance, required } => {
 				write!(f, "Insufficient balance: {} < {}", balance, required)

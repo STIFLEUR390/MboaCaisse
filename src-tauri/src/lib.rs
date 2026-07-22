@@ -1,15 +1,14 @@
 //! MboaCaisse — Tauri application entry point.
 //!
 //! Initialises subsystems in order:
-//!   1. Tracing subscriber (logging)
-//!   2. Database pool + migrations
-//!   3. Tauri plugins (shell, notification, os, fs, store)
-//!   4. Axum server + mDNS (tokio::spawn)
-//!   5. Tray icon (desktop only)
-//!
-//! AD-9: ExitRequested → shutdown_tx → Axum graceful shutdown (5s timeout) → backup BDD.
+//!   1. Tracing subscriber
+//!   2. Database pool + migrations + seed
+//!   3. JWT secret generation
+//!   4. Full application router (API + static files + middleware)
+//!   5. Tauri plugins
+//!   6. Axum server + mDNS
+//!   7. Tray icon
 
-// Module declarations — flat structure per AD-3.
 mod api;
 mod db;
 mod domain;
@@ -25,6 +24,10 @@ use tracing::{info, warn};
 
 use tauri::Manager;
 
+use api::AppApiState;
+use db::users::DbUserRepository;
+use domain::user::UserRepository;
+
 #[cfg(desktop)]
 use tauri::{
 	menu::{Menu, MenuItem},
@@ -32,12 +35,10 @@ use tauri::{
 	tray::TrayIconBuilder,
 };
 
-/// Shared application state accessible via Tauri's managed state.
 pub struct AppState {
 	pub db_pool: SqlitePool,
 }
 
-/// Application-wide handles that must outlive `setup()`.
 pub struct AppHandles {
 	#[cfg(desktop)]
 	pub tray_handle: Arc<std::sync::Mutex<Option<TrayIcon>>>,
@@ -47,8 +48,6 @@ pub struct AppHandles {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-	// 1. Initialise tracing subscriber.
-	// AD-18: tracing + tracing-subscriber. INFO level by default.
 	tracing_subscriber::fmt()
 		.with_env_filter(
 			tracing_subscriber::EnvFilter::try_from_default_env()
@@ -58,7 +57,6 @@ pub fn run() {
 
 	info!("Starting MboaCaisse...");
 
-	// 2. Initialise database pool and run migrations.
 	let db_path = "mboacaisse.db";
 	let pool = init_pool(db_path).expect("Failed to initialise database pool");
 	{
@@ -68,24 +66,33 @@ pub fn run() {
 	}
 	let app_state = AppState { db_pool: pool.clone() };
 
-	// 3. Create channels for server lifecycle.
+	// JWT secret
+	let jwt_secret = load_or_generate_jwt_secret();
+	info!("JWT secret initialised ({} bytes)", jwt_secret.len());
+
+	// Build the full application router
+	let user_repo: Arc<dyn UserRepository> = Arc::new(DbUserRepository::new(pool.clone()));
+	let api_state = AppApiState {
+		user_repo,
+		jwt_secret,
+	};
+	let app_router = api::build_app(api_state);
+
+	// Channels for server lifecycle
 	let (shutdown_tx, shutdown_rx) = watch::channel(false);
 	let (ready_tx, ready_rx) = std::sync::mpsc::channel::<()>();
 
-	// 4. Create handles for long-lived subsystems.
+	// Handles
 	#[cfg(desktop)]
 	let tray_handle: Arc<std::sync::Mutex<Option<TrayIcon>>> = Arc::new(std::sync::Mutex::new(None));
 	let mdns_daemon: Arc<std::sync::Mutex<Option<mdns_sd::ServiceDaemon>>> = Arc::new(std::sync::Mutex::new(None));
 
 	info!("Database initialised successfully");
 
-	// 5. Build and run the Tauri application.
 	tauri::Builder::default()
 		.setup(move |app| {
-			// Store the pool handle in managed state.
 			app.manage(app_state);
 
-			// Store shared handles.
 			app.manage(AppHandles {
 				#[cfg(desktop)]
 				tray_handle: tray_handle.clone(),
@@ -93,20 +100,18 @@ pub fn run() {
 				shutdown_tx: shutdown_tx.clone(),
 			});
 
-			// 5a. Start the Axum HTTP server.
+			// Start the Axum HTTP server
 			let port = resolve_port();
 			let srv_shutdown_rx = shutdown_rx.clone();
+			let app_router_clone = app_router.clone();
 			tauri::async_runtime::spawn(async move {
-				server::start_server(port, srv_shutdown_rx, ready_tx).await;
+				server::start_server(port, app_router_clone, srv_shutdown_rx, ready_tx).await;
 			});
 
-			// Wait for the server to confirm it's listening before returning.
-			// This prevents a blank window if binding is slow (fixes race condition).
 			let _ = ready_rx.recv();
-
 			info!("Axum server listening and ready");
 
-			// 5b. Start mDNS service discovery (best-effort).
+			// Start mDNS
 			let mdns_clone = mdns_daemon.clone();
 			std::thread::spawn(move || {
 				let daemon = mdns::start_mdns(port);
@@ -115,12 +120,11 @@ pub fn run() {
 				}
 			});
 
-			// 5c. Tray icon (desktop only).
+			// Tray icon
 			#[cfg(desktop)]
 			{
 				let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
 				let menu = Menu::with_items(app, &[&quit_i])?;
-
 				let tray = TrayIconBuilder::new()
 					.menu(&menu)
 					.show_menu_on_left_click(true)
@@ -130,12 +134,9 @@ pub fn run() {
 							info!("Quit requested via tray menu");
 							app_handle.exit(0);
 						}
-						other => {
-							warn!("Unhandled tray menu item: {}", other);
-						}
+						other => warn!("Unhandled tray menu item: {}", other),
 					})
 					.build(app)?;
-
 				*tray_handle.lock().unwrap() = Some(tray);
 				info!("Tray icon created");
 			}
@@ -155,10 +156,7 @@ pub fn run() {
 				info!("ExitRequested received — initiating graceful shutdown");
 				let handles = app_handle.state::<AppHandles>();
 				let _ = handles.shutdown_tx.send(true);
-				// No sleep needed — the server drains in background.
-				// The Exit event fires after the event loop continues.
 			}
-
 			if let tauri::RunEvent::Exit = &event {
 				info!("Exit event received — creating pre-shutdown database backup");
 				let state = app_handle.state::<AppState>();
@@ -167,13 +165,6 @@ pub fn run() {
 		});
 }
 
-/// Resolve the HTTP port for the Axum server.
-///
-/// Priority:
-/// 1. `TAURI_DEV_PORT` env var (set by scripts/tauri-dev.ts)
-/// 2. Default: 3000
-///
-/// The server itself will scan a range if the port is busy.
 fn resolve_port() -> u16 {
 	if let Ok(port_str) = std::env::var("TAURI_DEV_PORT") {
 		if let Ok(port) = port_str.parse::<u16>() {
@@ -185,21 +176,17 @@ fn resolve_port() -> u16 {
 	3000
 }
 
-/// Create a pre-shutdown backup of the SQLite database.
-///
-/// Performs a WAL checkpoint first to ensure consistency, then copies
-/// the database file. Uses a 5-second timeout to avoid blocking exit.
+fn load_or_generate_jwt_secret() -> Arc<Vec<u8>> {
+	use domain::jwt::generate_secret;
+	Arc::new(generate_secret())
+}
+
 fn backup_database(pool: &SqlitePool) {
 	let src = "mboacaisse.db";
 	let dst = "mboacaisse-before-shutdown.db";
-
-	// Step 1: Checkpoint WAL to ensure the main file is consistent.
 	if let Ok(conn) = pool.get() {
 		let _ = conn.execute_batch("PRAGMA wal_checkpoint(TRUNCATE);");
-		// Connection drops here, releasing the lock.
 	}
-
-	// Step 2: Copy the database file with a timeout.
 	let (tx, rx) = std::sync::mpsc::channel();
 	std::thread::spawn(move || {
 		let result = std::fs::copy(src, dst)
@@ -207,7 +194,6 @@ fn backup_database(pool: &SqlitePool) {
 			.map_err(|e| e.to_string());
 		let _ = tx.send(result);
 	});
-
 	match rx.recv_timeout(Duration::from_secs(5)) {
 		Ok(Ok((path, size))) => info!("Pre-shutdown backup created: {} ({} bytes)", path, size),
 		Ok(Err(e)) => warn!("Pre-shutdown backup failed: {} — continuing shutdown", e),

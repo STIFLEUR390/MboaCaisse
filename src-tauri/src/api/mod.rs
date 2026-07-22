@@ -1,17 +1,7 @@
 //! API layer — thin HTTP handlers.
-//!
-//! Each file in this module is a thin handler that:
-//! 1. Parses the incoming request (JSON path params, query string)
-//! 2. Calls domain logic via `Arc<dyn XxxRepository>`
-//! 3. Serializes the response
-//!
-//! No business logic lives here.
-//!
-//! AD-1: api/ is a thin skin — parse, call domain, serialize.
-//! AD-7: receives Arc<dyn XxxRepository> (injected during router construction).
-//! AD-8: returns (StatusCode, Json<ApiError>) — never leaks DbError or DomainError directly.
 
 pub mod auth;
+pub mod auth_middleware;
 pub mod health;
 pub mod kitchen;
 pub mod orders;
@@ -21,16 +11,72 @@ pub mod reports;
 pub mod settings;
 pub mod wallet;
 
-use axum::Router;
+use std::sync::Arc;
 
-/// Build the Axum router for all `/api/*` endpoints.
+use axum::{
+	middleware,
+	routing::{get, post},
+	Router,
+};
+
+/// Shared state for all API handlers.
+#[derive(Clone)]
+pub struct AppApiState {
+	pub user_repo: Arc<dyn crate::domain::user::UserRepository>,
+	pub jwt_secret: Arc<Vec<u8>>,
+}
+
+/// Build the full application router including API routes, static files, and middleware.
 ///
-/// Each story adds its own routes as handlers are implemented.
-/// For now, only the health endpoint is wired.
-pub fn router() -> Router {
-	let r = Router::new()
-		.route("/health", axum::routing::get(crate::api::health::health_check));
+/// This function takes the full app state and constructs the complete router,
+/// avoiding the need to nest stateful routers.
+pub fn build_app(state: AppApiState) -> Router {
+	let dist_path = resolve_dist_path();
 
-	// Future stories will mount additional routes here.
-	r
+	let api_routes = Router::new()
+		.route("/api/auth/register", post(auth::register))
+		.route("/api/auth/login", post(auth::login))
+		.route("/api/auth/logout", post(auth::logout))
+		.route("/api/auth/me", get(crate::api::auth::me))
+		.route("/api/health", get(health::health_check));
+
+	// Static file serving with SPA fallback.
+	if std::path::Path::new(&dist_path).exists() {
+		let index_path = format!("{}/index.html", dist_path);
+		let fs_serve = tower_http::services::ServeDir::new(&dist_path)
+			.append_index_html_on_directories(true)
+			.fallback(tower_http::services::ServeFile::new(index_path));
+
+		Router::new()
+			.merge(api_routes)
+			.fallback_service(fs_serve)
+			.layer(middleware::from_fn_with_state(
+				state.clone(),
+				auth_middleware::auth_middleware,
+			))
+			.layer(tower_http::compression::CompressionLayer::new())
+			.layer(tower_http::cors::CorsLayer::permissive())
+			.with_state(state)
+	} else {
+		Router::new()
+			.merge(api_routes)
+			.layer(middleware::from_fn_with_state(
+				state.clone(),
+				auth_middleware::auth_middleware,
+			))
+			.layer(tower_http::compression::CompressionLayer::new())
+			.layer(tower_http::cors::CorsLayer::permissive())
+			.with_state(state)
+	}
+}
+
+/// Resolve the path to the frontend `dist/` directory.
+fn resolve_dist_path() -> String {
+	if std::path::Path::new("../dist").exists() {
+		return "../dist".to_string();
+	}
+	if std::path::Path::new("dist").exists() {
+		return "dist".to_string();
+	}
+	"dist".to_string()
 }

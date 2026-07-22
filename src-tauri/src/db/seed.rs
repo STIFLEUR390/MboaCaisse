@@ -1,19 +1,16 @@
 //! Idempotent seed data for development and first-start.
 //!
-//! AD-11: Seed admin account + 10 produits / 3 catégories on first startup.
-//!        Seed is idempotent — does not create duplicates on restart.
+//! AD-11: Seed admin account on first startup.
+//! AC-6: Admin account created at first startup with generated password.
 
 use tracing::info;
 
 use super::{DbError, SqliteConn};
-use crate::domain::user::{Role, User, UserRepository};
+use crate::domain::crypto;
+use crate::domain::user::Role;
 
 /// Run the seed if the database is empty (no users exist).
-///
-/// Must be called AFTER migrations::run().
-/// Idempotent: checks if at least one user exists before seeding.
 pub fn run(conn: &mut SqliteConn) -> Result<(), DbError> {
-	// Check if users exist — if so, skip seeding.
 	let user_count: i64 = conn
 		.query_row("SELECT COUNT(*) FROM users", [], |row| row.get(0))
 		.map_err(|e| DbError::Query(format!("Failed to count users: {}", e)))?;
@@ -25,12 +22,45 @@ pub fn run(conn: &mut SqliteConn) -> Result<(), DbError> {
 
 	info!("Seeding database with initial data...");
 
-	// Placeholder: will be populated by story 1.5 (admin creation).
-	// The actual admin seed needs argon2 hashing which comes in story 1.3.
-	//
-	// For now we just mark the seed location. The full seed is implemented
-	// together with the auth system.
-	info!("Seed placeholder — admin + demo data will be created in story 1.5 (roles & permissions)");
+	let admin_password = generate_admin_password();
+	let password_hash = crypto::hash_password(&admin_password)
+		.map_err(|e| DbError::Query(format!("Failed to hash admin password: {}", e)))?;
+
+	let now = chrono_now();
+	let admin_id = uuid_v7();
+
+	conn.execute(
+		"INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+		rusqlite::params![admin_id, "admin@mboacaisse.local", password_hash, "Admin", Role::Admin.as_str(), now, now],
+	)
+	.map_err(|e| DbError::Query(format!("Failed to create admin user: {}", e)))?;
+
+	info!("──────────────────────────────────────────────────────");
+	info!("  🚀 MboaCaisse — First startup!");
+	info!("  📧 Admin email:    admin@mboacaisse.local");
+	info!("  🔑 Admin password: {}", admin_password);
+	info!("  ⚠️  Save this password — it will NOT be shown again!");
+	info!("──────────────────────────────────────────────────────");
 
 	Ok(())
+}
+
+fn generate_admin_password() -> String {
+	const CHARSET: &[u8] = b"ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
+	(0..12)
+		.map(|_| {
+			let idx = rand::random_range(0..CHARSET.len());
+			CHARSET[idx] as char
+		})
+		.collect()
+}
+
+fn uuid_v7() -> String {
+	use uuid::Uuid;
+	Uuid::now_v7().to_string()
+}
+
+fn chrono_now() -> String {
+	use chrono::Utc;
+	Utc::now().format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string()
 }

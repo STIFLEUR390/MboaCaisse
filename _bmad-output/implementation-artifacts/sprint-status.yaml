@@ -52,7 +52,7 @@ development_status:
   epic-1: in-progress
   1-1-structure-rust-layered-migrations-initiales: in-progress
   1-2-serveur-axum-embarque-mdns: done
-  1-3-authentification-register-login-jwt: backlog
+  1-3-authentification-register-login-jwt: done
   1-4-fenetre-native-tray-mode-headless: backlog
   1-5-roles-permissions-middleware-guard-seed-admin: backlog
   epic-1-retrospective: optional

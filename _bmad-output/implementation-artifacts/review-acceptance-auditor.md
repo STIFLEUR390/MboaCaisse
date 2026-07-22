@@ -1,66 +1,17 @@
-# Acceptance Auditor Review — Story 1.2 vs Spec
+# Acceptance Auditor — Story 1.3 Compliance Review (Updated)
 
-Spec file: _bmad-output/implementation-artifacts/1-2-serveur-axum-embarque-mdns.md
-
-## AC-1: Fichiers server.rs et mdns.rs créés
-**Statut: ✅ PASS**
-- `server.rs` créé avec `pub async fn start_server(port, shutdown_rx)`
-- `mdns.rs` créé avec `pub fn start_mdns(port) -> Option<ServiceDaemon>`
-- `cargo check` compile sans erreur
-
-## AC-2: Routeur Axum sert fichiers statiques + API
-**Statut: ✅ PASS** (avec réserve)
-- Router construit avec `.nest("/api", api_router).fallback_service(fs_serve)`
-- `CompressionLayer` appliqué
-- `api::router()` monte `/health`
-- Réserve : `not_found_service` redondant (deux ServeDir)
-
-## AC-3: Port configurable (défaut 3000, plage 3000-3099)
-**Statut: ✅ PASS**
-- `resolve_port()` lit `TAURI_DEV_PORT` (validé 3000-3099) ou fallback 3000
-- Signature `start_server(port, ...)` accepte u16
-
-## AC-4: Frontend accessible sur le LAN
-**Statut: ✅ PASS**
-- Serveur écoute sur `0.0.0.0:PORT`
-- Fenêtre native pointe sur `http://localhost:PORT` (config Tauri)
-
-## AC-5: mDNS — publication de mboacaisse.local
-**Statut: ✅ PASS**
-- Service enregistré : `_http._tcp.local.` → `"mboacaisse"`
-- Échec silencieux loggué en warning
-- `None::<HashMap<...>>` pour les propriétés TXT
-
-## AC-6: Graceful shutdown via on_event(ExitRequested)
-**Statut: ✅ PASS**
-- Canal `watch::channel(false)` créé avant setup
-- `RunEvent::ExitRequested` → `shutdown_tx.send(true)`
-- `axum::serve(...).with_graceful_shutdown(...)` dans server.rs
-- **Réserve :** pas de mécanisme d'attente de confirmation d'arrêt
-
-## AC-7: Backup BDD avant arrêt
-**Statut: ⚠️ PARTIEL**
-- `backup_database()` créée avec `std::fs::copy()`
-- Fichier : `mboacaisse-before-shutdown.db`
-- Timeout : pas de timeout explicite sur l'opération de copy
-- Backup en mode WAL non géré (pas de checkpoint)
-- La spec mentionnait `rusqlite::backup::Backup` ou `std::fs::copy` comme options
-
-## AC-8: Axum démarré dans tokio::spawn pendant setup Tauri
-**Statut: ✅ PASS**
-- `tauri::async_runtime::spawn(async move { server::start_server(...).await })`
-- Exécuté après pool+migrations et BEFORE création de fenêtre
-- `start_mdns()` en tâche de fond via `std::thread::spawn`
-
-## Résumé des écarts AC
+## AC Compliance Status — AFTER FIXES
 
 | AC | Statut | Détail |
 |---|---|---|
-| AC-1 | ✅ | OK |
-| AC-2 | ✅ | ServeDir not_found_service redondant |
-| AC-3 | ✅ | Pas de lecture store (différé story 1.4) |
-| AC-4 | ✅ | OK |
-| AC-5 | ✅ | OK |
-| AC-6 | ✅ | Pas de confirmation d'arrêt |
-| AC-7 | ⚠️ | Pas de timeout, pas de checkpoint WAL |
-| AC-8 | ✅ | OK |
+| **AC-1** Register | ✅ | Argon2 hash, user créé, role caissier, JWT cookie émis (Set-Cookie), 409/422 errors |
+| **AC-2** Login | ✅ | Credentials vérifiés, JWT cookie émis, 401 pour erreurs |
+| **AC-3** Middleware JWT | ✅ | 401 sans cookie, AuthUser injecté, TOKEN_EXPIRED/INVALID_TOKEN |
+| **AC-4** Refresh silencieux | ✅ | should_refresh <1h, X-Token-Refreshed header, nouveau Set-Cookie |
+| **AC-5** Logout | ✅ | Set-Cookie: Max-Age=0, cookie détruit |
+| **AC-6** Bootstrap admin | ✅ | Premier user → admin, suivants → caissier, seed console |
+| **AC-7** Validation entrées | ✅ | Rust backend (email format, password >= 8), serde ignore champs inconnus |
+| **AC-8** Page login | ✅ | Formulaire email/password, lien register, erreurs, useAuth(), redirection |
+| **AC-9** Page register | ✅ | Formulaire avec confirm, validation frontend, lien login, redirection |
+
+**Résultat : 9/9 ACs satisfaites ✅**

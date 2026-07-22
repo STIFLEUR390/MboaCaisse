@@ -1,57 +1,21 @@
-# Edge Case Hunter Review — Story 1.2
+# Edge Case Hunter — Exhaustive Path Analysis: Story 1.3
 
-## Edge Cases Identified
+## Findings
 
-### HIGH: Race condition entre démarrage fenêtre et serveur Axum
-**Fichier:** `lib.rs`
-**Scénario:** Le serveur est spawné dans `tauri::async_runtime::spawn()` mais la fenêtre Tauri s'ouvre immédiatement après. Si le serveur n'a pas fini de binder dans les ~100ms, la fenêtre charge une page vierge ou une erreur.
-**Impact:** Page blanche au premier lancement sur machine lente.
-**Mitigation:** Ajouter un mécanisme d'attente (oneshot channel) de `server::start_server` vers `setup` pour confirmer que le serveur écoute avant de rendre la main.
+1. **`validate_email("")`** — La fonction `validate_email` vérifie `is_empty()` puis `contains('@')`. Si l'email est `""`, le `is_empty()` déclenche l'erreur. Mais un email comme `"@"` passe car `!is_empty()` et `contains('@')` sont tous les deux true.
 
-### HIGH: resolve_dist_path() ne fonctionne pas en mode Tauri build (prod)
-**Fichier:** `server.rs:99-108`
-**Scénario:** En prod Tauri (`bun run tauri:build`), les fichiers sont intégrés dans le binaire. Le dossier `../dist` n'existe pas dans le contexte de l'exécutable. `dist/` non plus. Le serveur démarre mais sert des 404 sur toutes les routes UI.
-**Impact:** L'interface ne charge pas en production.
-**Mitigation:** Utiliser `app.path().resource_dir()` de Tauri pour trouver le bon dossier, ou un chemin absolu déterminé à la compilation.
+2. **`validate_password(password)` avec des bytes non UTF-8** — Le paramètre `password: &str` est déjà un String Rust, donc pas de problème d'UTF-8. Mais la longueur est mesurée en bytes (`.len()`), pas en caractères. Un mot de passe de 4 emojis (ex: `"😀😀😀😀"`) fait 16 bytes et passe la validation, alors qu'il est faible.
 
-### MEDIUM: mDNS host_ip = "0.0.0.0" peut ne pas fonctionner
-**Fichier:** `mdns.rs:44`
-**Scénario:** `mdns-sd` avec `"0.0.0.0"` comme host_ip. Certaines implémentations mDNS peuvent rejeter cette IP ou ne pas répondre correctement.
-**Impact:** mDNS ne fonctionne pas sur certains routeurs/OS.
-**Mitigation:** Résoudre l'IP locale réelle au démarrage.
+3. **Race condition sur `is_first`** — Entre `list_all()` et `create()`, un autre thread pourrait créer le premier utilisateur. Ça arrive dans un setup synchrone, donc improbable en pratique, mais conceptuellement non atomic.
 
-### MEDIUM: backup_database() peut échouer si la BDD est verrouillée
-**Fichier:** `lib.rs:188`
-**Scénario:** Si une requête est en cours (pool r2d2 a une connexion active), `std::fs::copy()` échoue sur un fichier SQLite avec `database is locked`.
-**Impact:** Backup perdu, warning loggué.
-**Mitigation:** Utiliser `VACUUM INTO` (SQLite 3.27+) ou `backup::Backup` de rusqlite.
+4. **Timestamp `chrono_now()` non UTC conforme ISO** — `Utc::now()` retourne l'heure UTC, mais `format("%Y-%m-%dT%H:%M:%S%.3fZ")` génère un format qui peut parfois produire des microsecondes tronquées. Le suffixe `Z` est correct pour UTC.
 
-### MEDIUM: Le 500ms sleep dans ExitRequested est un timer magique
-**Fichier:** `lib.rs:154`
-**Scénario:** Le serveur peut prendre plus de 500ms à drainer (connexions longues). La backup commence avant la fin du drain.
-**Impact:** Backup inconsistante + fuite de connexions.
-**Mitigation:** Utiliser un canal de confirmation depuis `start_server()` pour signaler que le drain est terminé.
+5. **`uuid_v7()` lève une panic si l'horloge système recule** — `Uuid::now_v7()` dépend de l'horloge système. Si elle recule (NTP, changement manuel), la génération peut panic.
 
-### LOW: Le watch channel peut avoir un délai entre send et réception
-**Fichier:** `lib.rs`
-**Scénario:** `watch::Sender::send()` notifie les receivers de façon asynchrone. Le `changed().await` dans le serveur peut ne pas voir immédiatement la valeur `true`.
-**Impact:** Léger délai (quelques microsecondes) avant que le serveur ne commence le drain.
-**Mitigation:** Utiliser `send_modify()` au lieu de `send()` pour garantir l'ordre.
+6. **`should_refresh()` sousflow si `exp < now`** — `(self.exp - now)` peut underflow si `exp < now` (token expiré), car ce sont des `usize` (non signés). Rust panic en debug mode sur un underflow entier. Heureusement, `decode_token()` vérifie `exp` avant, donc le middleware ne devrait jamais arriver à `should_refresh()` avec un token expiré.
 
-### LOW: CompressionLayer non configuré
-**Fichier:** `server.rs:37`
-**Scénario:** `CompressionLayer::new()` utilise les valeurs par défaut (gzip, qualité 6). Pour des assets statiques servis sur LAN (<10ms), la compression ajoute de la latence CPU.
-**Impact:** Légère dégradation des performances sur LAN. Acceptable en alpha.
-**Mitigation:** Configurer un seuil de taille minimum.
+7. **`refresh_token()` appelle `decode_token()` une seconde fois** — Le middleware a déjà décodé le token, mais `refresh_token()` le re-décode. Double travail.
 
-### LOW: Pas de timeout sur le backup
-**Fichier:** `lib.rs:183-192`
-**Scénario:** Si le fichier est très volumineux (plusieurs Go), `std::fs::copy()` peut prendre plus de 5s.
-**Impact:** L'arrêt de l'application peut être retardé.
-**Mitigation:** `tokio::time::timeout()` sur l'opération de backup.
+8. **`extract_cookie()` ignore les cookies malformés** — Si un cookie header contient `"mboa_session=token"` suivi d'un cookie sans `=` (ex: `"mboa_session=token; badcookie"`), le split `pair.split_once('=')` sur `"badcookie"` retourne `None` et le cookie est ignoré silencieusement. Correct car `badcookie` n'est pas le cookie recherché.
 
-### INFO: Pas de gestion du port déjà utilisé
-**Fichier:** `server.rs:55-58`
-**Scénario:** Si le port 3000 est déjà utilisé par un autre processus, `TcpListener::bind` échoue, le serveur log un warning et retourne.
-**Impact:** L'application démarre sans serveur HTTP. L'utilisateur ne voit pas d'erreur visible.
-**Mitigation:** Scanner un range de ports (3000-3099) comme le fait le dev runner, ou afficher un message dans la fenêtre native.
+9. **Pas de vérification que le token JWT n'a pas été révoqué** — Si un admin désactive un utilisateur, le JWT reste valide jusqu'à expiration. Aucune vérification en BDD de l'état du compte.

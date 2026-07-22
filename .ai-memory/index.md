@@ -148,3 +148,33 @@ src-tauri/src/
 - Refinery docs : `npx ctx7@latest docs /rust-lang/reference "refinery embed_migrations"`
 - [Story 1.2](../../_bmad-output/implementation-artifacts/1-2-serveur-axum-embarque-mdns.md)
 - [Sprint status](../../_bmad-output/implementation-artifacts/sprint-status.yaml)
+
+---
+
+## 2026-07-22 Session: Story 1.3 (Authentification JWT) — Créée
+
+**Story 1.3** — Authentification — Register, Login & JWT (statut: ready-for-dev)
+- Fichier story: `_bmad-output/implementation-artifacts/1-3-authentification-register-login-jwt.md`
+- 9 acceptance criteria couvrant register, login, middleware JWT, refresh silencieux, logout, bootstrap admin
+- Backend : `jsonwebtoken` + `rand` à ajouter, `argon2` déjà présent
+- Frontend : pages login/register, composable `useAuth()`, middleware `auth.ts`
+- Pages démo Tauri à supprimer (commands, file, notifications, os, store, webview)
+- Seed admin avec mot de passe console à implémenter (remplace le placeholder de 1.1)
+
+---
+
+## 2026-07-22 Session: Story 1.3 (Authentification JWT) — Implémentée
+
+**Story 1.3** — Authentification — Register, Login & JWT (statut: review)
+- Backend Rust : JWT (jsonwebtoken HS256, 24h, silent refresh), argon2, middleware Axum, handlers register/login/logout/me
+- Frontend Nuxt : pages login/register (Nuxt UI v4), composable useAuth, middleware auth
+- Seed admin : admin@mboacaisse.local avec mot de passe console (premier démarrage)
+- Pages démo Tauri déplacées dans app/pages/demo/
+- Nouvelle dépendance : jsonwebtoken, rand (0.10), rand_core 0.6 (getrandom pour argon2)
+- `api::build_app()` remplace `api::router()` pour gérer l'état du router Axum
+
+### Gotchas
+- rand 0.10 a renommé `OsRng` en `SysRng`. Mais argon2 a besoin de `rand_core::OsRng` v0.6 → ajouter `rand_core = { version = "0.6", features = ["getrandom"] }`
+- `Router<S>` avec state ne peut pas être nesté sous un `Router<()>` → build_app() unifie tout
+- Dans Axum 0.8, `from_fn_with_state` + `route_layer` applique le middleware à toutes les routes d'un Router
+- `axum::serve(listener, app.into_make_service())` convertit le Router stateful en MakeService
