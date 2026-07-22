@@ -22,12 +22,12 @@ This is a CSS limitation, not a Vue bug. CSS transforms (which FLIP uses interna
 **Incorrect - Inline elements break move animations:**
 ```vue
 <template>
-  <!-- BROKEN: span elements are inline by default -->
-  <TransitionGroup name="tag" tag="div" class="tag-container">
-    <span v-for="tag in tags" :key="tag.id" class="tag">
-      {{ tag.name }}
-    </span>
-  </TransitionGroup>
+	<!-- BROKEN: span elements are inline by default -->
+	<TransitionGroup name="tag" tag="div" class="tag-container">
+		<span v-for="tag in tags" :key="tag.id" class="tag">
+			{{ tag.name }}
+		</span>
+	</TransitionGroup>
 </template>
 
 <style>
@@ -41,11 +41,11 @@ This is a CSS limitation, not a Vue bug. CSS transforms (which FLIP uses interna
 **Correct - Use inline-block:**
 ```vue
 <template>
-  <TransitionGroup name="tag" tag="div" class="tag-container">
-    <span v-for="tag in tags" :key="tag.id" class="tag">
-      {{ tag.name }}
-    </span>
-  </TransitionGroup>
+	<TransitionGroup name="tag" tag="div" class="tag-container">
+		<span v-for="tag in tags" :key="tag.id" class="tag">
+			{{ tag.name }}
+		</span>
+	</TransitionGroup>
 </template>
 
 <style>
@@ -62,11 +62,11 @@ This is a CSS limitation, not a Vue bug. CSS transforms (which FLIP uses interna
 **Correct - Use flexbox container:**
 ```vue
 <template>
-  <TransitionGroup name="tag" tag="div" class="tag-container">
-    <span v-for="tag in tags" :key="tag.id" class="tag">
-      {{ tag.name }}
-    </span>
-  </TransitionGroup>
+	<TransitionGroup name="tag" tag="div" class="tag-container">
+		<span v-for="tag in tags" :key="tag.id" class="tag">
+			{{ tag.name }}
+		</span>
+	</TransitionGroup>
 </template>
 
 <style>
@@ -86,12 +86,12 @@ This is a CSS limitation, not a Vue bug. CSS transforms (which FLIP uses interna
 **Correct - Use block elements:**
 ```vue
 <template>
-  <!-- div elements are block by default -->
-  <TransitionGroup name="item" tag="div">
-    <div v-for="item in items" :key="item.id" class="item">
-      {{ item.name }}
-    </div>
-  </TransitionGroup>
+	<!-- div elements are block by default -->
+	<TransitionGroup name="item" tag="div">
+		<div v-for="item in items" :key="item.id" class="item">
+			{{ item.name }}
+		</div>
+	</TransitionGroup>
 </template>
 
 <style>

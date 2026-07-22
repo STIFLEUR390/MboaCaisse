@@ -21,84 +21,86 @@ The legacy pattern causes no errors or warnings when names don't match - the ref
 
 **Incorrect (Legacy Pattern):**
 ```vue
-<script setup>
-import { ref, onMounted } from 'vue'
-
-// FRAGILE: Variable name MUST match template ref value exactly
-const input = ref(null)
-
-// DANGER: After refactoring, names may not match
-const inputElement = ref(null) // Renamed variable...
-
-onMounted(() => {
-  // NO ERROR - just silently null!
-  inputElement.value?.focus() // Does nothing
-})
-</script>
-
 <template>
-  <!-- But template still uses old name -->
-  <input ref="input" />
+	<!-- But template still uses old name -->
+	<input ref="input">
 </template>
+
+<script setup>
+	import { onMounted, ref } from "vue";
+
+	// FRAGILE: Variable name MUST match template ref value exactly
+	const input = ref(null);
+
+	// DANGER: After refactoring, names may not match
+	const inputElement = ref(null); // Renamed variable...
+
+	onMounted(() => {
+		// NO ERROR - just silently null!
+		inputElement.value?.focus(); // Does nothing
+	});
+</script>
 ```
 
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-// TYPO: 'inupt' instead of 'input' - no warning!
-const inupt = ref(null)
-</script>
-
 <template>
-  <input ref="input" />
-  <!-- inupt.value will always be null -->
+	<input ref="input">
+	<!-- inupt.value will always be null -->
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	// TYPO: 'inupt' instead of 'input' - no warning!
+	const inupt = ref(null);
+</script>
 ```
 
 **Correct (Vue 3.5+):**
 ```vue
-<script setup>
-import { useTemplateRef, onMounted } from 'vue'
-
-// CORRECT: Explicit binding - argument matches template ref
-const inputElement = useTemplateRef('my-input')
-
-onMounted(() => {
-  inputElement.value?.focus()
-})
-</script>
-
 <template>
-  <!-- ref name is explicitly connected via useTemplateRef argument -->
-  <input ref="my-input" />
+	<!-- ref name is explicitly connected via useTemplateRef argument -->
+	<input ref="my-input">
 </template>
+
+<script setup>
+	import { onMounted, useTemplateRef } from "vue";
+
+	// CORRECT: Explicit binding - argument matches template ref
+	const inputElement = useTemplateRef("my-input");
+
+	onMounted(() => {
+		inputElement.value?.focus();
+	});
+</script>
 ```
 
 ```vue
-<script setup>
-import { useTemplateRef, onMounted } from 'vue'
-
-// BENEFITS:
-// 1. Variable name is independent of ref attribute
-// 2. IDE auto-completes available ref names
-// 3. TypeScript infers correct element type
-// 4. Typos in argument cause visible errors
-
-const searchInput = useTemplateRef('search-box')
-const submitButton = useTemplateRef('submit-btn')
-
-onMounted(() => {
-  // TypeScript knows these are HTMLInputElement and HTMLButtonElement
-  searchInput.value?.focus()
-  submitButton.value?.disabled = false
-})
-</script>
-
 <template>
-  <input ref="search-box" type="search" />
-  <button ref="submit-btn">Submit</button>
+	<input ref="search-box" type="search">
+	<button ref="submit-btn">
+		Submit
+	</button>
 </template>
+
+<script setup>
+	import { onMounted, useTemplateRef } from "vue";
+
+	// BENEFITS:
+	// 1. Variable name is independent of ref attribute
+	// 2. IDE auto-completes available ref names
+	// 3. TypeScript infers correct element type
+	// 4. Typos in argument cause visible errors
+
+	const searchInput = useTemplateRef("search-box");
+	const submitButton = useTemplateRef("submit-btn");
+
+	onMounted(() => {
+		// TypeScript knows these are HTMLInputElement and HTMLButtonElement
+		searchInput.value?.focus();
+		submitButton.value?.disabled = false;
+	});
+</script>
 ```
 
 ## Limitation: v-for Refs
@@ -106,27 +108,27 @@ onMounted(() => {
 `useTemplateRef()` does **NOT** work with `v-for` refs. You must use the legacy `ref()` pattern for collecting multiple element references in a loop.
 
 ```vue
-<script setup>
-import { ref, onMounted } from 'vue'
-
-// CORRECT: Legacy pattern required for v-for refs
-const itemRefs = ref([])
-
-onMounted(() => {
-  // itemRefs.value is an array of DOM elements
-  itemRefs.value.forEach(el => {
-    console.log(el.textContent)
-  })
-})
-</script>
-
 <template>
-  <ul>
-    <li v-for="item in items" ref="itemRefs" :key="item.id">
-      {{ item.text }}
-    </li>
-  </ul>
+	<ul>
+		<li v-for="item in items" ref="itemRefs" :key="item.id">
+			{{ item.text }}
+		</li>
+	</ul>
 </template>
+
+<script setup>
+	import { onMounted, ref } from "vue";
+
+	// CORRECT: Legacy pattern required for v-for refs
+	const itemRefs = ref([]);
+
+	onMounted(() => {
+		// itemRefs.value is an array of DOM elements
+		itemRefs.value.forEach((el) => {
+			console.log(el.textContent);
+		});
+	});
+</script>
 ```
 
 **Why this limitation exists:** When using `v-for`, Vue populates the ref with an array of elements. The `useTemplateRef()` API was designed for single element references and does not support the array population mechanism that `v-for` requires.
@@ -135,22 +137,25 @@ onMounted(() => {
 
 ```vue
 <!-- BEFORE (Vue < 3.5) -->
-<script setup>
-import { ref } from 'vue'
-const myElement = ref(null) // Name must match template
-</script>
 <template>
-  <div ref="myElement"></div>
+	<div ref="myElement" />
+</template>
+
+<template>
+  <div ref="my-element"></div>
 </template>
 
 <!-- AFTER (Vue 3.5+) -->
 <script setup>
-import { useTemplateRef } from 'vue'
-const element = useTemplateRef('my-element') // Any variable name
+	import { ref } from "vue"; // Name must match template
 </script>
-<template>
-  <div ref="my-element"></div>
-</template>
+
+<script setup>
+	import { useTemplateRef } from "vue";
+
+	const myElement = ref(null);
+	const element = useTemplateRef("my-element"); // Any variable name
+</script>
 ```
 
 ## Reference

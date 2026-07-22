@@ -21,12 +21,12 @@ tags: [vue3, keepalive, transition, memory-leak, animation]
 
 ```vue
 <template>
-  <!-- Known memory leak combination in some Vue versions -->
-  <Transition name="fade">
-    <KeepAlive>
-      <component :is="currentView" />
-    </KeepAlive>
-  </Transition>
+	<!-- Known memory leak combination in some Vue versions -->
+	<Transition name="fade">
+		<KeepAlive>
+			<component :is="currentView" />
+		</KeepAlive>
+	</Transition>
 </template>
 ```
 
@@ -51,10 +51,10 @@ Use Chrome DevTools to detect the leak:
 
 ```vue
 <template>
-  <!-- No memory leak without Transition -->
-  <KeepAlive :max="5">
-    <component :is="currentView" />
-  </KeepAlive>
+	<!-- No memory leak without Transition -->
+	<KeepAlive :max="5">
+		<component :is="currentView" />
+	</KeepAlive>
 </template>
 ```
 
@@ -62,12 +62,12 @@ Use Chrome DevTools to detect the leak:
 
 ```vue
 <template>
-  <KeepAlive :max="5">
-    <component
-      :is="currentView"
-      :class="{ 'fade-enter': isTransitioning }"
-    />
-  </KeepAlive>
+	<KeepAlive :max="5">
+		<component
+			:is="currentView"
+			:class="{ 'fade-enter': isTransitioning }"
+		/>
+	</KeepAlive>
 </template>
 
 <style>
@@ -88,11 +88,11 @@ If you must use both, minimize impact with strict limits:
 
 ```vue
 <template>
-  <Transition name="fade" mode="out-in">
-    <KeepAlive :max="3">
-      <component :is="currentView" />
-    </KeepAlive>
-  </Transition>
+	<Transition name="fade" mode="out-in">
+		<KeepAlive :max="3">
+			<component :is="currentView" />
+		</KeepAlive>
+	</Transition>
 </template>
 ```
 
@@ -101,25 +101,25 @@ If you must use both, minimize impact with strict limits:
 Force fresh instances when needed:
 
 ```vue
-<script setup>
-import { ref, computed } from 'vue'
-
-const currentView = ref('Dashboard')
-const cacheKey = ref(0)
-
-function switchViewFresh(view) {
-  currentView.value = view
-  cacheKey.value++ // Force new instance
-}
-</script>
-
 <template>
-  <Transition name="fade" mode="out-in">
-    <KeepAlive :max="3">
-      <component :is="currentView" :key="cacheKey" />
-    </KeepAlive>
-  </Transition>
+	<Transition name="fade" mode="out-in">
+		<KeepAlive :max="3">
+			<component :is="currentView" :key="cacheKey" />
+		</KeepAlive>
+	</Transition>
 </template>
+
+<script setup>
+	import { computed, ref } from "vue";
+
+	const currentView = ref("Dashboard");
+	const cacheKey = ref(0);
+
+	function switchViewFresh(view) {
+		currentView.value = view;
+		cacheKey.value++; // Force new instance
+	}
+</script>
 ```
 
 ## Keep Vue Updated

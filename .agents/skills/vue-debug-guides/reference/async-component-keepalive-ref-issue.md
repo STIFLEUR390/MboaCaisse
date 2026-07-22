@@ -11,27 +11,27 @@ This is a known Vue issue where the ref binding works correctly on first activat
 ## Problem Scenario
 
 ```vue
-<script setup>
-import { ref, defineAsyncComponent } from 'vue'
-
-const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue')
-)
-
-const currentComponent = ref(AsyncWidget)
-const widgetRef = ref(null)
-
-function callWidgetMethod() {
-  // May be undefined after component reactivation!
-  widgetRef.value?.doSomething()
-}
-</script>
-
 <template>
-  <keep-alive>
-    <component :is="currentComponent" ref="widgetRef" />
-  </keep-alive>
+	<keep-alive>
+		<component :is="currentComponent" ref="widgetRef" />
+	</keep-alive>
 </template>
+
+<script setup>
+	import { defineAsyncComponent, ref } from "vue";
+
+	const AsyncWidget = defineAsyncComponent(() =>
+		import("./Widget.vue")
+	);
+
+	const currentComponent = ref(AsyncWidget);
+	const widgetRef = ref(null);
+
+	function callWidgetMethod() {
+		// May be undefined after component reactivation!
+		widgetRef.value?.doSomething();
+	}
+</script>
 ```
 
 ## Workarounds
@@ -40,22 +40,22 @@ function callWidgetMethod() {
 
 ```vue
 <script setup>
-import { ref, defineAsyncComponent, onActivated, nextTick } from 'vue'
+	import { defineAsyncComponent, nextTick, onActivated, ref } from "vue";
 
-const AsyncWidget = defineAsyncComponent(() =>
-  import('./Widget.vue')
-)
+	const AsyncWidget = defineAsyncComponent(() =>
+		import("./Widget.vue")
+	);
 
-const currentComponent = ref(AsyncWidget)
-const widgetRef = ref(null)
+	const currentComponent = ref(AsyncWidget);
+	const widgetRef = ref(null);
 
-// Use a computed or method that waits for ref to be available
-async function callWidgetMethod() {
-  await nextTick()
-  if (widgetRef.value) {
-    widgetRef.value.doSomething()
-  }
-}
+	// Use a computed or method that waits for ref to be available
+	async function callWidgetMethod() {
+		await nextTick();
+		if (widgetRef.value) {
+			widgetRef.value.doSomething();
+		}
+	}
 </script>
 ```
 
@@ -66,18 +66,19 @@ If possible, use one of these alternatives:
 ```vue
 <!-- Option A: Don't use keep-alive with async components -->
 <template>
-  <component :is="currentComponent" ref="widgetRef" />
+	<component :is="currentComponent" ref="widgetRef" />
 </template>
 
 <!-- Option B: Use static component with keep-alive -->
-<script setup>
-import Widget from './Widget.vue'  // Regular import
-</script>
 <template>
   <keep-alive>
     <component :is="Widget" ref="widgetRef" />
   </keep-alive>
 </template>
+
+<script setup>
+	import Widget from "./Widget.vue"; // Regular import
+</script>
 ```
 
 ### Option 3: Use provide/inject instead of refs
@@ -85,16 +86,14 @@ import Widget from './Widget.vue'  // Regular import
 ```vue
 <!-- Parent.vue -->
 <script setup>
-import { provide, ref } from 'vue'
-
-const sharedState = ref({ /* shared data */ })
-provide('widgetState', sharedState)
+	import { inject, provide, ref } from "vue";
 </script>
 
 <!-- Widget.vue (async component) -->
 <script setup>
-import { inject } from 'vue'
-const widgetState = inject('widgetState')
+	const sharedState = ref({ /* shared data */ });
+	provide("widgetState", sharedState);
+	const widgetState = inject("widgetState");
 </script>
 ```
 

@@ -8,18 +8,18 @@ End with JSON only, omitting keys for artifacts not produced — the shape below
 
 ```json
 {
-  "status": "complete | partial | blocked",
-  "intent": "create | update | validate",
-  "altitude": "initiative | feature | epic",
-  "purpose": "build-substrate | discussion",
-  "doc_workspace": "<resolved run folder>",
-  "spine": "{doc_workspace}/ARCHITECTURE-SPINE.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "companions": [],
-  "assumptions": [],
-  "open_questions": [],
-  "conflicts_with_prior_decisions": [],
-  "reason": "<one line, only when blocked>"
+	"status": "complete | partial | blocked",
+	"intent": "create | update | validate",
+	"altitude": "initiative | feature | epic",
+	"purpose": "build-substrate | discussion",
+	"doc_workspace": "<resolved run folder>",
+	"spine": "{doc_workspace}/ARCHITECTURE-SPINE.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"companions": [],
+	"assumptions": [],
+	"open_questions": [],
+	"conflicts_with_prior_decisions": [],
+	"reason": "<one line, only when blocked>"
 }
 ```
 

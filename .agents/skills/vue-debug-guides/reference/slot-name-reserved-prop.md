@@ -20,9 +20,9 @@ tags: [vue3, slots, scoped-slots, reserved-props, naming]
 ```vue
 <!-- ChildComponent.vue -->
 <template>
-  <div>
-    <slot name="header" title="Welcome"></slot>
-  </div>
+	<div>
+		<slot name="header" title="Welcome" />
+	</div>
 </template>
 ```
 
@@ -42,15 +42,15 @@ tags: [vue3, slots, scoped-slots, reserved-props, naming]
 ```vue
 <!-- ChildComponent.vue -->
 <template>
-  <div>
-    <!-- Use a different prop name like 'slotName' or 'label' -->
-    <slot name="header" :label="slotLabel" :title="title"></slot>
-  </div>
+	<div>
+		<!-- Use a different prop name like 'slotName' or 'label' -->
+		<slot name="header" :label="slotLabel" :title="title" />
+	</div>
 </template>
 
 <script setup>
-const slotLabel = 'header'
-const title = 'Welcome'
+	const slotLabel = "header";
+	const title = "Welcome";
 </script>
 ```
 
@@ -79,15 +79,16 @@ const title = 'Welcome'
 ```vue
 <!-- TabPanel.vue -->
 <template>
-  <div class="tabs">
-    <slot name="tab1" :active="activeTab === 1" :label="'First Tab'"></slot>
-    <slot name="tab2" :active="activeTab === 2" :label="'Second Tab'"></slot>
-  </div>
+	<div class="tabs">
+		<slot name="tab1" :active="activeTab === 1" label="First Tab" />
+		<slot name="tab2" :active="activeTab === 2" label="Second Tab" />
+	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-const activeTab = ref(1)
+	import { ref } from "vue";
+
+	const activeTab = ref(1);
 </script>
 ```
 

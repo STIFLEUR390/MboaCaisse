@@ -24,105 +24,105 @@ Every time the source state changes, a new snapshot is created. Mutating a snaps
 **Incorrect:**
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const books = ref(['Vue Guide', 'React Handbook'])
+	const books = ref(["Vue Guide", "React Handbook"]);
 
-const publishedBooks = computed(() => {
-  return books.value.filter(book => book.includes('Guide'))
-})
+	const publishedBooks = computed(() => {
+		return books.value.filter((book) => book.includes("Guide"));
+	});
 
-function addBook() {
-  // BAD: Mutating computed value - change will be lost!
-  publishedBooks.value.push('New Book')
-}
+	function addBook() {
+		// BAD: Mutating computed value - change will be lost!
+		publishedBooks.value.push("New Book");
+	}
 
-// BAD: Mutating computed array
-const sortedBooks = computed(() => books.value.filter(b => b))
+	// BAD: Mutating computed array
+	const sortedBooks = computed(() => books.value.filter((b) => b));
 
-function reverseBooks() {
-  // BAD: This mutates the computed snapshot
-  sortedBooks.value.reverse()
-}
+	function reverseBooks() {
+		// BAD: This mutates the computed snapshot
+		sortedBooks.value.reverse();
+	}
 </script>
 ```
 
 ```vue
 <script>
-export default {
-  data() {
-    return {
-      author: {
-        name: 'John',
-        books: ['Book A', 'Book B']
-      }
-    }
-  },
-  computed: {
-    authorBooks() {
-      return this.author.books
-    }
-  },
-  methods: {
-    addBook() {
-      // BAD: Mutating computed value
-      this.authorBooks.push('New Book')
-    }
-  }
-}
+	export default {
+		data() {
+			return {
+				author: {
+					name: "John",
+					books: ["Book A", "Book B"]
+				}
+			};
+		},
+		computed: {
+			authorBooks() {
+				return this.author.books;
+			}
+		},
+		methods: {
+			addBook() {
+				// BAD: Mutating computed value
+				this.authorBooks.push("New Book");
+			}
+		}
+	};
 </script>
 ```
 
 **Correct:**
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const books = ref(['Vue Guide', 'React Handbook'])
+	const books = ref(["Vue Guide", "React Handbook"]);
 
-const publishedBooks = computed(() => {
-  return books.value.filter(book => book.includes('Guide'))
-})
+	const publishedBooks = computed(() => {
+		return books.value.filter((book) => book.includes("Guide"));
+	});
 
-function addBook(bookName) {
-  // GOOD: Update the source state
-  books.value.push(bookName)
-}
+	function addBook(bookName) {
+		// GOOD: Update the source state
+		books.value.push(bookName);
+	}
 
-// GOOD: Create a copy before mutating for display
-const sortedBooks = computed(() => {
-  return [...books.value].sort()  // Spread to create copy before sort
-})
+	// GOOD: Create a copy before mutating for display
+	const sortedBooks = computed(() => {
+		return [...books.value].sort(); // Spread to create copy before sort
+	});
 
-const reversedBooks = computed(() => {
-  return [...books.value].reverse()  // Spread to create copy before reverse
-})
+	const reversedBooks = computed(() => {
+		return [...books.value].reverse(); // Spread to create copy before reverse
+	});
 </script>
 ```
 
 ```vue
 <script>
-export default {
-  data() {
-    return {
-      author: {
-        name: 'John',
-        books: ['Book A', 'Book B']
-      }
-    }
-  },
-  computed: {
-    authorBooks() {
-      return this.author.books
-    }
-  },
-  methods: {
-    addBook(bookName) {
-      // GOOD: Update source state
-      this.author.books.push(bookName)
-    }
-  }
-}
+	export default {
+		data() {
+			return {
+				author: {
+					name: "John",
+					books: ["Book A", "Book B"]
+				}
+			};
+		},
+		computed: {
+			authorBooks() {
+				return this.author.books;
+			}
+		},
+		methods: {
+			addBook(bookName) {
+				// GOOD: Update source state
+				this.author.books.push(bookName);
+			}
+		}
+	};
 </script>
 ```
 
@@ -132,26 +132,26 @@ If you genuinely need to "set" a computed value, use a writable computed propert
 
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const firstName = ref('John')
-const lastName = ref('Doe')
+	const firstName = ref("John");
+	const lastName = ref("Doe");
 
-// Writable computed with getter and setter
-const fullName = computed({
-  get() {
-    return `${firstName.value} ${lastName.value}`
-  },
-  set(newValue) {
-    // Update source state based on the new value
-    const parts = newValue.split(' ')
-    firstName.value = parts[0] || ''
-    lastName.value = parts[1] || ''
-  }
-})
+	// Writable computed with getter and setter
+	const fullName = computed({
+		get() {
+			return `${firstName.value} ${lastName.value}`;
+		},
+		set(newValue) {
+			// Update source state based on the new value
+			const parts = newValue.split(" ");
+			firstName.value = parts[0] || "";
+			lastName.value = parts[1] || "";
+		}
+	});
 
-// Now this is valid:
-fullName.value = 'Jane Smith'  // Updates firstName and lastName
+	// Now this is valid:
+	fullName.value = "Jane Smith"; // Updates firstName and lastName
 </script>
 ```
 

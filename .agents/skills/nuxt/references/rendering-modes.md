@@ -14,8 +14,8 @@ Server renders HTML, then hydrates on client:
 ```ts
 // nuxt.config.ts - this is the default
 export default defineNuxtConfig({
-  ssr: true,
-})
+	ssr: true
+});
 ```
 
 **Benefits:**
@@ -36,8 +36,8 @@ Render entirely in the browser:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  ssr: false,
-})
+	ssr: false
+});
 ```
 
 **Benefits:**
@@ -90,23 +90,23 @@ Mix rendering modes per route using route rules:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  routeRules: {
-    // Static pages - prerendered at build
-    '/': { prerender: true },
-    '/about': { prerender: true },
+	routeRules: {
+		// Static pages - prerendered at build
+		"/": { prerender: true },
+		"/about": { prerender: true },
 
-    // ISR - regenerate in background
-    '/blog/**': { isr: 3600 }, // Cache for 1 hour
-    '/products/**': { swr: true }, // Stale-while-revalidate
+		// ISR - regenerate in background
+		"/blog/**": { isr: 3600 }, // Cache for 1 hour
+		"/products/**": { swr: true }, // Stale-while-revalidate
 
-    // Client-only rendering
-    '/admin/**': { ssr: false },
-    '/dashboard/**': { ssr: false },
+		// Client-only rendering
+		"/admin/**": { ssr: false },
+		"/dashboard/**": { ssr: false },
 
-    // Server-rendered (default)
-    '/api/**': { cors: true },
-  },
-})
+		// Server-rendered (default)
+		"/api/**": { cors: true }
+	}
+});
 ```
 
 ### Route Rules Reference
@@ -128,9 +128,9 @@ Define per-page:
 
 ```vue
 <script setup lang="ts">
-defineRouteRules({
-  prerender: true,
-})
+	defineRouteRules({
+		prerender: true
+	});
 </script>
 ```
 
@@ -141,13 +141,13 @@ Generate static HTML at build time:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  // Prerender specific routes
-  routeRules: {
-    '/': { prerender: true },
-    '/about': { prerender: true },
-    '/posts/*': { prerender: true },
-  },
-})
+	// Prerender specific routes
+	routeRules: {
+		"/": { prerender: true },
+		"/about": { prerender: true },
+		"/posts/*": { prerender: true }
+	}
+});
 ```
 
 Or use `nuxt generate`:
@@ -161,23 +161,23 @@ nuxt generate
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  hooks: {
-    'prerender:routes'({ routes }) {
-      // Add dynamic routes
-      const posts = await fetchPostSlugs()
-      for (const slug of posts) {
-        routes.add(`/posts/${slug}`)
-      }
-    },
-  },
-})
+	hooks: {
+		"prerender:routes": function ({ routes }) {
+			// Add dynamic routes
+			const posts = await fetchPostSlugs();
+			for (const slug of posts) {
+				routes.add(`/posts/${slug}`);
+			}
+		}
+	}
+});
 ```
 
 Or in pages:
 
 ```ts
 // server/api/posts.ts or a plugin
-prerenderRoutes(['/posts/1', '/posts/2', '/posts/3'])
+prerenderRoutes(["/posts/1", "/posts/2", "/posts/3"]);
 ```
 
 ## Edge-Side Rendering
@@ -187,10 +187,10 @@ Render at CDN edge servers:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  nitro: {
-    preset: 'cloudflare-pages', // or 'vercel-edge', 'netlify-edge'
-  },
-})
+	nitro: {
+		preset: "cloudflare-pages" // or 'vercel-edge', 'netlify-edge'
+	}
+});
 ```
 
 Supported platforms:
@@ -204,15 +204,15 @@ Use `import.meta.server` and `import.meta.client`:
 
 ```vue
 <script setup>
-if (import.meta.server) {
-  // Server-only code
-  console.log('Running on server')
-}
+	if (import.meta.server) {
+		// Server-only code
+		console.log("Running on server");
+	}
 
-if (import.meta.client) {
-  // Client-only code
-  console.log('Running in browser')
-}
+	if (import.meta.client) {
+		// Client-only code
+		console.log("Running in browser");
+	}
 </script>
 ```
 
@@ -220,16 +220,16 @@ For components:
 
 ```vue
 <template>
-  <ClientOnly>
-    <BrowserOnlyComponent />
-    <template #fallback>
-      <p>Loading...</p>
-    </template>
-  </ClientOnly>
+	<ClientOnly>
+		<BrowserOnlyComponent />
+		<template #fallback>
+			<p>Loading...</p>
+		</template>
+	</ClientOnly>
 </template>
 ```
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/guide/concepts/rendering
 - https://nuxt.com/docs/getting-started/prerendering

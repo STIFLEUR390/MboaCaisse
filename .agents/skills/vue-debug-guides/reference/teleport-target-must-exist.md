@@ -22,13 +22,15 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 **Incorrect:**
 ```vue
 <template>
-  <!-- ERROR: Target doesn't exist yet when Teleport mounts -->
-  <Teleport to="#modal-container">
-    <div class="modal">Modal content</div>
-  </Teleport>
+	<!-- ERROR: Target doesn't exist yet when Teleport mounts -->
+	<Teleport to="#modal-container">
+		<div class="modal">
+			Modal content
+		</div>
+	</Teleport>
 
-  <!-- Target is defined after the Teleport -->
-  <div id="modal-container"></div>
+	<!-- Target is defined after the Teleport -->
+	<div id="modal-container" />
 </template>
 ```
 
@@ -45,33 +47,39 @@ This is a common source of bugs when using modals, tooltips, or other teleported
 
 ```vue
 <template>
-  <!-- Safe: #modals exists before any Vue component mounts -->
-  <Teleport to="#modals">
-    <div v-if="showModal" class="modal">Modal content</div>
-  </Teleport>
+	<!-- Safe: #modals exists before any Vue component mounts -->
+	<Teleport to="#modals">
+		<div v-if="showModal" class="modal">
+			Modal content
+		</div>
+	</Teleport>
 </template>
 ```
 
 **Correct - Option 2: Teleport to body:**
 ```vue
 <template>
-  <!-- Safe: body always exists -->
-  <Teleport to="body">
-    <div v-if="showModal" class="modal">Modal content</div>
-  </Teleport>
+	<!-- Safe: body always exists -->
+	<Teleport to="body">
+		<div v-if="showModal" class="modal">
+			Modal content
+		</div>
+	</Teleport>
 </template>
 ```
 
 **Correct - Option 3: Vue 3.5+ defer prop:**
 ```vue
 <template>
-  <!-- Works in Vue 3.5+: defer resolves target after other parts mount -->
-  <Teleport defer to="#late-container">
-    <div class="modal">Modal content</div>
-  </Teleport>
+	<!-- Works in Vue 3.5+: defer resolves target after other parts mount -->
+	<Teleport defer to="#late-container">
+		<div class="modal">
+			Modal content
+		</div>
+	</Teleport>
 
-  <!-- Target rendered later in template -->
-  <div id="late-container"></div>
+	<!-- Target rendered later in template -->
+	<div id="late-container" />
 </template>
 ```
 
@@ -81,15 +89,15 @@ The `defer` prop only waits for elements rendered in the **same mount/update tic
 
 ```vue
 <template>
-  <!-- ERROR: defer won't help if target mounts asynchronously -->
-  <Teleport defer to="#async-container">
-    <div>Content</div>
-  </Teleport>
+	<!-- ERROR: defer won't help if target mounts asynchronously -->
+	<Teleport defer to="#async-container">
+		<div>Content</div>
+	</Teleport>
 
-  <!-- If this component loads asynchronously, defer won't work -->
-  <Suspense>
-    <AsyncComponent />  <!-- Contains #async-container -->
-  </Suspense>
+	<!-- If this component loads asynchronously, defer won't work -->
+	<Suspense>
+		<AsyncComponent />  <!-- Contains #async-container -->
+	</Suspense>
 </template>
 ```
 

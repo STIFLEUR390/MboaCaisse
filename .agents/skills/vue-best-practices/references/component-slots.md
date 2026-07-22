@@ -42,19 +42,19 @@ Use `$slots` checks when wrapper elements add spacing, borders, or layout constr
 ```vue
 <!-- Card.vue -->
 <template>
-  <article class="card">
-    <header class="card-header">
-      <slot name="header" />
-    </header>
+	<article class="card">
+		<header class="card-header">
+			<slot name="header" />
+		</header>
 
-    <section class="card-body">
-      <slot />
-    </section>
+		<section class="card-body">
+			<slot />
+		</section>
 
-    <footer class="card-footer">
-      <slot name="footer" />
-    </footer>
-  </article>
+		<footer class="card-footer">
+			<slot name="footer" />
+		</footer>
+	</article>
 </template>
 ```
 
@@ -62,19 +62,19 @@ Use `$slots` checks when wrapper elements add spacing, borders, or layout constr
 ```vue
 <!-- Card.vue -->
 <template>
-  <article class="card">
-    <header v-if="$slots.header" class="card-header">
-      <slot name="header" />
-    </header>
+	<article class="card">
+		<header v-if="$slots.header" class="card-header">
+			<slot name="header" />
+		</header>
 
-    <section v-if="$slots.default" class="card-body">
-      <slot />
-    </section>
+		<section v-if="$slots.default" class="card-body">
+			<slot />
+		</section>
 
-    <footer v-if="$slots.footer" class="card-footer">
-      <slot name="footer" />
-    </footer>
-  </article>
+		<footer v-if="$slots.footer" class="card-footer">
+			<slot name="footer" />
+		</footer>
+	</article>
 </template>
 ```
 
@@ -85,49 +85,49 @@ In `<script setup lang="ts">`, use `defineSlots` so slot consumers get autocompl
 **BAD:**
 ```vue
 <!-- ProductList.vue -->
-<script setup lang="ts">
-interface Product {
-  id: number
-  name: string
-}
-
-defineProps<{ products: Product[] }>()
-</script>
-
 <template>
-  <ul>
-    <li v-for="(product, index) in products" :key="product.id">
-      <slot :product="product" :index="index" />
-    </li>
-  </ul>
+	<ul>
+		<li v-for="(product, index) in products" :key="product.id">
+			<slot :product="product" :index="index" />
+		</li>
+	</ul>
 </template>
+
+<script setup lang="ts">
+	interface Product {
+		id: number
+		name: string
+	}
+
+	defineProps<{ products: Product[] }>();
+</script>
 ```
 
 **GOOD:**
 ```vue
 <!-- ProductList.vue -->
-<script setup lang="ts">
-interface Product {
-  id: number
-  name: string
-}
-
-defineProps<{ products: Product[] }>()
-
-defineSlots<{
-  default(props: { product: Product; index: number }): any
-  empty(): any
-}>()
-</script>
-
 <template>
-  <ul v-if="products.length">
-    <li v-for="(product, index) in products" :key="product.id">
-      <slot :product="product" :index="index" />
-    </li>
-  </ul>
-  <slot v-else name="empty" />
+	<ul v-if="products.length">
+		<li v-for="(product, index) in products" :key="product.id">
+			<slot :product="product" :index="index" />
+		</li>
+	</ul>
+	<slot v-else name="empty" />
 </template>
+
+<script setup lang="ts">
+	interface Product {
+		id: number
+		name: string
+	}
+
+	defineProps<{ products: Product[] }>();
+
+	defineSlots<{
+		default: (props: { product: Product, index: number }) => any
+		empty: () => any
+	}>();
+</script>
 ```
 
 ## Provide Slot Fallback Content
@@ -138,9 +138,9 @@ Fallback content makes components resilient when parents omit optional slots.
 ```vue
 <!-- SubmitButton.vue -->
 <template>
-  <button type="submit" class="btn-primary">
-    <slot />
-  </button>
+	<button type="submit" class="btn-primary">
+		<slot />
+	</button>
 </template>
 ```
 
@@ -148,9 +148,9 @@ Fallback content makes components resilient when parents omit optional slots.
 ```vue
 <!-- SubmitButton.vue -->
 <template>
-  <button type="submit" class="btn-primary">
-    <slot>Submit</slot>
-  </button>
+	<button type="submit" class="btn-primary">
+		<slot>Submit</slot>
+	</button>
 </template>
 ```
 
@@ -161,56 +161,56 @@ Renderless components are still useful for slot-driven composition, but composab
 **BAD:**
 ```vue
 <!-- MouseTracker.vue -->
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-
-const x = ref(0)
-const y = ref(0)
-
-function onMove(event: MouseEvent) {
-  x.value = event.pageX
-  y.value = event.pageY
-}
-
-onMounted(() => window.addEventListener('mousemove', onMove))
-onUnmounted(() => window.removeEventListener('mousemove', onMove))
-</script>
-
 <template>
-  <slot :x="x" :y="y" />
+	<slot :x="x" :y="y" />
 </template>
+
+<script setup lang="ts">
+	import { onMounted, onUnmounted, ref } from "vue";
+
+	const x = ref(0);
+	const y = ref(0);
+
+	function onMove(event: MouseEvent) {
+		x.value = event.pageX;
+		y.value = event.pageY;
+	}
+
+	onMounted(() => window.addEventListener("mousemove", onMove));
+	onUnmounted(() => window.removeEventListener("mousemove", onMove));
+</script>
 ```
 
 **GOOD:**
 ```ts
 // composables/useMouse.ts
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from "vue";
 
 export function useMouse() {
-  const x = ref(0)
-  const y = ref(0)
+	const x = ref(0);
+	const y = ref(0);
 
-  function onMove(event: MouseEvent) {
-    x.value = event.pageX
-    y.value = event.pageY
-  }
+	function onMove(event: MouseEvent) {
+		x.value = event.pageX;
+		y.value = event.pageY;
+	}
 
-  onMounted(() => window.addEventListener('mousemove', onMove))
-  onUnmounted(() => window.removeEventListener('mousemove', onMove))
+	onMounted(() => window.addEventListener("mousemove", onMove));
+	onUnmounted(() => window.removeEventListener("mousemove", onMove));
 
-  return { x, y }
+	return { x, y };
 }
 ```
 
 ```vue
 <!-- MousePosition.vue -->
-<script setup lang="ts">
-import { useMouse } from '@/composables/useMouse'
-
-const { x, y } = useMouse()
-</script>
-
 <template>
-  <p>{{ x }}, {{ y }}</p>
+	<p>{{ x }}, {{ y }}</p>
 </template>
+
+<script setup lang="ts">
+	import { useMouse } from "@/composables/useMouse";
+
+	const { x, y } = useMouse();
+</script>
 ```

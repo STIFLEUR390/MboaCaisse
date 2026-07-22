@@ -95,7 +95,7 @@ function handleTouchMove(event) {
 // 3. Reduce jank and stuttering
 
 // Equivalent to:
-element.addEventListener('scroll', handler, { passive: true })
+element.addEventListener("scroll", handler, { passive: true });
 ```
 
 ## When to Use .passive

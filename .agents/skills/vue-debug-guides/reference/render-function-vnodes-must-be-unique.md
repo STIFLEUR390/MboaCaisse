@@ -21,100 +21,97 @@ Every vnode in a component's render tree must be unique. You cannot use the same
 
 **Incorrect:**
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    return () => {
-      // WRONG: Same vnode reference used twice
-      const p = h('p', 'Hello')
-      return h('div', [p, p]) // Bug! Duplicate vnode reference
-    }
-  }
-}
+	setup() {
+		return () => {
+			// WRONG: Same vnode reference used twice
+			const p = h("p", "Hello");
+			return h("div", [p, p]); // Bug! Duplicate vnode reference
+		};
+	}
+};
 ```
 
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    return () => {
-      // WRONG: Reusing vnode in different parts of tree
-      const icon = h('span', { class: 'icon' }, '★')
-      return h('div', [
-        h('button', [icon, ' Save']),    // Uses icon
-        h('button', [icon, ' Delete'])   // Reuses same icon - Bug!
-      ])
-    }
-  }
-}
+	setup() {
+		return () => {
+			// WRONG: Reusing vnode in different parts of tree
+			const icon = h("span", { class: "icon" }, "★");
+			return h("div", [
+				h("button", [icon, " Save"]), // Uses icon
+				h("button", [icon, " Delete"]) // Reuses same icon - Bug!
+			]);
+		};
+	}
+};
 ```
 
 **Correct:**
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    return () => {
-      // CORRECT: Create new vnode for each use
-      return h('div', [
-        h('p', 'Hello'),
-        h('p', 'Hello')
-      ])
-    }
-  }
-}
+	setup() {
+		return () => {
+			// CORRECT: Create new vnode for each use
+			return h("div", [
+				h("p", "Hello"),
+				h("p", "Hello")
+			]);
+		};
+	}
+};
 ```
 
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    return () => {
-      // CORRECT: Factory function creates new vnode each time
-      const createIcon = () => h('span', { class: 'icon' }, '★')
-      return h('div', [
-        h('button', [createIcon(), ' Save']),
-        h('button', [createIcon(), ' Delete'])
-      ])
-    }
-  }
-}
+	setup() {
+		return () => {
+			// CORRECT: Factory function creates new vnode each time
+			const createIcon = () => h("span", { class: "icon" }, "★");
+			return h("div", [
+				h("button", [createIcon(), " Save"]),
+				h("button", [createIcon(), " Delete"])
+			]);
+		};
+	}
+};
 ```
 
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    return () => {
-      // CORRECT: Using map to create multiple vnodes
-      return h('div',
-        Array.from({ length: 20 }).map(() => h('p', 'Hello'))
-      )
-    }
-  }
-}
+	setup() {
+		return () => {
+			// CORRECT: Using map to create multiple vnodes
+			return h("div", Array.from({ length: 20 }).map(() => h("p", "Hello")));
+		};
+	}
+};
 ```
 
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup() {
-    const items = ['Apple', 'Banana', 'Cherry']
+	setup() {
+		const items = ["Apple", "Banana", "Cherry"];
 
-    return () => h('ul',
-      // CORRECT: Each iteration creates a new vnode
-      items.map((item, index) =>
-        h('li', { key: index }, item)
-      )
-    )
-  }
-}
+		return () => h("ul",
+			// CORRECT: Each iteration creates a new vnode
+			items.map((item, index) =>
+				h("li", { key: index }, item)
+			));
+	}
+};
 ```
 
 ## Why VNodes Must Be Unique

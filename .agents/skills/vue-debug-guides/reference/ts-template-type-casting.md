@@ -23,15 +23,15 @@ When a variable has a union type, TypeScript cannot know which specific type it 
 
 **Template with type error:**
 ```vue
+<template>
+	<!-- ERROR: Property 'toFixed' does not exist on type 'string | number' -->
+	{{ x.toFixed(2) }}
+</template>
+
 <script setup lang="ts">
 // Union type: could be string OR number
-let x: string | number = 1
+	const x: string | number = 1;
 </script>
-
-<template>
-  <!-- ERROR: Property 'toFixed' does not exist on type 'string | number' -->
-  {{ x.toFixed(2) }}
-</template>
 ```
 
 TypeScript correctly identifies that `toFixed()` only exists on `number`, not `string`.
@@ -41,14 +41,14 @@ TypeScript correctly identifies that `toFixed()` only exists on `number`, not `s
 Use `(value as Type)` syntax directly in the template:
 
 ```vue
-<script setup lang="ts">
-let x: string | number = 1
-</script>
-
 <template>
-  <!-- CORRECT: Cast to number to access toFixed -->
-  {{ (x as number).toFixed(2) }}
+	<!-- CORRECT: Cast to number to access toFixed -->
+	{{ (x as number).toFixed(2) }}
 </template>
+
+<script setup lang="ts">
+	const x: string | number = 1;
+</script>
 ```
 
 ## Solution 2: Computed Property (Preferred)
@@ -56,23 +56,23 @@ let x: string | number = 1
 Create a computed property that narrows or transforms the type:
 
 ```vue
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-
-const value = ref<string | number>(1)
-
-const formattedValue = computed(() => {
-  if (typeof value.value === 'number') {
-    return value.value.toFixed(2)
-  }
-  return value.value
-})
-</script>
-
 <template>
-  <!-- Clean template, type-safe logic in script -->
-  {{ formattedValue }}
+	<!-- Clean template, type-safe logic in script -->
+	{{ formattedValue }}
 </template>
+
+<script setup lang="ts">
+	import { computed, ref } from "vue";
+
+	const value = ref<string | number>(1);
+
+	const formattedValue = computed(() => {
+		if (typeof value.value === "number") {
+			return value.value.toFixed(2);
+		}
+		return value.value;
+	});
+</script>
 ```
 
 ## Solution 3: Type Guard Function
@@ -80,28 +80,28 @@ const formattedValue = computed(() => {
 Define a type guard and use it in the template:
 
 ```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const data = ref<string | number | null>(null)
-
-function isNumber(val: unknown): val is number {
-  return typeof val === 'number'
-}
-
-function formatNumber(val: number): string {
-  return val.toFixed(2)
-}
-</script>
-
 <template>
-  <div v-if="isNumber(data)">
-    {{ formatNumber(data) }}
-  </div>
-  <div v-else-if="data !== null">
-    {{ data }}
-  </div>
+	<div v-if="isNumber(data)">
+		{{ formatNumber(data) }}
+	</div>
+	<div v-else-if="data !== null">
+		{{ data }}
+	</div>
 </template>
+
+<script setup lang="ts">
+	import { ref } from "vue";
+
+	const data = ref<string | number | null>(null);
+
+	function isNumber(val: unknown): val is number {
+		return typeof val === "number";
+	}
+
+	function formatNumber(val: number): string {
+		return val.toFixed(2);
+	}
+</script>
 ```
 
 ## Common Use Cases
@@ -109,78 +109,78 @@ function formatNumber(val: number): string {
 ### API Response Data
 
 ```vue
-<script setup lang="ts">
-interface ApiResponse {
-  status: 'success' | 'error'
-  data?: UserData
-  error?: string
-}
-
-const response = ref<ApiResponse | null>(null)
-</script>
-
 <template>
-  <div v-if="response?.status === 'success'">
-    <!-- Cast to access data safely -->
-    {{ (response as { data: UserData }).data.name }}
-  </div>
+	<div v-if="response?.status === 'success'">
+		<!-- Cast to access data safely -->
+		{{ (response as { data: UserData }).data.name }}
+	</div>
 </template>
+
+<script setup lang="ts">
+	interface ApiResponse {
+		status: "success" | "error"
+		data?: UserData
+		error?: string
+	}
+
+	const response = ref<ApiResponse | null>(null);
+</script>
 ```
 
 **Better approach with computed:**
 ```vue
-<script setup lang="ts">
-const userData = computed(() => {
-  if (response.value?.status === 'success') {
-    return response.value.data
-  }
-  return null
-})
-</script>
-
 <template>
-  <div v-if="userData">
-    {{ userData.name }}
-  </div>
+	<div v-if="userData">
+		{{ userData.name }}
+	</div>
 </template>
+
+<script setup lang="ts">
+	const userData = computed(() => {
+		if (response.value?.status === "success") {
+			return response.value.data;
+		}
+		return null;
+	});
+</script>
 ```
 
 ### Event Handlers with Event Types
 
 ```vue
-<script setup lang="ts">
-function handleInput(event: Event) {
-  // Cast to HTMLInputElement to access 'value'
-  const value = (event.target as HTMLInputElement).value
-  console.log(value)
-}
-</script>
-
 <template>
-  <input @input="handleInput" />
+	<input @input="handleInput">
 </template>
+
+<script setup lang="ts">
+	function handleInput(event: Event) {
+		// Cast to HTMLInputElement to access 'value'
+		const value = (event.target as HTMLInputElement).value;
+		console.log(value);
+	}
+</script>
 ```
 
 ### Array Item Access
 
 ```vue
-<script setup lang="ts">
-const items = ref<(string | number)[]>([1, 'two', 3])
-</script>
-
 <template>
-  <ul>
-    <li v-for="item in items" :key="item">
-      <!-- Cast when you know the type -->
-      <span v-if="typeof item === 'number'">
-        Number: {{ (item as number).toFixed(1) }}
-      </span>
-      <span v-else>
-        String: {{ (item as string).toUpperCase() }}
-      </span>
-    </li>
-  </ul>
+	<ul>
+		<li v-for="item in items" :key="item">
+			<!-- Cast when you know the type -->
+			<span v-if="typeof item === 'number'">
+				Number: {{ (item as number).toFixed(1) }}
+			</span>
+			<span v-else>
+				String: {{ (item as string).toUpperCase() }}
+			</span>
+		</li>
+	</ul>
 </template>
+
+<script setup lang="ts">
+	const items = ref<(string | number)[]>([1, "two", 3]);
+</script>
 ```
 
 ## When Type Casting is Needed

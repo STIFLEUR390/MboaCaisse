@@ -1,7 +1,7 @@
-//! mDNS service discovery — publishes `mboacaisse.local` on the LAN.
+//! mDNS service discovery — publishes a configurable hostname on the LAN.
 //!
 //! Uses the `mdns-sd` crate to register the HTTP service so clients can
-//! reach the application via `http://mboacaisse.local:PORT` without
+//! reach the application via `http://{hostname}.local:PORT` without
 //! configuring an IP address.
 
 use mdns_sd::{ServiceDaemon, ServiceInfo};
@@ -9,9 +9,9 @@ use tracing::{info, warn};
 
 /// Start the mDNS service daemon and register the MboaCaisse HTTP service.
 ///
-/// Publishes `mboacaisse._http._tcp.local.` on the LAN.
+/// Publishes `{hostname}._http._tcp.local.` on the LAN.
 /// Returns the `ServiceDaemon` handle so the caller can keep it alive.
-pub fn start_mdns(port: u16) -> Option<ServiceDaemon> {
+pub fn start_mdns(port: u16, hostname: &str) -> Option<ServiceDaemon> {
 	let daemon = match ServiceDaemon::new() {
 		Ok(d) => d,
 		Err(e) => {
@@ -25,8 +25,8 @@ pub fn start_mdns(port: u16) -> Option<ServiceDaemon> {
 
 	let service_info = match ServiceInfo::new(
 		"_http._tcp.local.",
-		"mboacaisse",
-		"mboacaisse.local.",
+		hostname,
+		&format!("{}.local.", hostname),
 		&host_ip,
 		port,
 		None::<std::collections::HashMap<String, String>>,
@@ -40,7 +40,10 @@ pub fn start_mdns(port: u16) -> Option<ServiceDaemon> {
 
 	match daemon.register(service_info) {
 		Ok(_) => {
-			info!("mDNS service published: http://mboacaisse.local:{} (IP: {})", port, host_ip);
+			info!(
+				"mDNS service published: http://{}.local:{} (IP: {})",
+				hostname, port, host_ip
+			);
 			Some(daemon)
 		}
 		Err(e) => {

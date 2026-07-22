@@ -47,7 +47,7 @@ Comprehensive accessibility guidelines based on WCAG 2.2 and Lighthouse accessib
 
 <!-- ✅ Complex image with longer description -->
 <figure>
-  <img src="infographic.png" alt="2024 market trends infographic" 
+  <img src="infographic.png" alt="2024 market trends infographic"
        aria-describedby="infographic-desc">
   <figcaption id="infographic-desc">
     <!-- Detailed description -->
@@ -160,15 +160,15 @@ Comprehensive accessibility guidelines based on WCAG 2.2 and Lighthouse accessib
 **All functionality must be keyboard accessible:**
 ```javascript
 // ❌ Only handles click
-element.addEventListener('click', handleAction);
+element.addEventListener("click", handleAction);
 
 // ✅ Handles both click and keyboard
-element.addEventListener('click', handleAction);
-element.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    handleAction();
-  }
+element.addEventListener("click", handleAction);
+element.addEventListener("keydown", (e) => {
+	if (e.key === "Enter" || e.key === " ") {
+		e.preventDefault();
+		handleAction();
+	}
 });
 ```
 
@@ -250,15 +250,15 @@ Any action that requires dragging must have a single-pointer alternative (e.g., 
 ```javascript
 // Allow users to extend time limits
 function showSessionWarning() {
-  const modal = createModal({
-    title: 'Session Expiring',
-    content: 'Your session will expire in 2 minutes.',
-    actions: [
-      { label: 'Extend session', action: extendSession },
-      { label: 'Log out', action: logout }
-    ],
-    timeout: 120000
-  });
+	const modal = createModal({
+		title: "Session Expiring",
+		content: "Your session will expire in 2 minutes.",
+		actions: [
+			{ label: "Extend session", action: extendSession },
+			{ label: "Log out", action: logout }
+		],
+		timeout: 120000
+	});
 }
 ```
 

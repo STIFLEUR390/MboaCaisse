@@ -27,20 +27,19 @@ Browsers auto-correct invalid HTML, creating different DOM than Vue expects.
 **Incorrect:**
 ```vue
 <template>
-  <!-- WRONG: <div> cannot be inside <p> -->
-  <p>
-    <div>This will break hydration</div>
-  </p>
+	<!-- WRONG: <div> cannot be inside <p> -->
+	<p /><div>This will break hydration</div>
+	</p>
 
-  <!-- WRONG: <a> cannot be inside <a> -->
-  <a href="/parent">
-    <a href="/child">Nested link</a>
-  </a>
+	<!-- WRONG: <a> cannot be inside <a> -->
+	<a href="/parent">
+		<a href="/child">Nested link</a>
+	</a>
 
-  <!-- WRONG: Block elements in inline elements -->
-  <span>
-    <div>Block in inline</div>
-  </span>
+	<!-- WRONG: Block elements in inline elements -->
+	<span>
+		<div>Block in inline</div>
+	</span>
 </template>
 ```
 
@@ -54,20 +53,20 @@ Browser converts the first example to:
 **Correct:**
 ```vue
 <template>
-  <!-- CORRECT: Use appropriate nesting -->
-  <div>
-    <div>This works fine</div>
-  </div>
+	<!-- CORRECT: Use appropriate nesting -->
+	<div>
+		<div>This works fine</div>
+	</div>
 
-  <!-- CORRECT: Single link with event handling -->
-  <a href="/parent" @click="handleParentClick">
-    <span @click.stop="handleChildClick">Nested action</span>
-  </a>
+	<!-- CORRECT: Single link with event handling -->
+	<a href="/parent" @click="handleParentClick">
+		<span @click.stop="handleChildClick">Nested action</span>
+	</a>
 
-  <!-- CORRECT: Block element wrapper -->
-  <div>
-    <div>Block in block</div>
-  </div>
+	<!-- CORRECT: Block element wrapper -->
+	<div>
+		<div>Block in block</div>
+	</div>
 </template>
 ```
 
@@ -78,55 +77,55 @@ Server and client generate different random values.
 **Incorrect:**
 ```vue
 <template>
-  <!-- WRONG: Different ID on server vs client -->
-  <div :id="'field-' + Math.random()">
-    Form field
-  </div>
+	<!-- WRONG: Different ID on server vs client -->
+	<div :id="`field-${Math.random()}`">
+		Form field
+	</div>
 
-  <!-- WRONG: Random order differs -->
-  <div v-for="item in shuffledItems" :key="item.id">
-    {{ item.name }}
-  </div>
+	<!-- WRONG: Random order differs -->
+	<div v-for="item in shuffledItems" :key="item.id">
+		{{ item.name }}
+	</div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+	import { computed } from "vue";
 
-const items = [/* ... */]
+	const items = [/* ... */];
 
-// WRONG: Random shuffle runs differently on server and client
-const shuffledItems = computed(() =>
-  [...items].sort(() => Math.random() - 0.5)
-)
+	// WRONG: Random shuffle runs differently on server and client
+	const shuffledItems = computed(() =>
+		[...items].sort(() => Math.random() - 0.5)
+	);
 </script>
 ```
 
 **Correct - Client-Only Random:**
 ```vue
 <template>
-  <div :id="fieldId">
-    Form field
-  </div>
+	<div :id="fieldId">
+		Form field
+	</div>
 
-  <div v-for="item in displayItems" :key="item.id">
-    {{ item.name }}
-  </div>
+	<div v-for="item in displayItems" :key="item.id">
+		{{ item.name }}
+	</div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+	import { onMounted, ref } from "vue";
 
-const items = [/* ... */]
+	const items = [/* ... */];
 
-// CORRECT: Start with deterministic value
-const fieldId = ref('field-default')
-const displayItems = ref(items) // Original order on server
+	// CORRECT: Start with deterministic value
+	const fieldId = ref("field-default");
+	const displayItems = ref(items); // Original order on server
 
-onMounted(() => {
-  // Randomize only on client
-  fieldId.value = 'field-' + Math.random().toString(36).slice(2)
-  displayItems.value = [...items].sort(() => Math.random() - 0.5)
-})
+	onMounted(() => {
+		// Randomize only on client
+		fieldId.value = `field-${Math.random().toString(36).slice(2)}`;
+		displayItems.value = [...items].sort(() => Math.random() - 0.5);
+	});
 </script>
 ```
 
@@ -134,15 +133,15 @@ onMounted(() => {
 ```javascript
 // utils/seededRandom.js
 export function createSeededRandom(seed) {
-  return function() {
-    seed = (seed * 9301 + 49297) % 233280
-    return seed / 233280
-  }
+	return function () {
+		seed = (seed * 9301 + 49297) % 233280;
+		return seed / 233280;
+	};
 }
 
 // Use same seed on server and client
-const seed = 12345 // Could be based on user ID, page, etc.
-const random = createSeededRandom(seed)
+const seed = 12345; // Could be based on user ID, page, etc.
+const random = createSeededRandom(seed);
 ```
 
 ## Cause 3: Timezone and Date Differences
@@ -152,54 +151,54 @@ Server may be in different timezone than client.
 **Incorrect:**
 ```vue
 <template>
-  <!-- WRONG: Server time != client time -->
-  <span>{{ new Date().toLocaleTimeString() }}</span>
+	<!-- WRONG: Server time != client time -->
+	<span>{{ new Date().toLocaleTimeString() }}</span>
 
-  <!-- WRONG: Server formats dates in server's timezone -->
-  <span>{{ formatDate(article.createdAt) }}</span>
+	<!-- WRONG: Server formats dates in server's timezone -->
+	<span>{{ formatDate(article.createdAt) }}</span>
 </template>
 
 <script setup>
-function formatDate(date) {
-  return new Date(date).toLocaleDateString()
-}
+	function formatDate(date) {
+		return new Date(date).toLocaleDateString();
+	}
 </script>
 ```
 
 **Correct:**
 ```vue
 <template>
-  <!-- CORRECT: Render placeholder, update on client -->
-  <span>{{ displayTime || 'Loading...' }}</span>
+	<!-- CORRECT: Render placeholder, update on client -->
+	<span>{{ displayTime || 'Loading...' }}</span>
 
-  <!-- CORRECT: Use UTC or defer to client -->
-  <span>{{ formattedDate }}</span>
+	<!-- CORRECT: Use UTC or defer to client -->
+	<span>{{ formattedDate }}</span>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+	import { computed, onMounted, ref } from "vue";
 
-const props = defineProps(['article'])
-const displayTime = ref(null)
-const isClient = ref(false)
+	const props = defineProps(["article"]);
+	const displayTime = ref(null);
+	const isClient = ref(false);
 
-onMounted(() => {
-  displayTime.value = new Date().toLocaleTimeString()
-  isClient.value = true
-})
+	onMounted(() => {
+		displayTime.value = new Date().toLocaleTimeString();
+		isClient.value = true;
+	});
 
-// CORRECT: Server renders UTC, client converts to local
-const formattedDate = computed(() => {
-  if (!props.article?.createdAt) return ''
+	// CORRECT: Server renders UTC, client converts to local
+	const formattedDate = computed(() => {
+		if (!props.article?.createdAt) return "";
 
-  if (isClient.value) {
-    // Client: user's local timezone
-    return new Date(props.article.createdAt).toLocaleDateString()
-  } else {
-    // Server: consistent UTC format
-    return new Date(props.article.createdAt).toISOString().split('T')[0]
-  }
-})
+		if (isClient.value) {
+			// Client: user's local timezone
+			return new Date(props.article.createdAt).toLocaleDateString();
+		} else {
+			// Server: consistent UTC format
+			return new Date(props.article.createdAt).toISOString().split("T")[0];
+		}
+	});
 </script>
 ```
 
@@ -210,10 +209,10 @@ Browser extensions can inject content into the DOM.
 **Mitigation:**
 ```vue
 <template>
-  <!-- Use data-allow-mismatch for areas extensions might modify -->
-  <head data-allow-mismatch>
-    <title>{{ pageTitle }}</title>
-  </head>
+	<!-- Use data-allow-mismatch for areas extensions might modify -->
+	<head data-allow-mismatch>
+		<title>{{ pageTitle }}</title>
+	</head>
 </template>
 ```
 
@@ -221,15 +220,15 @@ Browser extensions can inject content into the DOM.
 
 ```vue
 <template>
-  <!-- Suppress specific mismatch types -->
-  <div data-allow-mismatch="text">
-    {{ clientOnlyText }}
-  </div>
+	<!-- Suppress specific mismatch types -->
+	<div data-allow-mismatch="text">
+		{{ clientOnlyText }}
+	</div>
 
-  <!-- Suppress all mismatches for this element -->
-  <div data-allow-mismatch>
-    <ComplexClientComponent />
-  </div>
+	<!-- Suppress all mismatches for this element -->
+	<div data-allow-mismatch>
+		<ComplexClientComponent />
+	</div>
 </template>
 ```
 
@@ -247,21 +246,21 @@ Valid `data-allow-mismatch` values:
 // Enable detailed hydration mismatch warnings in development
 // vite.config.js
 export default {
-  define: {
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true
-  }
-}
+	define: {
+		__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true
+	}
+};
 ```
 
 ```vue
 <script setup>
-import { onMounted } from 'vue'
+	import { onMounted } from "vue";
 
-// Debug: Compare server HTML with client expectation
-onMounted(() => {
-  const serverHTML = document.getElementById('app').innerHTML
-  console.log('Server rendered:', serverHTML)
-})
+	// Debug: Compare server HTML with client expectation
+	onMounted(() => {
+		const serverHTML = document.getElementById("app").innerHTML;
+		console.log("Server rendered:", serverHTML);
+	});
 </script>
 ```
 

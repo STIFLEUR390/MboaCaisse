@@ -20,77 +20,81 @@ tags: [vue3, computed, methods, parameters, common-mistake]
 **Incorrect:**
 ```vue
 <template>
-  <!-- BAD: Computed properties don't accept parameters like this -->
-  <p>{{ filteredItems('active') }}</p>
-  <p>{{ formattedPrice(100, 'USD') }}</p>
+	<!-- BAD: Computed properties don't accept parameters like this -->
+	<p>{{ filteredItems('active') }}</p>
+	<p>{{ formattedPrice(100, 'USD') }}</p>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([/* ... */])
+	const items = ref([/* ... */]);
 
-// BAD: This won't work as expected
-// Computed is called once, not per parameter
-const filteredItems = computed((status) => {  // status will be undefined or previous value
-  return items.value.filter(i => i.status === status)
-})
+	// BAD: This won't work as expected
+	// Computed is called once, not per parameter
+	const filteredItems = computed((status) => { // status will be undefined or previous value
+		return items.value.filter((i) => i.status === status);
+	});
 </script>
 ```
 
 ```vue
 <script>
-export default {
-  data() {
-    return { items: [/* ... */] }
-  },
-  computed: {
-    // BAD: Computed doesn't receive arguments
-    filteredItems(status) {  // 'status' is actually 'this' or undefined
-      return this.items.filter(i => i.status === status)
-    }
-  }
-}
+	export default {
+		data() {
+			return { items: [/* ... */] };
+		},
+		computed: {
+			// BAD: Computed doesn't receive arguments
+			filteredItems(status) { // 'status' is actually 'this' or undefined
+				return this.items.filter((i) => i.status === status);
+			}
+		}
+	};
 </script>
 ```
 
 **Correct:**
 ```vue
 <template>
-  <!-- GOOD: Use method for parameterized operations -->
-  <p>{{ getFilteredItems('active') }}</p>
-  <p>{{ formatPrice(100, 'USD') }}</p>
+	<!-- GOOD: Use method for parameterized operations -->
+	<p>{{ getFilteredItems('active') }}</p>
+	<p>{{ formatPrice(100, 'USD') }}</p>
 
-  <!-- GOOD: Or use computed with reactive filter state -->
-  <select v-model="statusFilter">
-    <option value="active">Active</option>
-    <option value="inactive">Inactive</option>
-  </select>
-  <p>{{ filteredItems }}</p>
+	<!-- GOOD: Or use computed with reactive filter state -->
+	<select v-model="statusFilter">
+		<option value="active">
+			Active
+		</option>
+		<option value="inactive">
+			Inactive
+		</option>
+	</select>
+	<p>{{ filteredItems }}</p>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([/* ... */])
-const statusFilter = ref('active')
+	const items = ref([/* ... */]);
+	const statusFilter = ref("active");
 
-// GOOD: Method for parameterized operations
-function getFilteredItems(status) {
-  return items.value.filter(i => i.status === status)
-}
+	// GOOD: Method for parameterized operations
+	function getFilteredItems(status) {
+		return items.value.filter((i) => i.status === status);
+	}
 
-function formatPrice(amount, currency) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency
-  }).format(amount)
-}
+	function formatPrice(amount, currency) {
+		return new Intl.NumberFormat("en-US", {
+			style: "currency",
+			currency
+		}).format(amount);
+	}
 
-// GOOD: Computed with reactive parameter
-const filteredItems = computed(() => {
-  return items.value.filter(i => i.status === statusFilter.value)
-})
+	// GOOD: Computed with reactive parameter
+	const filteredItems = computed(() => {
+		return items.value.filter((i) => i.status === statusFilter.value);
+	});
 </script>
 ```
 
@@ -100,19 +104,19 @@ If you need something computed-like with parameters, you can return a function. 
 
 ```vue
 <template>
-  <p>{{ getItemsByStatus('active') }}</p>
+	<p>{{ getItemsByStatus('active') }}</p>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([/* ... */])
+	const items = ref([/* ... */]);
 
-// This works but provides NO caching benefit
-// The inner function runs every time it's called
-const getItemsByStatus = computed(() => {
-  return (status) => items.value.filter(i => i.status === status)
-})
+	// This works but provides NO caching benefit
+	// The inner function runs every time it's called
+	const getItemsByStatus = computed(() => {
+		return (status) => items.value.filter((i) => i.status === status);
+	});
 
 // This is essentially equivalent to just using a method
 // Only useful if you need to compose with other computed properties
@@ -135,22 +139,22 @@ The best pattern is often to make the "parameter" a reactive value:
 
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([/* ... */])
+	const items = ref([/* ... */]);
 
-// Instead of passing 'status' as a parameter:
-const currentStatus = ref('active')
+	// Instead of passing 'status' as a parameter:
+	const currentStatus = ref("active");
 
-// Make a computed that uses the reactive status
-const filteredItems = computed(() => {
-  return items.value.filter(i => i.status === currentStatus.value)
-})
+	// Make a computed that uses the reactive status
+	const filteredItems = computed(() => {
+		return items.value.filter((i) => i.status === currentStatus.value);
+	});
 
-// Change the filter by updating the ref
-function filterByStatus(status) {
-  currentStatus.value = status
-}
+	// Change the filter by updating the ref
+	function filterByStatus(status) {
+		currentStatus.value = status;
+	}
 </script>
 ```
 

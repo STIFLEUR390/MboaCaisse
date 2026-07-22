@@ -40,23 +40,23 @@ When invoked headless, do not ask. Complete the intent using what is provided, w
 
 ```json
 {
-  "status": "complete",
-  "intent": "create",
-  "brief": "{doc_workspace}/brief.md",
-  "addendum": "{doc_workspace}/addendum.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "open_questions": [],
-  "external_handoffs": [
-    {"directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok"}
-  ]
+	"status": "complete",
+	"intent": "create",
+	"brief": "{doc_workspace}/brief.md",
+	"addendum": "{doc_workspace}/addendum.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"open_questions": [],
+	"external_handoffs": [
+		{ "directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok" }
+	]
 }
 ```
 
 ```json
 {
-  "status": "complete",
-  "intent": "validate",
-  "offer_to_update": true
+	"status": "complete",
+	"intent": "validate",
+	"offer_to_update": true
 }
 ```
 

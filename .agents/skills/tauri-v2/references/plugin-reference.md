@@ -52,7 +52,7 @@ cargo tauri add fs
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["fs:default"]
+	"permissions": ["fs:default"]
 }
 ```
 
@@ -85,7 +85,7 @@ cargo tauri add dialog
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["dialog:default"]
+	"permissions": ["dialog:default"]
 }
 ```
 
@@ -114,7 +114,7 @@ cargo tauri add shell
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["shell:default"]
+	"permissions": ["shell:default"]
 }
 ```
 
@@ -145,7 +145,7 @@ cargo tauri add http
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["http:default"]
+	"permissions": ["http:default"]
 }
 ```
 
@@ -175,7 +175,7 @@ cargo tauri add store
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["store:default"]
+	"permissions": ["store:default"]
 }
 ```
 
@@ -203,7 +203,7 @@ cargo tauri add clipboard-manager
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["clipboard-manager:default"]
+	"permissions": ["clipboard-manager:default"]
 }
 ```
 
@@ -230,7 +230,7 @@ cargo tauri add notification
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["notification:default"]
+	"permissions": ["notification:default"]
 }
 ```
 
@@ -257,7 +257,7 @@ cargo tauri add global-shortcut
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["global-shortcut:default"]
+	"permissions": ["global-shortcut:default"]
 }
 ```
 
@@ -286,7 +286,7 @@ cargo tauri add updater
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["updater:default"]
+	"permissions": ["updater:default"]
 }
 ```
 
@@ -316,7 +316,7 @@ cargo tauri add deep-link
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["deep-link:default"]
+	"permissions": ["deep-link:default"]
 }
 ```
 
@@ -342,7 +342,7 @@ cargo tauri add opener
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["opener:default"]
+	"permissions": ["opener:default"]
 }
 ```
 
@@ -369,7 +369,7 @@ cargo tauri add process
 **Capability permissions** (add to `src-tauri/capabilities/*.json`):
 ```json
 {
-  "permissions": ["process:default"]
+	"permissions": ["process:default"]
 }
 ```
 

@@ -20,9 +20,9 @@ tags: [vue3, sfc, scoped-css, deep-selector, child-components]
 **Problematic Code:**
 ```vue
 <template>
-  <div class="container">
-    <ThirdPartyDatePicker />
-  </div>
+	<div class="container">
+		<ThirdPartyDatePicker />
+	</div>
 </template>
 
 <style scoped>
@@ -40,9 +40,9 @@ tags: [vue3, sfc, scoped-css, deep-selector, child-components]
 **Correct Code:**
 ```vue
 <template>
-  <div class="container">
-    <ThirdPartyDatePicker />
-  </div>
+	<div class="container">
+		<ThirdPartyDatePicker />
+	</div>
 </template>
 
 <style scoped>
@@ -70,7 +70,8 @@ Vue scoped CSS adds a unique data attribute to all elements in the component's t
 <!-- Template output -->
 <div class="container" data-v-7ba5bd90>
   <!-- Child component elements DON'T get data-v-7ba5bd90 -->
-  <div class="date-input">...</div>
+  <div class="date-input">...
+</div>
 </div>
 ```
 
@@ -121,7 +122,7 @@ Note: A child component's root element IS affected by parent scoped CSS. This is
 ```vue
 <!-- Parent.vue -->
 <template>
-  <ChildComponent class="styled-child" />
+	<ChildComponent class="styled-child" />
 </template>
 
 <style scoped>

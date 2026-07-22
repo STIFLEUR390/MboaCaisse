@@ -11,9 +11,11 @@ Animate enter/leave of a single element or component.
 
 ```vue
 <template>
-  <Transition name="fade">
-    <div v-if="show">Content</div>
-  </Transition>
+	<Transition name="fade">
+		<div v-if="show">
+			Content
+		</div>
+	</Transition>
 </template>
 
 <style>
@@ -60,10 +62,10 @@ Animate enter/leave of a single element or component.
 </Transition>
 
 <script setup lang="ts">
-function onEnter(el: Element, done: () => void) {
-  // Animate with JS library
-  gsap.to(el, { opacity: 1, onComplete: done })
-}
+	function onEnter(el: Element, done: () => void) {
+		// Animate with JS library
+		gsap.to(el, { opacity: 1, onComplete: done });
+	}
 </script>
 ```
 
@@ -81,11 +83,11 @@ Animate list items. Each child must have a unique `key`.
 
 ```vue
 <template>
-  <TransitionGroup name="list" tag="ul">
-    <li v-for="item in items" :key="item.id">
-      {{ item.text }}
-    </li>
-  </TransitionGroup>
+	<TransitionGroup name="list" tag="ul">
+		<li v-for="item in items" :key="item.id">
+			{{ item.text }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <style>
@@ -109,13 +111,15 @@ Render content to a different DOM location.
 
 ```vue
 <template>
-  <button @click="open = true">Open Modal</button>
-  
-  <Teleport to="body">
-    <div v-if="open" class="modal">
-      Modal content rendered at body
-    </div>
-  </Teleport>
+	<button @click="open = true">
+		Open Modal
+	</button>
+
+	<Teleport to="body">
+		<div v-if="open" class="modal">
+			Modal content rendered at body
+		</div>
+	</Teleport>
 </template>
 ```
 
@@ -141,14 +145,14 @@ Handle async dependencies with loading states. **Experimental feature.**
 
 ```vue
 <template>
-  <Suspense>
-    <template #default>
-      <AsyncComponent />
-    </template>
-    <template #fallback>
-      <div>Loading...</div>
-    </template>
-  </Suspense>
+	<Suspense>
+		<template #default>
+			<AsyncComponent />
+		</template>
+		<template #fallback>
+			<div>Loading...</div>
+		</template>
+	</Suspense>
 </template>
 ```
 
@@ -162,7 +166,7 @@ Suspense waits for:
 ```vue
 <!-- AsyncComponent.vue -->
 <script setup lang="ts">
-const data = await fetch('/api/data').then(r => r.json())
+	const data = await fetch("/api/data").then((r) => r.json());
 </script>
 ```
 
@@ -184,9 +188,9 @@ Cache component instances when toggled.
 
 ```vue
 <template>
-  <KeepAlive>
-    <component :is="currentTab" />
-  </KeepAlive>
+	<KeepAlive>
+		<component :is="currentTab" />
+	</KeepAlive>
 </template>
 ```
 
@@ -208,17 +212,17 @@ Cache component instances when toggled.
 ### Lifecycle Hooks
 
 ```ts
-import { onActivated, onDeactivated } from 'vue'
+import { onActivated, onDeactivated } from "vue";
 
 onActivated(() => {
-  // Called when component is inserted from cache
-  fetchLatestData()
-})
+	// Called when component is inserted from cache
+	fetchLatestData();
+});
 
 onDeactivated(() => {
-  // Called when component is removed to cache
-  pauseTimers()
-})
+	// Called when component is removed to cache
+	pauseTimers();
+});
 ```
 
 ## v-memo
@@ -227,16 +231,18 @@ Skip re-renders when dependencies unchanged. Use for performance optimization.
 
 ```vue
 <template>
-  <div v-for="item in list" :key="item.id" v-memo="[item.selected]">
-    <!-- Only re-renders when item.selected changes -->
-    <ExpensiveComponent :item="item" />
-  </div>
+	<div v-for="item in list" :key="item.id" v-memo="[item.selected]">
+		<!-- Only re-renders when item.selected changes -->
+		<ExpensiveComponent :item="item" />
+	</div>
 </template>
 ```
 
 Equivalent to `v-once` when empty:
 ```vue
-<div v-memo="[]">Never updates</div>
+<div v-memo="[]">
+Never updates
+</div>
 ```
 
 ## v-once
@@ -244,7 +250,9 @@ Equivalent to `v-once` when empty:
 Render once, skip all future updates.
 
 ```vue
-<span v-once>Static: {{ neverChanges }}</span>
+<span v-once>
+Static: {{ neverChanges }}
+</span>
 ```
 
 ## Custom Directives
@@ -254,23 +262,23 @@ Create reusable DOM manipulations.
 ```ts
 // Directive definition
 const vFocus: Directive<HTMLElement> = {
-  mounted: (el) => el.focus()
-}
+	mounted: (el) => el.focus()
+};
 
 // Full hooks
 const vColor: Directive<HTMLElement, string> = {
-  created(el, binding, vnode, prevVnode) {},
-  beforeMount(el, binding) {},
-  mounted(el, binding) {
-    el.style.color = binding.value
-  },
-  beforeUpdate(el, binding) {},
-  updated(el, binding) {
-    el.style.color = binding.value
-  },
-  beforeUnmount(el, binding) {},
-  unmounted(el, binding) {}
-}
+	created(el, binding, vnode, prevVnode) {},
+	beforeMount(el, binding) {},
+	mounted(el, binding) {
+		el.style.color = binding.value;
+	},
+	beforeUpdate(el, binding) {},
+	updated(el, binding) {
+		el.style.color = binding.value;
+	},
+	beforeUnmount(el, binding) {},
+	unmounted(el, binding) {}
+};
 ```
 
 ### Directive Arguments & Modifiers
@@ -297,9 +305,9 @@ const vColor: Directive<HTMLElement, string> = {
 
 ```ts
 // main.ts
-app.directive('focus', {
-  mounted: (el) => el.focus()
-})
+app.directive("focus", {
+	mounted: (el) => el.focus()
+});
 ```
 
 <!--

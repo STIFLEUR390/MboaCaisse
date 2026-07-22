@@ -30,20 +30,20 @@ Return ONLY the following JSON object. No preamble, no commentary. Keep total re
 
 ```json
 {
-  "competitive_landscape": [
-    {"name": "competitor", "approach": "one-line description", "gaps": "where they fall short"}
-  ],
-  "market_context": [
-    "bullet — market size, growth trends, relevant data points"
-  ],
-  "user_sentiment": [
-    "bullet — what users say about existing solutions"
-  ],
-  "timing_and_opportunity": [
-    "bullet — why now, enabling shifts"
-  ],
-  "risks_and_considerations": [
-    "bullet — market risks, competitive threats, regulatory concerns"
-  ]
+	"competitive_landscape": [
+		{ "name": "competitor", "approach": "one-line description", "gaps": "where they fall short" }
+	],
+	"market_context": [
+		"bullet — market size, growth trends, relevant data points"
+	],
+	"user_sentiment": [
+		"bullet — what users say about existing solutions"
+	],
+	"timing_and_opportunity": [
+		"bullet — why now, enabling shifts"
+	],
+	"risks_and_considerations": [
+		"bullet — market risks, competitive threats, regulatory concerns"
+	]
 }
 ```

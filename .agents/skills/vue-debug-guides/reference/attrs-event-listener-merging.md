@@ -16,32 +16,32 @@ When an event listener is passed to a component as a fallthrough attribute, it i
 ```vue
 <!-- BaseButton.vue - Potential double-action bug -->
 <template>
-  <button @click="internalClick">
-    <slot />
-  </button>
+	<button @click="internalClick">
+		<slot />
+	</button>
 </template>
 
-<script setup>
-const emit = defineEmits(['action'])
-
-function internalClick() {
-  // This runs first
-  emit('action')
-  console.log('Internal click handler')
-}
-</script>
-
-<!-- Parent.vue -->
 <template>
   <BaseButton @click="parentClick">Submit</BaseButton>
 </template>
 
+<!-- Parent.vue -->
 <script setup>
-function parentClick() {
-  // This ALSO runs (after internal)
-  submitForm()  // Might cause double submission!
-  console.log('Parent click handler')
-}
+	const emit = defineEmits(["action"]);
+
+	function internalClick() {
+		// This runs first
+		emit("action");
+		console.log("Internal click handler");
+	}
+</script>
+
+<script setup>
+	function parentClick() {
+		// This ALSO runs (after internal)
+		submitForm(); // Might cause double submission!
+		console.log("Parent click handler");
+	}
 </script>
 
 <!--
@@ -60,31 +60,43 @@ function parentClick() {
 
 ```vue
 <!-- BaseButton.vue - Control event handling explicitly -->
-<script setup>
-defineOptions({
-  inheritAttrs: false
-})
-
-const emit = defineEmits(['click'])
-
-function handleClick(event) {
-  // Component controls all click behavior
-  console.log('Handled internally')
-  emit('click', event)  // Explicitly forward if needed
-}
-</script>
-
 <template>
-  <button @click="handleClick">
-    <slot />
-  </button>
+	<button @click="handleClick">
+		<slot />
+	</button>
 </template>
+
+<script setup>
+	defineOptions({
+		inheritAttrs: false
+	});
+
+	const emit = defineEmits(["click"]);
+
+	function handleClick(event) {
+		// Component controls all click behavior
+		console.log("Handled internally");
+		emit("click", event); // Explicitly forward if needed
+	}
+</script>
 ```
 
 ### Option 2: Document the additive behavior
 
 ```vue
 <!-- BaseButton.vue - Design for composition -->
+<template>
+	<button @click="internalClick">
+		<slot />
+	</button>
+</template>
+
+<template>
+  <!-- Use @action, not @click, to avoid double handling -->
+  <BaseButton @action="handleAction">Submit</BaseButton>
+</template>
+
+<!-- Parent.vue - Use the custom event instead -->
 <script setup>
 /**
  * BaseButton - A composable button component
@@ -93,49 +105,37 @@ function handleClick(event) {
  * The internal handler runs first, then any parent @click handler.
  * Use @action event if you only want to respond to the action.
  */
-const emit = defineEmits(['action'])
+	const emit = defineEmits(["action"]);
 
-function internalClick() {
-  // Internal logic (e.g., ripple effect, analytics)
-  emit('action')
-}
+	function internalClick() {
+		// Internal logic (e.g., ripple effect, analytics)
+		emit("action");
+	}
 </script>
-
-<template>
-  <button @click="internalClick">
-    <slot />
-  </button>
-</template>
-
-<!-- Parent.vue - Use the custom event instead -->
-<template>
-  <!-- Use @action, not @click, to avoid double handling -->
-  <BaseButton @action="handleAction">Submit</BaseButton>
-</template>
 ```
 
 ### Option 3: Use stopPropagation if needed
 
 ```vue
 <!-- BaseButton.vue - Stop event propagation when needed -->
-<script setup>
-const props = defineProps({
-  stopPropagation: Boolean
-})
-
-function handleClick(event) {
-  if (props.stopPropagation) {
-    event.stopPropagation()
-  }
-  // Internal handling...
-}
-</script>
-
 <template>
-  <button @click="handleClick">
-    <slot />
-  </button>
+	<button @click="handleClick">
+		<slot />
+	</button>
 </template>
+
+<script setup>
+	const props = defineProps({
+		stopPropagation: Boolean
+	});
+
+	function handleClick(event) {
+		if (props.stopPropagation) {
+			event.stopPropagation();
+		}
+		// Internal handling...
+	}
+</script>
 ```
 
 ## Using Additive Behavior Intentionally
@@ -145,45 +145,47 @@ The additive behavior can be useful for extending functionality:
 ```vue
 <!-- EnhancedButton.vue - Leveraging additive listeners -->
 <template>
-  <button
-    @click="trackClick"
-    @focus="trackFocus"
-  >
-    <slot />
-  </button>
+	<button
+		@click="trackClick"
+		@focus="trackFocus"
+	>
+		<slot />
+	</button>
 </template>
 
-<script setup>
-function trackClick() {
-  analytics.track('button_click')
-  // Parent's @click will also run - that's intentional!
-}
-
-function trackFocus() {
-  analytics.track('button_focus')
-}
-</script>
-
-<!-- Parent.vue -->
 <template>
   <!-- Both analytics AND form submission happen -->
   <EnhancedButton @click="submitForm">Submit</EnhancedButton>
 </template>
+
+<!-- Parent.vue -->
+<script setup>
+	function trackClick() {
+		analytics.track("button_click");
+		// Parent's @click will also run - that's intentional!
+	}
+
+	function trackFocus() {
+		analytics.track("button_focus");
+	}
+</script>
 ```
 
 ## Execution Order
 
 ```vue
+<template>
+	<button @click="componentHandler">
+		Click
+	</button>
+</template>
+
 <script setup>
 // Component
-function componentHandler() {
-  console.log('1. Component handler (first)')
-}
+	function componentHandler() {
+		console.log("1. Component handler (first)");
+	}
 </script>
-
-<template>
-  <button @click="componentHandler">Click</button>
-</template>
 
 <!-- Parent passes @click -->
 <!-- Execution order:

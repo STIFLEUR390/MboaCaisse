@@ -14,21 +14,21 @@ Every headless run ends with one of these payloads. Omit keys for artifacts not 
 
 ```json
 {
-  "status": "complete",
-  "intent": "create",
-  "design": "{doc_workspace}/DESIGN.md",
-  "experience": "{doc_workspace}/EXPERIENCE.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "working_artifacts": ["{doc_workspace}/.working/color-themes-1.html"],
-  "promoted_artifacts": {
-    "mockups": ["{doc_workspace}/mockups/direction-calm-sage.html"],
-    "wireframes": ["{doc_workspace}/wireframes/ia-2026-05-19.excalidraw"]
-  },
-  "open_questions": [],
-  "assumptions": [],
-  "external_handoffs": [
-    {"directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/DESIGN/123", "status": "ok"}
-  ]
+	"status": "complete",
+	"intent": "create",
+	"design": "{doc_workspace}/DESIGN.md",
+	"experience": "{doc_workspace}/EXPERIENCE.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"working_artifacts": ["{doc_workspace}/.working/color-themes-1.html"],
+	"promoted_artifacts": {
+		"mockups": ["{doc_workspace}/mockups/direction-calm-sage.html"],
+		"wireframes": ["{doc_workspace}/wireframes/ia-2026-05-19.excalidraw"]
+	},
+	"open_questions": [],
+	"assumptions": [],
+	"external_handoffs": [
+		{ "directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/DESIGN/123", "status": "ok" }
+	]
 }
 ```
 
@@ -38,17 +38,17 @@ The `working_artifacts` and `promoted_artifacts` keys are optional and omitted e
 
 ```json
 {
-  "status": "complete",
-  "intent": "update",
-  "design": "{doc_workspace}/DESIGN.md",
-  "experience": "{doc_workspace}/EXPERIENCE.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "changes_summary": "1-3 sentences describing what changed and why",
-  "conflicts_with_prior_decisions": [],
-  "open_questions": [],
-  "external_handoffs": [
-    {"directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/DESIGN/123", "status": "ok"}
-  ]
+	"status": "complete",
+	"intent": "update",
+	"design": "{doc_workspace}/DESIGN.md",
+	"experience": "{doc_workspace}/EXPERIENCE.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"changes_summary": "1-3 sentences describing what changed and why",
+	"conflicts_with_prior_decisions": [],
+	"open_questions": [],
+	"external_handoffs": [
+		{ "directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/DESIGN/123", "status": "ok" }
+	]
 }
 ```
 
@@ -56,16 +56,16 @@ The `working_artifacts` and `promoted_artifacts` keys are optional and omitted e
 
 ```json
 {
-  "status": "complete",
-  "intent": "validate",
-  "validation_report": "{doc_workspace}/validation-report.md",
-  "findings_summary": {
-    "critical": 0,
-    "high": 0,
-    "medium": 0,
-    "low": 0
-  },
-  "offer_to_update": true
+	"status": "complete",
+	"intent": "validate",
+	"validation_report": "{doc_workspace}/validation-report.md",
+	"findings_summary": {
+		"critical": 0,
+		"high": 0,
+		"medium": 0,
+		"low": 0
+	},
+	"offer_to_update": true
 }
 ```
 
@@ -75,9 +75,9 @@ The `working_artifacts` and `promoted_artifacts` keys are optional and omitted e
 
 ```json
 {
-  "status": "blocked",
-  "intent": "update",
-  "reason": "Change signal ambiguous — could be a brand refresh or an accessibility audit response; no inferred direction"
+	"status": "blocked",
+	"intent": "update",
+	"reason": "Change signal ambiguous — could be a brand refresh or an accessibility audit response; no inferred direction"
 }
 ```
 

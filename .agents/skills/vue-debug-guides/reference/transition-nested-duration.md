@@ -20,12 +20,14 @@ tags: [vue3, transition, animation, duration, nested, timing]
 **Problematic Code:**
 ```vue
 <template>
-  <!-- BAD: Inner element has longer animation that gets cut off -->
-  <Transition name="nested">
-    <div v-if="show" class="outer">
-      <div class="inner">Hello</div>
-    </div>
-  </Transition>
+	<!-- BAD: Inner element has longer animation that gets cut off -->
+	<Transition name="nested">
+		<div v-if="show" class="outer">
+			<div class="inner">
+				Hello
+			</div>
+		</div>
+	</Transition>
 </template>
 
 <style>
@@ -55,12 +57,14 @@ tags: [vue3, transition, animation, duration, nested, timing]
 **Correct Code:**
 ```vue
 <template>
-  <!-- GOOD: Explicit duration ensures all nested animations complete -->
-  <Transition name="nested" :duration="700">
-    <div v-if="show" class="outer">
-      <div class="inner">Hello</div>
-    </div>
-  </Transition>
+	<!-- GOOD: Explicit duration ensures all nested animations complete -->
+	<Transition name="nested" :duration="700">
+		<div v-if="show" class="outer">
+			<div class="inner">
+				Hello
+			</div>
+		</div>
+	</Transition>
 </template>
 
 <style>
@@ -91,16 +95,20 @@ tags: [vue3, transition, animation, duration, nested, timing]
 
 ```vue
 <template>
-  <!-- GOOD: Separate durations for enter and leave -->
-  <Transition
-    name="complex"
-    :duration="{ enter: 500, leave: 800 }"
-  >
-    <div v-if="show" class="container">
-      <h1 class="title">Title</h1>
-      <p class="content">Content with staggered animation</p>
-    </div>
-  </Transition>
+	<!-- GOOD: Separate durations for enter and leave -->
+	<Transition
+		name="complex"
+		:duration="{ enter: 500, leave: 800 }"
+	>
+		<div v-if="show" class="container">
+			<h1 class="title">
+				Title
+			</h1>
+			<p class="content">
+				Content with staggered animation
+			</p>
+		</div>
+	</Transition>
 </template>
 
 <style>
@@ -136,14 +144,20 @@ tags: [vue3, transition, animation, duration, nested, timing]
 
 ```vue
 <template>
-  <Transition name="stagger" :duration="800">
-    <div v-if="show" class="card">
-      <img class="card-image" src="..." />
-      <h2 class="card-title">Title</h2>
-      <p class="card-body">Body text...</p>
-      <button class="card-action">Action</button>
-    </div>
-  </Transition>
+	<Transition name="stagger" :duration="800">
+		<div v-if="show" class="card">
+			<img class="card-image" src="...">
+			<h2 class="card-title">
+				Title
+			</h2>
+			<p class="card-body">
+				Body text...
+			</p>
+			<button class="card-action">
+				Action
+			</button>
+		</div>
+	</Transition>
 </template>
 
 <style>

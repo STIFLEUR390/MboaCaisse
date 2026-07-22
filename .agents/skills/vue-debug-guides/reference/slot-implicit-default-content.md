@@ -18,25 +18,25 @@ tags: [vue3, slots, named-slots, default-slot, implicit-behavior]
 
 **The Implicit Behavior:**
 ```vue
-<script setup>
-import BaseLayout from './BaseLayout.vue'
-</script>
-
 <template>
-  <BaseLayout>
-    <template #header>
-      <h1>Page Title</h1>
-    </template>
+	<BaseLayout>
+		<template #header>
+			<h1>Page Title</h1>
+		</template>
 
-    <!-- These are IMPLICITLY in the default slot -->
-    <p>First paragraph of main content.</p>
-    <p>Second paragraph of main content.</p>
+		<!-- These are IMPLICITLY in the default slot -->
+		<p>First paragraph of main content.</p>
+		<p>Second paragraph of main content.</p>
 
-    <template #footer>
-      <p>Footer content</p>
-    </template>
-  </BaseLayout>
+		<template #footer>
+			<p>Footer content</p>
+		</template>
+	</BaseLayout>
 </template>
+
+<script setup>
+	import BaseLayout from "./BaseLayout.vue";
+</script>
 ```
 
 The two `<p>` elements are automatically placed in `<slot>` (the default slot) in the child component.
@@ -44,21 +44,21 @@ The two `<p>` elements are automatically placed in `<slot>` (the default slot) i
 **Equivalent Explicit Version:**
 ```vue
 <template>
-  <BaseLayout>
-    <template #header>
-      <h1>Page Title</h1>
-    </template>
+	<BaseLayout>
+		<template #header>
+			<h1>Page Title</h1>
+		</template>
 
-    <!-- Explicit default slot -->
-    <template #default>
-      <p>First paragraph of main content.</p>
-      <p>Second paragraph of main content.</p>
-    </template>
+		<!-- Explicit default slot -->
+		<template #default>
+			<p>First paragraph of main content.</p>
+			<p>Second paragraph of main content.</p>
+		</template>
 
-    <template #footer>
-      <p>Footer content</p>
-    </template>
-  </BaseLayout>
+		<template #footer>
+			<p>Footer content</p>
+		</template>
+	</BaseLayout>
 </template>
 ```
 
@@ -67,25 +67,25 @@ The two `<p>` elements are automatically placed in `<slot>` (the default slot) i
 **Scattered Content:**
 ```vue
 <template>
-  <BaseLayout>
-    <template #header>
-      <h1>Title</h1>
-    </template>
+	<BaseLayout>
+		<template #header>
+			<h1>Title</h1>
+		</template>
 
-    <p>Content A</p>  <!-- Goes to default slot -->
+		<p>Content A</p>  <!-- Goes to default slot -->
 
-    <template #sidebar>
-      <nav>Navigation</nav>
-    </template>
+		<template #sidebar>
+			<nav>Navigation</nav>
+		</template>
 
-    <p>Content B</p>  <!-- Also goes to default slot! -->
+		<p>Content B</p>  <!-- Also goes to default slot! -->
 
-    <template #footer>
-      <p>Footer</p>
-    </template>
+		<template #footer>
+			<p>Footer</p>
+		</template>
 
-    <p>Content C</p>  <!-- Also goes to default slot! -->
-  </BaseLayout>
+		<p>Content C</p>  <!-- Also goes to default slot! -->
+	</BaseLayout>
 </template>
 ```
 
@@ -94,25 +94,25 @@ All three `<p>` elements end up in the default slot together, which may not be t
 **Clearer with Explicit Default:**
 ```vue
 <template>
-  <BaseLayout>
-    <template #header>
-      <h1>Title</h1>
-    </template>
+	<BaseLayout>
+		<template #header>
+			<h1>Title</h1>
+		</template>
 
-    <template #default>
-      <p>Content A</p>
-      <p>Content B</p>
-      <p>Content C</p>
-    </template>
+		<template #default>
+			<p>Content A</p>
+			<p>Content B</p>
+			<p>Content C</p>
+		</template>
 
-    <template #sidebar>
-      <nav>Navigation</nav>
-    </template>
+		<template #sidebar>
+			<nav>Navigation</nav>
+		</template>
 
-    <template #footer>
-      <p>Footer</p>
-    </template>
-  </BaseLayout>
+		<template #footer>
+			<p>Footer</p>
+		</template>
+	</BaseLayout>
 </template>
 ```
 
@@ -130,24 +130,24 @@ All three `<p>` elements end up in the default slot together, which may not be t
 ```vue
 <!-- BaseLayout.vue -->
 <template>
-  <div class="layout">
-    <header>
-      <slot name="header"></slot>
-    </header>
+	<div class="layout">
+		<header>
+			<slot name="header" />
+		</header>
 
-    <aside>
-      <slot name="sidebar"></slot>
-    </aside>
+		<aside>
+			<slot name="sidebar" />
+		</aside>
 
-    <main>
-      <!-- All implicit content ends up here -->
-      <slot></slot>
-    </main>
+		<main>
+			<!-- All implicit content ends up here -->
+			<slot />
+		</main>
 
-    <footer>
-      <slot name="footer"></slot>
-    </footer>
-  </div>
+		<footer>
+			<slot name="footer" />
+		</footer>
+	</div>
 </template>
 ```
 

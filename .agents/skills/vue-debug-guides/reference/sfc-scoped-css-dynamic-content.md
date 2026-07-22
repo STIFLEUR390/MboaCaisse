@@ -19,17 +19,17 @@ tags: [vue3, sfc, scoped-css, dynamic-content, v-html]
 
 **Problematic Code:**
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-const htmlContent = ref('<p class="dynamic">This is dynamic content</p>')
-</script>
-
 <template>
-  <div class="container">
-    <div v-html="htmlContent"></div>
-  </div>
+	<div class="container">
+		<div v-html="htmlContent" />
+	</div>
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const htmlContent = ref("<p class=\"dynamic\">This is dynamic content</p>");
+</script>
 
 <style scoped>
 /* BAD: Won't apply to the dynamic <p> element! */
@@ -42,17 +42,17 @@ const htmlContent = ref('<p class="dynamic">This is dynamic content</p>')
 
 **Correct Code:**
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-const htmlContent = ref('<p class="dynamic">This is dynamic content</p>')
-</script>
-
 <template>
-  <div class="container">
-    <div v-html="htmlContent"></div>
-  </div>
+	<div class="container">
+		<div v-html="htmlContent" />
+	</div>
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const htmlContent = ref("<p class=\"dynamic\">This is dynamic content</p>");
+</script>
 
 <style scoped>
 /* GOOD: Use :deep() for v-html content */
@@ -88,16 +88,17 @@ Vue scoped CSS adds a unique data attribute (e.g., `data-v-7ba5bd90`) to:
 ## Alternative: Global Styles with Unique Prefix
 
 ```vue
-<script setup>
-import { ref } from 'vue'
-const htmlContent = ref('<p class="my-component-dynamic">Dynamic text</p>')
-</script>
-
 <template>
-  <div class="my-component">
-    <div v-html="htmlContent"></div>
-  </div>
+	<div class="my-component">
+		<div v-html="htmlContent" />
+	</div>
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const htmlContent = ref("<p class=\"my-component-dynamic\">Dynamic text</p>");
+</script>
 
 <!-- Use unscoped styles with unique prefixes -->
 <style>
@@ -112,22 +113,22 @@ const htmlContent = ref('<p class="my-component-dynamic">Dynamic text</p>')
 When using third-party libraries that manipulate the DOM:
 
 ```vue
-<script setup>
-import { ref, onMounted } from 'vue'
-
-const editorRef = ref(null)
-
-onMounted(() => {
-  // Third-party editor that injects its own DOM elements
-  initRichEditor(editorRef.value)
-})
-</script>
-
 <template>
-  <div class="editor-wrapper">
-    <div ref="editorRef"></div>
-  </div>
+	<div class="editor-wrapper">
+		<div ref="editorRef" />
+	</div>
 </template>
+
+<script setup>
+	import { onMounted, ref } from "vue";
+
+	const editorRef = ref(null);
+
+	onMounted(() => {
+		// Third-party editor that injects its own DOM elements
+		initRichEditor(editorRef.value);
+	});
+</script>
 
 <style scoped>
 /* BAD: Won't reach injected editor elements */
@@ -151,34 +152,34 @@ onMounted(() => {
 Instead of dynamic HTML, use Vue's reactive system when possible:
 
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-// BAD: Dynamic HTML that needs special style handling
-const badHtml = ref('<span class="highlight">text</span>')
-
-// GOOD: Reactive data that templates handle
-const items = ref([
-  { text: 'Item 1', isHighlighted: true },
-  { text: 'Item 2', isHighlighted: false }
-])
-</script>
-
 <template>
-  <!-- BAD -->
-  <div v-html="badHtml"></div>
+	<!-- BAD -->
+	<div v-html="badHtml" />
 
-  <!-- GOOD: Scoped styles work normally -->
-  <ul>
-    <li
-      v-for="item in items"
-      :key="item.text"
-      :class="{ highlight: item.isHighlighted }"
-    >
-      {{ item.text }}
-    </li>
-  </ul>
+	<!-- GOOD: Scoped styles work normally -->
+	<ul>
+		<li
+			v-for="item in items"
+			:key="item.text"
+			:class="{ highlight: item.isHighlighted }"
+		>
+			{{ item.text }}
+		</li>
+	</ul>
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	// BAD: Dynamic HTML that needs special style handling
+	const badHtml = ref("<span class=\"highlight\">text</span>");
+
+	// GOOD: Reactive data that templates handle
+	const items = ref([
+		{ text: "Item 1", isHighlighted: true },
+		{ text: "Item 2", isHighlighted: false }
+	]);
+</script>
 
 <style scoped>
 /* Works perfectly with reactive template */

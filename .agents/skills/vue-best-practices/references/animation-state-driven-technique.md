@@ -21,26 +21,26 @@ tags: [vue3, animation, css, transition, style-binding, state, interactive]
 
 ```vue
 <template>
-  <div
-    @mousemove="onMousemove"
-    :style="{ backgroundColor: `hsl(${hue}, 80%, 50%)` }"
-    class="interactive-area"
-  >
-    <p>Move your mouse across this div...</p>
-    <p>Hue: {{ hue }}</p>
-  </div>
+	<div
+		:style="{ backgroundColor: `hsl(${hue}, 80%, 50%)` }"
+		class="interactive-area"
+		@mousemove="onMousemove"
+	>
+		<p>Move your mouse across this div...</p>
+		<p>Hue: {{ hue }}</p>
+	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const hue = ref(0)
+	const hue = ref(0);
 
-function onMousemove(e) {
-  // Map mouse X position to hue (0-360)
-  const rect = e.currentTarget.getBoundingClientRect()
-  hue.value = Math.round((e.clientX - rect.left) / rect.width * 360)
-}
+	function onMousemove(e) {
+		// Map mouse X position to hue (0-360)
+		const rect = e.currentTarget.getBoundingClientRect();
+		hue.value = Math.round((e.clientX - rect.left) / rect.width * 360);
+	}
 </script>
 
 <style>
@@ -61,30 +61,30 @@ function onMousemove(e) {
 
 ```vue
 <template>
-  <div
-    class="container"
-    @mousemove="onMousemove"
-  >
-    <div
-      class="follower"
-      :style="{
-        transform: `translate(${x}px, ${y}px)`
-      }"
-    />
-  </div>
+	<div
+		class="container"
+		@mousemove="onMousemove"
+	>
+		<div
+			class="follower"
+			:style="{
+				transform: `translate(${x}px, ${y}px)`
+			}"
+		/>
+	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const x = ref(0)
-const y = ref(0)
+	const x = ref(0);
+	const y = ref(0);
 
-function onMousemove(e) {
-  const rect = e.currentTarget.getBoundingClientRect()
-  x.value = e.clientX - rect.left
-  y.value = e.clientY - rect.top
-}
+	function onMousemove(e) {
+		const rect = e.currentTarget.getBoundingClientRect();
+		x.value = e.clientX - rect.left;
+		y.value = e.clientY - rect.top;
+	}
 </script>
 
 <style>
@@ -111,24 +111,24 @@ function onMousemove(e) {
 
 ```vue
 <template>
-  <div class="progress-container">
-    <div
-      class="progress-bar"
-      :style="{ width: `${progress}%` }"
-    />
-  </div>
-  <input
-    type="range"
-    v-model.number="progress"
-    min="0"
-    max="100"
-  />
+	<div class="progress-container">
+		<div
+			class="progress-bar"
+			:style="{ width: `${progress}%` }"
+		/>
+	</div>
+	<input
+		v-model.number="progress"
+		type="range"
+		min="0"
+		max="100"
+	>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const progress = ref(0)
+	const progress = ref(0);
 </script>
 
 <style>
@@ -151,41 +151,41 @@ const progress = ref(0)
 
 ```vue
 <template>
-  <div
-    class="hero"
-    :style="{
-      opacity: heroOpacity,
-      transform: `translateY(${scrollOffset}px)`
-    }"
-  >
-    <h1>Scroll Down</h1>
-  </div>
+	<div
+		class="hero"
+		:style="{
+			opacity: heroOpacity,
+			transform: `translateY(${scrollOffset}px)`
+		}"
+	>
+		<h1>Scroll Down</h1>
+	</div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+	import { computed, onMounted, onUnmounted, ref } from "vue";
 
-const scrollY = ref(0)
+	const scrollY = ref(0);
 
-const heroOpacity = computed(() => {
-  return Math.max(0, 1 - scrollY.value / 300)
-})
+	const heroOpacity = computed(() => {
+		return Math.max(0, 1 - scrollY.value / 300);
+	});
 
-const scrollOffset = computed(() => {
-  return scrollY.value * 0.5  // Parallax effect
-})
+	const scrollOffset = computed(() => {
+		return scrollY.value * 0.5; // Parallax effect
+	});
 
-function handleScroll() {
-  scrollY.value = window.scrollY
-}
+	function handleScroll() {
+		scrollY.value = window.scrollY;
+	}
 
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll, { passive: true })
-})
+	onMounted(() => {
+		window.addEventListener("scroll", handleScroll, { passive: true });
+	});
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+	onUnmounted(() => {
+		window.removeEventListener("scroll", handleScroll);
+	});
 </script>
 
 <style>
@@ -203,30 +203,32 @@ onUnmounted(() => {
 
 ```vue
 <template>
-  <div
-    class="app"
-    :style="themeStyles"
-  >
-    <button @click="toggleTheme">Toggle Theme</button>
-    <p>Current theme: {{ isDark ? 'Dark' : 'Light' }}</p>
-  </div>
+	<div
+		class="app"
+		:style="themeStyles"
+	>
+		<button @click="toggleTheme">
+			Toggle Theme
+		</button>
+		<p>Current theme: {{ isDark ? 'Dark' : 'Light' }}</p>
+	</div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const isDark = ref(false)
+	const isDark = ref(false);
 
-const themeStyles = computed(() => ({
-  '--bg-color': isDark.value ? '#1a1a1a' : '#ffffff',
-  '--text-color': isDark.value ? '#ffffff' : '#1a1a1a',
-  backgroundColor: 'var(--bg-color)',
-  color: 'var(--text-color)'
-}))
+	const themeStyles = computed(() => ({
+		"--bg-color": isDark.value ? "#1a1a1a" : "#ffffff",
+		"--text-color": isDark.value ? "#ffffff" : "#1a1a1a",
+		backgroundColor: "var(--bg-color)",
+		color: "var(--text-color)"
+	}));
 
-function toggleTheme() {
-  isDark.value = !isDark.value
-}
+	function toggleTheme() {
+		isDark.value = !isDark.value;
+	}
 </script>
 
 <style>
@@ -243,29 +245,31 @@ For smooth number animations (counters, stats), use watchers with animation libr
 
 ```vue
 <template>
-  <div>
-    <input v-model.number="targetNumber" type="number" />
-    <p class="counter">{{ displayNumber.toFixed(0) }}</p>
-  </div>
+	<div>
+		<input v-model.number="targetNumber" type="number">
+		<p class="counter">
+			{{ displayNumber.toFixed(0) }}
+		</p>
+	</div>
 </template>
 
 <script setup>
-import { computed, ref, reactive, watch } from 'vue'
-import gsap from 'gsap'
+	import gsap from "gsap";
+	import { computed, reactive, ref, watch } from "vue";
 
-const targetNumber = ref(0)
-const tweened = reactive({ value: 0 })
+	const targetNumber = ref(0);
+	const tweened = reactive({ value: 0 });
 
-// Computed for display
-const displayNumber = computed(() => tweened.value)
+	// Computed for display
+	const displayNumber = computed(() => tweened.value);
 
-watch(targetNumber, (newValue) => {
-  gsap.to(tweened, {
-    duration: 0.5,
-    value: Number(newValue) || 0,
-    ease: 'power2.out'
-  })
-})
+	watch(targetNumber, (newValue) => {
+		gsap.to(tweened, {
+			duration: 0.5,
+			value: Number(newValue) || 0,
+			ease: "power2.out"
+		});
+	});
 </script>
 ```
 

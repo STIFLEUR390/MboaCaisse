@@ -24,25 +24,25 @@ This can cause unexpected behavior where clicks seem to stop working on your com
 **Incorrect - Declaring but not emitting:**
 ```vue
 <!-- ClickableCard.vue -->
+<template>
+	<div class="card">
+		<slot />
+	</div>
+</template>
+
 <script setup>
 // Declared 'click' but never emit it!
-const emit = defineEmits(['click', 'select'])
+	const emit = defineEmits(["click", "select"]);
 </script>
-
-<template>
-  <div class="card">
-    <slot></slot>
-  </div>
-</template>
 ```
 
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- This NEVER fires! Native clicks are blocked -->
-  <ClickableCard @click="handleClick">
-    Click me
-  </ClickableCard>
+	<!-- This NEVER fires! Native clicks are blocked -->
+	<ClickableCard @click="handleClick">
+		Click me
+	</ClickableCard>
 </template>
 ```
 
@@ -57,41 +57,41 @@ const emit = defineEmits(['click', 'select'])
 **Option 1: Emit the event explicitly:**
 ```vue
 <!-- ClickableCard.vue -->
-<script setup>
-const emit = defineEmits(['click', 'select'])
-</script>
-
 <template>
-  <!-- Explicitly emit click when div is clicked -->
-  <div class="card" @click="emit('click', $event)">
-    <slot></slot>
-  </div>
+	<!-- Explicitly emit click when div is clicked -->
+	<div class="card" @click="emit('click', $event)">
+		<slot />
+	</div>
 </template>
+
+<script setup>
+	const emit = defineEmits(["click", "select"]);
+</script>
 ```
 
 **Option 2: Don't declare native events (use fallthrough):**
 ```vue
 <!-- ClickableCard.vue -->
+<template>
+	<!-- Native @click from parent falls through to this div -->
+	<div class="card">
+		<slot />
+	</div>
+</template>
+
 <script setup>
 // Only declare custom events, not native ones
-const emit = defineEmits(['select', 'custom-action'])
+	const emit = defineEmits(["select", "custom-action"]);
 </script>
-
-<template>
-  <!-- Native @click from parent falls through to this div -->
-  <div class="card">
-    <slot></slot>
-  </div>
-</template>
 ```
 
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- Native click falls through and works -->
-  <ClickableCard @click="handleClick">
-    Click me
-  </ClickableCard>
+	<!-- Native click falls through and works -->
+	<ClickableCard @click="handleClick">
+		Click me
+	</ClickableCard>
 </template>
 ```
 
@@ -115,20 +115,20 @@ Sometimes you WANT to intercept native events:
 
 ```vue
 <!-- CustomInput.vue -->
+<template>
+	<input @input="handleInput">
+</template>
+
 <script setup>
 // Intentionally intercept 'input' to transform the value
-const emit = defineEmits(['input', 'update:modelValue'])
+	const emit = defineEmits(["input", "update:modelValue"]);
 
-function handleInput(event) {
-  const transformedValue = event.target.value.toUpperCase()
-  emit('input', transformedValue) // Emit transformed value, not raw event
-  emit('update:modelValue', transformedValue)
-}
+	function handleInput(event) {
+		const transformedValue = event.target.value.toUpperCase();
+		emit("input", transformedValue); // Emit transformed value, not raw event
+		emit("update:modelValue", transformedValue);
+	}
 </script>
-
-<template>
-  <input @input="handleInput" />
-</template>
 ```
 
 Here, declaring `input` is correct because you want to intercept and transform the native event before passing it to the parent.
@@ -143,18 +143,20 @@ If your click handlers aren't firing:
 4. Use Vue DevTools to see which events are being emitted
 
 ```vue
-<script setup>
-const emit = defineEmits(['click'])
-
-function handleClick(event) {
-  console.log('Native click received, now emitting component event')
-  emit('click', event)
-}
-</script>
-
 <template>
-  <div @click="handleClick">Click me</div>
+	<div @click="handleClick">
+		Click me
+	</div>
 </template>
+
+<script setup>
+	const emit = defineEmits(["click"]);
+
+	function handleClick(event) {
+		console.log("Native click received, now emitting component event");
+		emit("click", event);
+	}
+</script>
 ```
 
 ## Reference

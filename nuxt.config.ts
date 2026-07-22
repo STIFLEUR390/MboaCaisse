@@ -8,7 +8,8 @@ export default defineNuxtConfig({
 		"@nuxt/ui",
 		"nuxt-svgo",
 		"reka-ui/nuxt",
-		"@nuxt/eslint"
+		"@nuxt/eslint",
+		"@pinia/nuxt"
 	],
 	app: {
 		head: {

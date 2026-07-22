@@ -47,24 +47,24 @@ Located at project root or `~/.bunfig.toml` (global). Optional but useful for cu
 
 ```toml
 [install]
-dev = true                    # Install devDependencies
-optional = true               # Install optionalDependencies
-peer = true                   # Install peerDependencies
-linker = "hoisted"           # "hoisted" or "isolated" (pnpm-style)
-saveTextLockfile = true      # Use text bun.lock instead of binary
+dev = true # Install devDependencies
+optional = true # Install optionalDependencies
+peer = true # Install peerDependencies
+linker = "hoisted" # "hoisted" or "isolated" (pnpm-style)
+saveTextLockfile = true # Use text bun.lock instead of binary
 
 [serve]
-port = 3000                  # Default port for Bun.serve()
+port = 3000 # Default port for Bun.serve()
 
 [test]
-root = "."                   # Test root directory
-coverage = false             # Enable coverage reporting
-timeout = 5000               # Per-test timeout in ms
-preload = ["./setup.ts"]     # Scripts to run before tests
+root = "." # Test root directory
+coverage = false # Enable coverage reporting
+timeout = 5000 # Per-test timeout in ms
+preload = [ "./setup.ts" ] # Scripts to run before tests
 
 [run]
-shell = "system"             # "system" or "bun" (Windows defaults to "bun")
-bun = true                   # Auto-alias node to bun in scripts
+shell = "system" # "system" or "bun" (Windows defaults to "bun")
+bun = true # Auto-alias node to bun in scripts
 ```
 
 ### File Types Supported
@@ -149,10 +149,10 @@ Bun transpiles TypeScript on-the-fly; no build step needed.
 ```typescript
 // server.ts
 const server = Bun.serve({
-  port: 3000,
-  fetch(req) {
-    return new Response("Hello!");
-  },
+	port: 3000,
+	fetch(req) {
+		return new Response("Hello!");
+	}
 });
 console.log(`Listening on ${server.url}`);
 ```
@@ -163,10 +163,10 @@ bun run server.ts
 ### 6. Write Tests
 ```typescript
 // math.test.ts
-import { test, expect } from "bun:test";
+import { expect, test } from "bun:test";
 
 test("2 + 2 = 4", () => {
-  expect(2 + 2).toBe(4);
+	expect(2 + 2).toBe(4);
 });
 ```
 ```bash

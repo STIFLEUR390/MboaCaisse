@@ -19,20 +19,22 @@ tags: [vue3, slots, v-slot, compilation-error, common-mistake]
 **Incorrect:**
 ```vue
 <template>
-  <!-- BAD: v-slot on a native HTML element -->
-  <div v-slot:header>
-    <h1>Title</h1>
-  </div>
+	<!-- BAD: v-slot on a native HTML element -->
+	<div #header>
+		<h1>Title</h1>
+	</div>
 
-  <!-- BAD: Shorthand on HTML element -->
-  <span #default="{ item }">
-    {{ item.name }}
-  </span>
+	<!-- BAD: Shorthand on HTML element -->
+	<span v-slot="{ item }">
+		{{ item.name }}
+	</span>
 
-  <!-- BAD: v-slot inside a plain HTML element -->
-  <div>
-    <p v-slot:content>Some text</p>
-  </div>
+	<!-- BAD: v-slot inside a plain HTML element -->
+	<div>
+		<p #content>
+			Some text
+		</p>
+	</div>
 </template>
 ```
 
@@ -41,30 +43,30 @@ These cause the error: `v-slot can only be used on components or <template> tags
 **Correct:**
 ```vue
 <template>
-  <!-- GOOD: v-slot on component element (default scoped slot) -->
-  <MyComponent v-slot="{ item }">
-    {{ item.name }}
-  </MyComponent>
+	<!-- GOOD: v-slot on component element (default scoped slot) -->
+	<MyComponent v-slot="{ item }">
+		{{ item.name }}
+	</MyComponent>
 
-  <!-- GOOD: Named slots use template tags -->
-  <BaseLayout>
-    <template #header>
-      <h1>Title</h1>
-    </template>
+	<!-- GOOD: Named slots use template tags -->
+	<BaseLayout>
+		<template #header>
+			<h1>Title</h1>
+		</template>
 
-    <template #default>
-      <p>Main content</p>
-    </template>
+		<template #default>
+			<p>Main content</p>
+		</template>
 
-    <template #footer>
-      <p>Footer content</p>
-    </template>
-  </BaseLayout>
+		<template #footer>
+			<p>Footer content</p>
+		</template>
+	</BaseLayout>
 
-  <!-- GOOD: Shorthand on component for default slot -->
-  <FancyList #default="{ item }">
-    <div>{{ item.name }}</div>
-  </FancyList>
+	<!-- GOOD: Shorthand on component for default slot -->
+	<FancyList v-slot="{ item }">
+		<div>{{ item.name }}</div>
+	</FancyList>
 </template>
 ```
 

@@ -19,66 +19,68 @@ tags: [vue3, suspense, async-components, loading, error-handling]
 
 **Incorrect:**
 ```vue
-<script setup>
-import { defineAsyncComponent } from 'vue'
-
-const AsyncDashboard = defineAsyncComponent({
-  loader: () => import('./Dashboard.vue'),
-  loadingComponent: LoadingSpinner,
-  errorComponent: ErrorDisplay,
-  timeout: 3000
-})
-</script>
-
 <template>
-  <Suspense>
-    <AsyncDashboard />
-    <template #fallback>Loading...</template>
-  </Suspense>
+	<Suspense>
+		<AsyncDashboard />
+		<template #fallback>
+			Loading...
+		</template>
+	</Suspense>
 </template>
+
+<script setup>
+	import { defineAsyncComponent } from "vue";
+
+	const AsyncDashboard = defineAsyncComponent({
+		loader: () => import("./Dashboard.vue"),
+		loadingComponent: LoadingSpinner,
+		errorComponent: ErrorDisplay,
+		timeout: 3000
+	});
+</script>
 ```
 
 **Correct (component handles its own states):**
 ```vue
-<script setup>
-import { defineAsyncComponent } from 'vue'
-
-const AsyncDashboard = defineAsyncComponent({
-  loader: () => import('./Dashboard.vue'),
-  loadingComponent: LoadingSpinner,
-  errorComponent: ErrorDisplay,
-  timeout: 3000,
-  suspensible: false
-})
-</script>
-
 <template>
-  <AsyncDashboard />
+	<AsyncDashboard />
 </template>
+
+<script setup>
+	import { defineAsyncComponent } from "vue";
+
+	const AsyncDashboard = defineAsyncComponent({
+		loader: () => import("./Dashboard.vue"),
+		loadingComponent: LoadingSpinner,
+		errorComponent: ErrorDisplay,
+		timeout: 3000,
+		suspensible: false
+	});
+</script>
 ```
 
 **Correct (parent Suspense owns loading/error UI):**
 ```vue
-<script setup>
-import { onErrorCaptured, ref } from 'vue'
-import AsyncDashboard from './AsyncDashboard.vue'
-
-const error = ref(null)
-
-onErrorCaptured((err) => {
-  error.value = err
-  return false
-})
-</script>
-
 <template>
-  <ErrorDisplay v-if="error" :error="error" />
+	<ErrorDisplay v-if="error" :error="error" />
 
-  <Suspense v-else>
-    <AsyncDashboard />
-    <template #fallback>
-      <LoadingSpinner />
-    </template>
-  </Suspense>
+	<Suspense v-else>
+		<AsyncDashboard />
+		<template #fallback>
+			<LoadingSpinner />
+		</template>
+	</Suspense>
 </template>
+
+<script setup>
+	import { onErrorCaptured, ref } from "vue";
+	import AsyncDashboard from "./AsyncDashboard.vue";
+
+	const error = ref(null);
+
+	onErrorCaptured((err) => {
+		error.value = err;
+		return false;
+	});
+</script>
 ```

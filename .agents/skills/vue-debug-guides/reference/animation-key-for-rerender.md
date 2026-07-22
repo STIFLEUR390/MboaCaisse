@@ -20,25 +20,25 @@ tags: [vue3, animation, key, autoanimate, rerender, dom]
 **Problematic Code:**
 ```vue
 <template>
-  <!-- BAD: Text changes but no animation occurs -->
-  <div v-auto-animate>
-    <p>{{ message }}</p>  <!-- No key - element is reused -->
-  </div>
+	<!-- BAD: Text changes but no animation occurs -->
+	<div v-auto-animate>
+		<p>{{ message }}</p>  <!-- No key - element is reused -->
+	</div>
 
-  <!-- BAD: Image source changes but no animation -->
-  <div v-auto-animate>
-    <img :src="imageUrl" />  <!-- No key - element is reused -->
-  </div>
+	<!-- BAD: Image source changes but no animation -->
+	<div v-auto-animate>
+		<img :src="imageUrl">  <!-- No key - element is reused -->
+	</div>
 
-  <!-- BAD: Route changes don't animate -->
-  <router-view v-auto-animate />  <!-- No key -->
+	<!-- BAD: Route changes don't animate -->
+	<router-view v-auto-animate />  <!-- No key -->
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const message = ref('Hello')
-const imageUrl = ref('/images/photo1.jpg')
+	const message = ref("Hello");
+	const imageUrl = ref("/images/photo1.jpg");
 
 // Changing these won't trigger animations because
 // Vue updates the existing elements rather than replacing them
@@ -48,30 +48,32 @@ const imageUrl = ref('/images/photo1.jpg')
 **Correct Code:**
 ```vue
 <template>
-  <!-- GOOD: Key forces re-render, triggering animation -->
-  <div v-auto-animate>
-    <p :key="message">{{ message }}</p>
-  </div>
+	<!-- GOOD: Key forces re-render, triggering animation -->
+	<div v-auto-animate>
+		<p :key="message">
+			{{ message }}
+		</p>
+	</div>
 
-  <!-- GOOD: Image animates when source changes -->
-  <div v-auto-animate>
-    <img :key="imageUrl" :src="imageUrl" />
-  </div>
+	<!-- GOOD: Image animates when source changes -->
+	<div v-auto-animate>
+		<img :key="imageUrl" :src="imageUrl">
+	</div>
 
-  <!-- GOOD: Route changes animate properly -->
-  <router-view :key="$route.fullPath" v-auto-animate />
+	<!-- GOOD: Route changes animate properly -->
+	<router-view :key="$route.fullPath" v-auto-animate />
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const message = ref('Hello')
-const imageUrl = ref('/images/photo1.jpg')
+	const message = ref("Hello");
+	const imageUrl = ref("/images/photo1.jpg");
 
-// Now changing these will trigger animations
-function updateMessage() {
-  message.value = 'World'  // Triggers enter animation for new <p>
-}
+	// Now changing these will trigger animations
+	function updateMessage() {
+		message.value = "World"; // Triggers enter animation for new <p>
+	}
 </script>
 ```
 
@@ -93,10 +95,14 @@ Without `:key`:
 
 ```vue
 <template>
-  <div v-auto-animate>
-    <h1 :key="title">{{ title }}</h1>
-    <p :key="description">{{ description }}</p>
-  </div>
+	<div v-auto-animate>
+		<h1 :key="title">
+			{{ title }}
+		</h1>
+		<p :key="description">
+			{{ description }}
+		</p>
+	</div>
 </template>
 ```
 
@@ -104,9 +110,9 @@ Without `:key`:
 
 ```vue
 <template>
-  <div v-auto-animate>
-    <component :is="currentComponent" :key="currentComponent" />
-  </div>
+	<div v-auto-animate>
+		<component :is="currentComponent" :key="currentComponent" />
+	</div>
 </template>
 ```
 
@@ -114,11 +120,11 @@ Without `:key`:
 
 ```vue
 <template>
-  <router-view v-slot="{ Component, route }">
-    <div v-auto-animate>
-      <component :is="Component" :key="route.fullPath" />
-    </div>
-  </router-view>
+	<router-view v-slot="{ Component, route }">
+		<div v-auto-animate>
+			<component :is="Component" :key="route.fullPath" />
+		</div>
+	</router-view>
 </template>
 ```
 
@@ -128,16 +134,22 @@ The same principle applies to Vue's `<Transition>` component:
 
 ```vue
 <template>
-  <!-- GOOD: Key triggers transition on content change -->
-  <Transition name="fade" mode="out-in">
-    <p :key="message">{{ message }}</p>
-  </Transition>
+	<!-- GOOD: Key triggers transition on content change -->
+	<Transition name="fade" mode="out-in">
+		<p :key="message">
+			{{ message }}
+		</p>
+	</Transition>
 
-  <!-- GOOD: Different keys for conditional content -->
-  <Transition name="fade" mode="out-in">
-    <div v-if="isLoading" key="loading">Loading...</div>
-    <div v-else key="content">{{ content }}</div>
-  </Transition>
+	<!-- GOOD: Different keys for conditional content -->
+	<Transition name="fade" mode="out-in">
+		<div v-if="isLoading" key="loading">
+			Loading...
+		</div>
+		<div v-else key="content">
+			{{ content }}
+		</div>
+	</Transition>
 </template>
 ```
 

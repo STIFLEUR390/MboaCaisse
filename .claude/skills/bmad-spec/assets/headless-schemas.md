@@ -6,12 +6,12 @@ The default invocation is headless: input goes in, JSON comes out. The contract 
 
 ```json
 {
-  "status": "complete",
-  "files": [
-    "_bmad-output/specs/spec-quarter-drop/SPEC.md",
-    "_bmad-output/specs/spec-quarter-drop/glossary.md",
-    "_bmad-output/specs/spec-quarter-drop/.memlog.md"
-  ]
+	"status": "complete",
+	"files": [
+		"_bmad-output/specs/spec-quarter-drop/SPEC.md",
+		"_bmad-output/specs/spec-quarter-drop/glossary.md",
+		"_bmad-output/specs/spec-quarter-drop/.memlog.md"
+	]
 }
 ```
 
@@ -21,9 +21,9 @@ The default invocation is headless: input goes in, JSON comes out. The contract 
 
 ```json
 {
-  "status": "blocked",
-  "error_code": "insufficient_intent",
-  "reason": "Input was a one-line idea with no surrounding context; too thin to distill. Suggest bmad-prd to draw the vision out first."
+	"status": "blocked",
+	"error_code": "insufficient_intent",
+	"reason": "Input was a one-line idea with no surrounding context; too thin to distill. Suggest bmad-prd to draw the vision out first."
 }
 ```
 

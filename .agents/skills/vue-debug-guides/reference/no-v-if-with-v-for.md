@@ -118,16 +118,16 @@ const activeUsers = computed(() =>
 // 5. No ambiguity about intent
 
 const activeUsers = computed(() =>
-  users.value.filter(u => u.isActive)
-)
+	users.value.filter((u) => u.isActive)
+);
 
 // Can add more complex filtering
 const filteredUsers = computed(() =>
-  users.value
-    .filter(u => u.isActive)
-    .filter(u => u.role === selectedRole.value)
-    .sort((a, b) => a.name.localeCompare(b.name))
-)
+	users.value
+		.filter((u) => u.isActive)
+		.filter((u) => u.role === selectedRole.value)
+		.sort((a, b) => a.name.localeCompare(b.name))
+);
 ```
 
 ## Reference

@@ -39,10 +39,10 @@ Output in `.output/public/` - deploy to any static host.
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  nitro: {
-    preset: 'vercel', // or 'netlify', 'cloudflare-pages', etc.
-  },
-})
+	nitro: {
+		preset: "vercel" // or 'netlify', 'cloudflare-pages', etc.
+	}
+});
 ```
 
 Or via environment variable:
@@ -157,10 +157,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      
+
       - run: npm ci
       - run: npm run build
-      
+
       # Deploy to your server (example: rsync to VPS)
       - name: Deploy to server
         run: rsync -avz .output/ user@server:/app/
@@ -217,7 +217,7 @@ docker build -t my-nuxt-app .
 docker run -p 3000:3000 my-nuxt-app
 ```
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/getting-started/deployment
 - https://nitro.build/deploy

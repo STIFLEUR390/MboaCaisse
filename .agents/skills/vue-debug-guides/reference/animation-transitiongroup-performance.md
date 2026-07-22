@@ -26,29 +26,29 @@ Without TransitionGroup, DOM updates occur instantly. With it, there can be noti
 **Problematic Pattern:**
 ```vue
 <template>
-  <!-- Potentially slow with large lists or complex CSS -->
-  <TransitionGroup name="list" tag="ul">
-    <li
-      v-for="item in items"
-      :key="item.id"
-      class="p-4 m-2 rounded-lg shadow-md bg-gradient-to-r from-blue-500 to-purple-600
+	<!-- Potentially slow with large lists or complex CSS -->
+	<TransitionGroup name="list" tag="ul">
+		<li
+			v-for="item in items"
+			:key="item.id"
+			class="p-4 m-2 rounded-lg shadow-md bg-gradient-to-r from-blue-500 to-purple-600
              hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105
              border border-gray-200 flex items-center justify-between"
-    >
-      {{ item.name }}
-    </li>
-  </TransitionGroup>
+		>
+			{{ item.name }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const items = ref([/* many items */])
+	const items = ref([/* many items */]);
 
-// Operations like slice can cause visible lag
-function removeItems() {
-  items.value = items.value.slice(5)  // May lag with TransitionGroup
-}
+	// Operations like slice can cause visible lag
+	function removeItems() {
+		items.value = items.value.slice(5); // May lag with TransitionGroup
+	}
 </script>
 
 <style>
@@ -63,25 +63,25 @@ function removeItems() {
 **Optimized Approach:**
 ```vue
 <template>
-  <!-- Simpler classes, shorter transitions -->
-  <TransitionGroup name="list" tag="ul" class="relative">
-    <li
-      v-for="item in items"
-      :key="item.id"
-      class="list-item"
-    >
-      {{ item.name }}
-    </li>
-  </TransitionGroup>
+	<!-- Simpler classes, shorter transitions -->
+	<TransitionGroup name="list" tag="ul" class="relative">
+		<li
+			v-for="item in items"
+			:key="item.id"
+			class="list-item"
+		>
+			{{ item.name }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([/* items */])
+	const items = ref([/* items */]);
 
-// For large batch operations, consider disabling animations temporarily
-const isAnimating = ref(true)
+	// For large batch operations, consider disabling animations temporarily
+	const isAnimating = ref(true);
 </script>
 
 <style>
@@ -125,28 +125,32 @@ const isAnimating = ref(true)
 
 ```vue
 <template>
-  <TransitionGroup v-if="animationsEnabled" name="list" tag="ul">
-    <li v-for="item in items" :key="item.id">{{ item.name }}</li>
-  </TransitionGroup>
+	<TransitionGroup v-if="animationsEnabled" name="list" tag="ul">
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+		</li>
+	</TransitionGroup>
 
-  <!-- Instant update without animations -->
-  <ul v-else>
-    <li v-for="item in items" :key="item.id">{{ item.name }}</li>
-  </ul>
+	<!-- Instant update without animations -->
+	<ul v-else>
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+		</li>
+	</ul>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+	import { nextTick, ref } from "vue";
 
-const animationsEnabled = ref(true)
+	const animationsEnabled = ref(true);
 
-async function bulkUpdate(newItems) {
-  // Disable animations for bulk operations
-  animationsEnabled.value = false
-  items.value = newItems
-  await nextTick()
-  animationsEnabled.value = true
-}
+	async function bulkUpdate(newItems) {
+		// Disable animations for bulk operations
+		animationsEnabled.value = false;
+		items.value = newItems;
+		await nextTick();
+		animationsEnabled.value = true;
+	}
 </script>
 ```
 
@@ -154,19 +158,21 @@ async function bulkUpdate(newItems) {
 
 ```vue
 <template>
-  <!-- Use a virtual list library for large datasets -->
-  <RecycleScroller
-    :items="items"
-    :item-size="50"
-    key-field="id"
-    v-slot="{ item }"
-  >
-    <div class="list-item">{{ item.name }}</div>
-  </RecycleScroller>
+	<!-- Use a virtual list library for large datasets -->
+	<RecycleScroller
+		v-slot="{ item }"
+		:items="items"
+		:item-size="50"
+		key-field="id"
+	>
+		<div class="list-item">
+			{{ item.name }}
+		</div>
+	</RecycleScroller>
 </template>
 
 <script setup>
-import { RecycleScroller } from 'vue-virtual-scroller'
+	import { RecycleScroller } from "vue-virtual-scroller";
 </script>
 ```
 

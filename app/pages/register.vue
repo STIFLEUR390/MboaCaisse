@@ -3,14 +3,16 @@
 		<UCard class="w-full max-w-sm">
 			<template #header>
 				<div class="text-center">
-					<h1 class="text-xl font-bold">Créer un compte</h1>
+					<h1 class="text-xl font-bold">
+						Créer un compte
+					</h1>
 					<p class="text-sm text-(--ui-text-muted) mt-1">
 						Inscrivez-vous pour accéder à MboaCaisse
 					</p>
 				</div>
 			</template>
 
-			<UForm :state="form" @submit="handleRegister" class="space-y-4">
+			<UForm :state="form" class="space-y-4" @submit="handleRegister">
 				<UFormField label="Email" name="email" required>
 					<UInput
 						v-model="form.email"
@@ -80,46 +82,46 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-	name: 'register',
-	layout: 'blank'
-})
+	definePageMeta({
+		name: "register",
+		layout: "blank"
+	});
 
-const { register, loading } = useAuth()
-const router = useRouter()
+	const { register, loading } = useAuth();
+	const router = useRouter();
 
-const form = reactive({
-	email: '',
-	name: '',
-	password: '',
-	confirmPassword: ''
-})
+	const form = reactive({
+		email: "",
+		name: "",
+		password: "",
+		confirmPassword: ""
+	});
 
-const errorMessage = ref<string | null>(null)
+	const errorMessage = ref<string | null>(null);
 
-async function handleRegister() {
-	errorMessage.value = null
+	async function handleRegister() {
+		errorMessage.value = null;
 
-	if (!form.email || !form.password || !form.confirmPassword) {
-		errorMessage.value = 'Veuillez remplir tous les champs obligatoires'
-		return
+		if (!form.email || !form.password || !form.confirmPassword) {
+			errorMessage.value = "Veuillez remplir tous les champs obligatoires";
+			return;
+		}
+
+		if (form.password.length < 8) {
+			errorMessage.value = "Le mot de passe doit contenir au moins 8 caractères";
+			return;
+		}
+
+		if (form.password !== form.confirmPassword) {
+			errorMessage.value = "Les mots de passe ne correspondent pas";
+			return;
+		}
+
+		try {
+			await register(form.email, form.password, form.name || undefined);
+			await router.push("/");
+		} catch (err: any) {
+			errorMessage.value = err.message || "Inscription échouée";
+		}
 	}
-
-	if (form.password.length < 8) {
-		errorMessage.value = 'Le mot de passe doit contenir au moins 8 caractères'
-		return
-	}
-
-	if (form.password !== form.confirmPassword) {
-		errorMessage.value = 'Les mots de passe ne correspondent pas'
-		return
-	}
-
-	try {
-		await register(form.email, form.password, form.name || undefined)
-		await router.push('/')
-	} catch (err: any) {
-		errorMessage.value = err.message || 'Inscription échouée'
-	}
-}
 </script>

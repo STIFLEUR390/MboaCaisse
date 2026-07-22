@@ -20,25 +20,25 @@ tags: [vue3, typescript, props, boolean, defineProps]
 ## The Gotcha
 
 ```vue
-<script setup lang="ts">
-interface Props {
-  disabled?: boolean  // TypeScript sees: boolean | undefined
-}
-
-const props = defineProps<Props>()
-
-// TypeScript thinks props.disabled could be undefined
-if (props.disabled === undefined) {
-  console.log('This will NEVER run!')
-  // Vue's boolean casting means disabled is false, not undefined
-}
-</script>
-
 <template>
-  <!-- When used without the prop -->
-  <MyComponent />
-  <!-- disabled is false, NOT undefined -->
+	<!-- When used without the prop -->
+	<MyComponent />
+	<!-- disabled is false, NOT undefined -->
 </template>
+
+<script setup lang="ts">
+	interface Props {
+		disabled?: boolean // TypeScript sees: boolean | undefined
+	}
+
+	const props = defineProps<Props>();
+
+	// TypeScript thinks props.disabled could be undefined
+	if (props.disabled === undefined) {
+		console.log("This will NEVER run!");
+		// Vue's boolean casting means disabled is false, not undefined
+	}
+</script>
 ```
 
 ## Why This Happens
@@ -48,7 +48,9 @@ Vue has special "boolean casting" behavior inherited from HTML boolean attribute
 ```vue
 <!-- All of these make disabled = true -->
 <MyComponent disabled />
+
 <MyComponent :disabled="true" />
+
 <MyComponent disabled="" />
 
 <!-- This makes disabled = false (NOT undefined) -->
@@ -73,14 +75,14 @@ Make your intention clear:
 
 ```vue
 <script setup lang="ts">
-interface Props {
-  disabled?: boolean
-}
+	interface Props {
+		disabled?: boolean
+	}
 
-// Explicitly document the default
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false  // Now it's clear this defaults to false
-})
+	// Explicitly document the default
+	const props = withDefaults(defineProps<Props>(), {
+		disabled: false // Now it's clear this defaults to false
+	});
 </script>
 ```
 
@@ -90,25 +92,25 @@ If you actually need to distinguish "not set" from "explicitly false":
 
 ```vue
 <script setup lang="ts">
-interface Props {
-  // Use a union type instead of optional boolean
-  state?: 'enabled' | 'disabled' | undefined
+	interface Props {
+		// Use a union type instead of optional boolean
+		state?: "enabled" | "disabled" | undefined
 
-  // Or use undefined explicitly
-  toggleState?: boolean | undefined
-}
+		// Or use undefined explicitly
+		toggleState?: boolean | undefined
+	}
 
-const props = withDefaults(defineProps<Props>(), {
-  state: undefined,  // Can actually be undefined
-  toggleState: undefined
-})
+	const props = withDefaults(defineProps<Props>(), {
+		state: undefined, // Can actually be undefined
+		toggleState: undefined
+	});
 
-// Now you can check for undefined
-if (props.state === undefined) {
-  // Use parent's state
-} else if (props.state === 'disabled') {
-  // Explicitly disabled
-}
+	// Now you can check for undefined
+	if (props.state === undefined) {
+		// Use parent's state
+	} else if (props.state === "disabled") {
+		// Explicitly disabled
+	}
 </script>
 ```
 
@@ -116,23 +118,23 @@ if (props.state === undefined) {
 
 ```vue
 <script setup lang="ts">
-interface Props {
-  // null = not set, false = explicitly off, true = explicitly on
-  selected: boolean | null
-}
+	interface Props {
+		// null = not set, false = explicitly off, true = explicitly on
+		selected: boolean | null
+	}
 
-const props = withDefaults(defineProps<Props>(), {
-  selected: null
-})
+	const props = withDefaults(defineProps<Props>(), {
+		selected: null
+	});
 
-// Three distinct states
-if (props.selected === null) {
-  console.log('Selection not specified')
-} else if (props.selected) {
-  console.log('Selected')
-} else {
-  console.log('Explicitly not selected')
-}
+	// Three distinct states
+	if (props.selected === null) {
+		console.log("Selection not specified");
+	} else if (props.selected) {
+		console.log("Selected");
+	} else {
+		console.log("Explicitly not selected");
+	}
 </script>
 ```
 
@@ -143,9 +145,9 @@ Vue also has special behavior when Boolean and String are both valid:
 ```typescript
 // Order matters in runtime declaration!
 defineProps({
-  // Boolean first: empty string becomes true
-  disabled: [Boolean, String]
-})
+	// Boolean first: empty string becomes true
+	disabled: [Boolean, String]
+});
 
 // <MyComponent disabled /> → disabled = true
 // <MyComponent disabled="" /> → disabled = true
@@ -153,9 +155,9 @@ defineProps({
 
 ```typescript
 defineProps({
-  // String first: empty string stays as string
-  disabled: [String, Boolean]
-})
+	// String first: empty string stays as string
+	disabled: [String, Boolean]
+});
 
 // <MyComponent disabled /> → disabled = ''
 // <MyComponent disabled="" /> → disabled = ''
@@ -167,38 +169,38 @@ With type-based declaration, Boolean always takes priority for absent props.
 
 ```vue
 <!-- Parent.vue -->
-<script setup lang="ts">
-const userPreferences = ref({
-  darkMode: undefined as boolean | undefined
-})
-
-// Fetch preferences...
-onMounted(async () => {
-  userPreferences.value = await fetchPreferences()
-})
-</script>
-
 <template>
-  <!-- Bug: undefined becomes false, not "inherit system preference" -->
-  <ThemeToggle :darkMode="userPreferences.darkMode" />
+	<!-- Bug: undefined becomes false, not "inherit system preference" -->
+	<ThemeToggle :dark-mode="userPreferences.darkMode" />
 </template>
+
+<script setup lang="ts">
+	const userPreferences = ref({
+		darkMode: undefined as boolean | undefined
+	});
+
+	// Fetch preferences...
+	onMounted(async () => {
+		userPreferences.value = await fetchPreferences();
+	});
+</script>
 ```
 
 **Fix:**
 
 ```vue
-<script setup lang="ts">
-const userPreferences = ref<{
-  darkMode: boolean | null
-}>({
-  darkMode: null  // Use null for "not yet loaded"
-})
-</script>
-
 <template>
-  <!-- Now ThemeToggle can distinguish between null and false -->
-  <ThemeToggle :darkMode="userPreferences.darkMode" />
+	<!-- Now ThemeToggle can distinguish between null and false -->
+	<ThemeToggle :dark-mode="userPreferences.darkMode" />
 </template>
+
+<script setup lang="ts">
+	const userPreferences = ref<{
+		darkMode: boolean | null
+	}>({
+		darkMode: null // Use null for "not yet loaded"
+	});
+</script>
 ```
 
 ## TypeScript Type Accuracy
@@ -207,10 +209,10 @@ The Vue type system handles this, but it can be confusing:
 
 ```typescript
 interface Props {
-  disabled?: boolean
+	disabled?: boolean
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // At compile time: boolean | undefined
 // At runtime: boolean (never undefined due to Vue's boolean casting)

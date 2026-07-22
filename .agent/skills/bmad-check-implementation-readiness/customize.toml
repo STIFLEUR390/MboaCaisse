@@ -17,7 +17,6 @@ activation_steps_prepend = []
 # Steps to run after greet but before the workflow begins.
 # Overrides append. Use for context-heavy setup that should happen
 # once the user has been acknowledged.
-
 activation_steps_append = []
 
 # Persistent facts the workflow keeps in mind for the whole run
@@ -29,13 +28,9 @@ activation_steps_append = []
 #   - a literal sentence, e.g. "All artifacts must follow org naming conventions."
 #   - a file reference prefixed with `file:`, e.g. "file:{project-root}/docs/standards.md"
 #     (glob patterns are supported; the file's contents are loaded and treated as facts).
-
-persistent_facts = [
-  "file:{project-root}/**/project-context.md",
-]
+persistent_facts = [ "file:{project-root}/**/project-context.md", ]
 
 # Scalar: executed when the workflow reaches Step 6 (Final Assessment),
 # after the readiness report has been saved and presented. Override wins.
 # Leave empty for no custom post-completion behavior.
-
 on_complete = ""

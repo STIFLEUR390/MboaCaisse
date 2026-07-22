@@ -3,14 +3,16 @@
 		<UCard class="w-full max-w-sm">
 			<template #header>
 				<div class="text-center">
-					<h1 class="text-xl font-bold">Connexion</h1>
+					<h1 class="text-xl font-bold">
+						Connexion
+					</h1>
 					<p class="text-sm text-(--ui-text-muted) mt-1">
 						Connectez-vous à MboaCaisse
 					</p>
 				</div>
 			</template>
 
-			<UForm :state="form" @submit="handleLogin" class="space-y-4">
+			<UForm :state="form" class="space-y-4" @submit="handleLogin">
 				<UFormField label="Email" name="email" required>
 					<UInput
 						v-model="form.email"
@@ -61,34 +63,34 @@
 </template>
 
 <script lang="ts" setup>
-definePageMeta({
-	name: 'login',
-	layout: 'blank'
-})
+	definePageMeta({
+		name: "login",
+		layout: "blank"
+	});
 
-const { login, loading, error } = useAuth()
-const router = useRouter()
+	const { login, loading, error } = useAuth();
+	const router = useRouter();
 
-const form = reactive({
-	email: '',
-	password: ''
-})
+	const form = reactive({
+		email: "",
+		password: ""
+	});
 
-const errorMessage = ref<string | null>(null)
+	const errorMessage = ref<string | null>(null);
 
-async function handleLogin() {
-	errorMessage.value = null
+	async function handleLogin() {
+		errorMessage.value = null;
 
-	if (!form.email || !form.password) {
-		errorMessage.value = 'Veuillez remplir tous les champs'
-		return
+		if (!form.email || !form.password) {
+			errorMessage.value = "Veuillez remplir tous les champs";
+			return;
+		}
+
+		try {
+			await login(form.email, form.password);
+			await router.push("/");
+		} catch (err: any) {
+			errorMessage.value = err.message || "Email ou mot de passe incorrect";
+		}
 	}
-
-	try {
-		await login(form.email, form.password)
-		await router.push('/')
-	} catch (err: any) {
-		errorMessage.value = err.message || 'Email ou mot de passe incorrect'
-	}
-}
 </script>

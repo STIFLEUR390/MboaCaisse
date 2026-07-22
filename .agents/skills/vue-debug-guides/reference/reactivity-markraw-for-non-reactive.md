@@ -22,15 +22,15 @@ Without `markRaw()`, placing these objects inside reactive state causes Vue to w
 
 **Incorrect:**
 ```javascript
-import { reactive, ref } from 'vue'
-import mapboxgl from 'mapbox-gl'
-import * as monaco from 'monaco-editor'
+import mapboxgl from "mapbox-gl";
+import * as monaco from "monaco-editor";
+import { reactive, ref } from "vue";
 
 // WRONG: Library instances wrapped in Proxy
 const state = reactive({
-  map: new mapboxgl.Map({ container: 'map' }),  // Proxied!
-  editor: monaco.editor.create(element, {}),    // Proxied!
-})
+	map: new mapboxgl.Map({ container: "map" }), // Proxied!
+	editor: monaco.editor.create(element, {}) // Proxied!
+});
 
 // Problems:
 // 1. Library's internal this references may break
@@ -40,8 +40,8 @@ const state = reactive({
 
 // WRONG: DOM elements in reactive state
 const elements = reactive({
-  container: document.getElementById('app'),  // Proxied DOM node!
-})
+	container: document.getElementById("app") // Proxied DOM node!
+});
 ```
 
 **Correct:**
@@ -71,75 +71,75 @@ const state = reactive({
 
 **Class instances with internal state:**
 ```javascript
-import { markRaw, reactive } from 'vue'
+import { markRaw, reactive } from "vue";
 
 class WebSocketManager {
-  constructor(url) {
-    this.socket = new WebSocket(url)
-    this.listeners = new Map()
-  }
+	constructor(url) {
+		this.socket = new WebSocket(url);
+		this.listeners = new Map();
+	}
 
-  on(event, callback) {
-    this.listeners.set(event, callback)
-  }
+	on(event, callback) {
+		this.listeners.set(event, callback);
+	}
 }
 
 // CORRECT: Mark class instance
-const wsManager = markRaw(new WebSocketManager('ws://example.com'))
+const wsManager = markRaw(new WebSocketManager("ws://example.com"));
 
 const state = reactive({
-  connection: wsManager  // Won't be proxied
-})
+	connection: wsManager // Won't be proxied
+});
 
 // Can still use the instance normally
-state.connection.on('message', handleMessage)
+state.connection.on("message", handleMessage);
 ```
 
 **Gotcha: markRaw only affects root level:**
 ```javascript
-import { markRaw, reactive } from 'vue'
-
-const rawObject = markRaw({
-  nested: { value: 1 }  // This nested object is NOT marked raw
-})
-
-const state = reactive({
-  data: rawObject
-})
-
-// rawObject itself won't be proxied
-// But if you access nested objects through a reactive parent:
-const container = reactive({ raw: rawObject })
+import { markRaw, reactive } from "vue";
 // container.raw.nested might still be proxied in some cases
 
 // SAFER: Use shallowRef for the container
-import { shallowRef } from 'vue'
-const safeContainer = shallowRef(rawObject)
+import { shallowRef } from "vue";
+
+const rawObject = markRaw({
+	nested: { value: 1 } // This nested object is NOT marked raw
+});
+
+const state = reactive({
+	data: rawObject
+});
+
+// rawObject itself won't be proxied
+// But if you access nested objects through a reactive parent:
+const container = reactive({ raw: rawObject });
+const safeContainer = shallowRef(rawObject);
 ```
 
 **Combining with shallowRef for best results:**
 ```javascript
-import { shallowRef, markRaw, onMounted, onUnmounted } from 'vue'
+import { markRaw, onMounted, onUnmounted, shallowRef } from "vue";
 
 // Pattern: shallowRef + markRaw for external library instances
 export function useMapbox(containerId) {
-  const map = shallowRef(null)
+	const map = shallowRef(null);
 
-  onMounted(() => {
-    const instance = new mapboxgl.Map({
-      container: containerId,
-      style: 'mapbox://styles/mapbox/streets-v11'
-    })
+	onMounted(() => {
+		const instance = new mapboxgl.Map({
+			container: containerId,
+			style: "mapbox://styles/mapbox/streets-v11"
+		});
 
-    // Mark raw to prevent any proxy wrapping
-    map.value = markRaw(instance)
-  })
+		// Mark raw to prevent any proxy wrapping
+		map.value = markRaw(instance);
+	});
 
-  onUnmounted(() => {
-    map.value?.remove()
-  })
+	onUnmounted(() => {
+		map.value?.remove();
+	});
 
-  return { map }
+	return { map };
 }
 ```
 

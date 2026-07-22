@@ -22,11 +22,11 @@ The fix is to set `position: absolute` on the `leave-active` class so leaving it
 **Incorrect - Items jump instead of moving:**
 ```vue
 <template>
-  <TransitionGroup name="list" tag="ul">
-    <li v-for="item in items" :key="item.id">
-      {{ item.name }}
-    </li>
-  </TransitionGroup>
+	<TransitionGroup name="list" tag="ul">
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <style>
@@ -47,11 +47,11 @@ The fix is to set `position: absolute` on the `leave-active` class so leaving it
 **Correct - Smooth move transitions:**
 ```vue
 <template>
-  <TransitionGroup name="list" tag="ul">
-    <li v-for="item in items" :key="item.id">
-      {{ item.name }}
-    </li>
-  </TransitionGroup>
+	<TransitionGroup name="list" tag="ul">
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <style>

@@ -25,7 +25,7 @@ The `await` keyword controls whether data fetching **blocks navigation**:
 ```vue
 <script setup lang="ts">
 // Navigation waits until data is fetched (uses Vue Suspense)
-const { data } = await useFetch('/api/posts')
+	const { data } = await useFetch("/api/posts");
 // data.value is available immediately after this line
 </script>
 ```
@@ -37,23 +37,27 @@ const { data } = await useFetch('/api/posts')
 ### Without `await` - Non-Blocking (Lazy)
 
 ```vue
+<template>
+	<div v-if="status === 'pending'">
+		Loading...
+	</div>
+	<div v-else>
+		{{ data }}
+	</div>
+</template>
+
 <script setup lang="ts">
 // Navigation proceeds immediately, data fetches in background
-const { data, status } = useFetch('/api/posts', { lazy: true })
+	const { data, status } = useFetch("/api/posts", { lazy: true });
 // data.value may be undefined initially - check status!
 </script>
-
-<template>
-  <div v-if="status === 'pending'">Loading...</div>
-  <div v-else>{{ data }}</div>
-</template>
 ```
 
 Equivalent to using `useLazyFetch`:
 
 ```vue
 <script setup lang="ts">
-const { data, status } = useLazyFetch('/api/posts')
+	const { data, status } = useLazyFetch("/api/posts");
 </script>
 ```
 
@@ -72,7 +76,7 @@ const { data, status } = useLazyFetch('/api/posts')
 ```vue
 <script setup lang="ts">
 // This fetches TWICE: once on server, once on client
-const data = await $fetch('/api/posts')
+	const data = await $fetch("/api/posts");
 </script>
 ```
 
@@ -81,7 +85,7 @@ const data = await $fetch('/api/posts')
 ```vue
 <script setup lang="ts">
 // Fetches on server, hydrates on client (no double fetch)
-const { data } = await useFetch('/api/posts')
+	const { data } = await useFetch("/api/posts");
 </script>
 ```
 
@@ -92,7 +96,7 @@ const { data } = await useFetch('/api/posts')
 ```vue
 <script setup lang="ts">
 // Key is auto-generated from file/line - can cause issues
-const { data } = await useAsyncData(() => fetchPosts())
+	const { data } = await useAsyncData(() => fetchPosts());
 </script>
 ```
 
@@ -101,67 +105,69 @@ const { data } = await useAsyncData(() => fetchPosts())
 ```vue
 <script setup lang="ts">
 // Explicit key for predictable caching
-const { data } = await useAsyncData(
-  'posts',
-  () => fetchPosts(),
-)
+	const { data } = await useAsyncData(
+		"posts",
+		() => fetchPosts()
+	);
 
-// Dynamic keys for parameterized data
-const route = useRoute()
-const { data: post } = await useAsyncData(
-  `post-${route.params.id}`,
-  () => fetchPost(route.params.id),
-)
+	// Dynamic keys for parameterized data
+	const route = useRoute();
+	const { data: post } = await useAsyncData(
+		`post-${route.params.id}`,
+		() => fetchPost(route.params.id)
+	);
 </script>
 ```
 
 ## Handle Loading States Properly
 
 ```vue
-<script setup lang="ts">
-const { data, status, error } = await useFetch('/api/posts')
-</script>
-
 <template>
-  <div v-if="status === 'pending'">
-    <SkeletonLoader />
-  </div>
-  <div v-else-if="error">
-    <ErrorMessage :error="error" />
-  </div>
-  <div v-else>
-    <PostList :posts="data" />
-  </div>
+	<div v-if="status === 'pending'">
+		<SkeletonLoader />
+	</div>
+	<div v-else-if="error">
+		<ErrorMessage :error="error" />
+	</div>
+	<div v-else>
+		<PostList :posts="data" />
+	</div>
 </template>
+
+<script setup lang="ts">
+	const { data, status, error } = await useFetch("/api/posts");
+</script>
 ```
 
 ## Use Lazy Fetching for Non-critical Data
 
 ```vue
-<script setup lang="ts">
-const id = useRoute().params.id
-
-// Critical data - blocks navigation
-const { data: post } = await useFetch(`/api/posts/${id}`)
-
-// Non-critical data - doesn't block navigation
-const { data: comments, status } = useFetch(`/api/posts/${id}/comments`, {
-  lazy: true,
-})
-
-// Or use useLazyFetch
-const { data: related } = useLazyFetch(`/api/posts/${id}/related`)
-</script>
-
 <template>
-  <article>
-    <h1>{{ post?.title }}</h1>
-    <p>{{ post?.content }}</p>
-  </article>
+	<article>
+		<h1>{{ post?.title }}</h1>
+		<p>{{ post?.content }}</p>
+	</article>
 
-  <section v-if="status === 'pending'">Loading comments...</section>
-  <CommentList v-else :comments="comments" />
+	<section v-if="status === 'pending'">
+		Loading comments...
+	</section>
+	<CommentList v-else :comments="comments" />
 </template>
+
+<script setup lang="ts">
+	const id = useRoute().params.id;
+
+	// Critical data - blocks navigation
+	const { data: post } = await useFetch(`/api/posts/${id}`);
+
+	// Non-critical data - doesn't block navigation
+	const { data: comments, status } = useFetch(`/api/posts/${id}/comments`, {
+		lazy: true
+	});
+
+	// Or use useLazyFetch
+	const { data: related } = useLazyFetch(`/api/posts/${id}/related`);
+</script>
 ```
 
 ## Minimize Payload Size
@@ -170,10 +176,10 @@ const { data: related } = useLazyFetch(`/api/posts/${id}/related`)
 
 ```vue
 <script setup lang="ts">
-const { data } = await useFetch('/api/users', {
-  // Only include these fields in payload
-  pick: ['id', 'name', 'avatar'],
-})
+	const { data } = await useFetch("/api/users", {
+		// Only include these fields in payload
+		pick: ["id", "name", "avatar"]
+	});
 </script>
 ```
 
@@ -181,16 +187,16 @@ const { data } = await useFetch('/api/users', {
 
 ```vue
 <script setup lang="ts">
-const { data } = await useFetch('/api/posts', {
-  transform: (posts) => {
-    return posts.map(post => ({
-      id: post.id,
-      title: post.title,
-      excerpt: post.content.slice(0, 100),
-      date: new Date(post.createdAt).toLocaleDateString(),
-    }))
-  },
-})
+	const { data } = await useFetch("/api/posts", {
+		transform: (posts) => {
+			return posts.map((post) => ({
+				id: post.id,
+				title: post.title,
+				excerpt: post.content.slice(0, 100),
+				date: new Date(post.createdAt).toLocaleDateString()
+			}));
+		}
+	});
 </script>
 ```
 
@@ -200,17 +206,17 @@ const { data } = await useFetch('/api/posts', {
 
 ```vue
 <script setup lang="ts">
-const { data } = await useAsyncData(
-  'dashboard',
-  async (_nuxtApp, { signal }) => {
-    const [user, posts, stats] = await Promise.all([
-      $fetch('/api/user', { signal }),
-      $fetch('/api/posts', { signal }),
-      $fetch('/api/stats', { signal }),
-    ])
-    return { user, posts, stats }
-  },
-)
+	const { data } = await useAsyncData(
+		"dashboard",
+		async (_nuxtApp, { signal }) => {
+			const [user, posts, stats] = await Promise.all([
+				$fetch("/api/user", { signal }),
+				$fetch("/api/posts", { signal }),
+				$fetch("/api/stats", { signal })
+			]);
+			return { user, posts, stats };
+		}
+	);
 </script>
 ```
 
@@ -219,10 +225,10 @@ const { data } = await useAsyncData(
 ```vue
 <script setup lang="ts">
 // These run in parallel automatically
-const [{ data: user }, { data: posts }] = await Promise.all([
-  useFetch('/api/user'),
-  useFetch('/api/posts'),
-])
+	const [{ data: user }, { data: posts }] = await Promise.all([
+		useFetch("/api/user"),
+		useFetch("/api/posts")
+	]);
 </script>
 ```
 
@@ -232,14 +238,14 @@ const [{ data: user }, { data: posts }] = await Promise.all([
 
 ```vue
 <script setup lang="ts">
-const page = ref(1)
-const category = ref('all')
+	const page = ref(1);
+	const category = ref("all");
 
-const { data } = await useFetch('/api/posts', {
-  query: { page, category },
-  // Auto-refresh when these change
-  watch: [page, category],
-})
+	const { data } = await useFetch("/api/posts", {
+		query: { page, category },
+		// Auto-refresh when these change
+		watch: [page, category]
+	});
 </script>
 ```
 
@@ -247,11 +253,11 @@ const { data } = await useFetch('/api/posts', {
 
 ```vue
 <script setup lang="ts">
-const { data, refresh, status } = await useFetch('/api/posts')
+	const { data, refresh, status } = await useFetch("/api/posts");
 
-async function refreshPosts() {
-  await refresh()
-}
+	async function refreshPosts() {
+		await refresh();
+	}
 </script>
 ```
 
@@ -259,17 +265,17 @@ async function refreshPosts() {
 
 ```vue
 <script setup lang="ts">
-const userId = ref<string | null>(null)
+	const userId = ref<string | null>(null);
 
-const { data, execute } = useFetch(() => `/api/users/${userId.value}`, {
-  immediate: false, // Don't fetch until userId is set
-})
+	const { data, execute } = useFetch(() => `/api/users/${userId.value}`, {
+		immediate: false // Don't fetch until userId is set
+	});
 
-// Later, when userId is available
-function loadUser(id: string) {
-  userId.value = id
-  execute()
-}
+	// Later, when userId is available
+	function loadUser(id: string) {
+		userId.value = id;
+		execute();
+	}
 </script>
 ```
 
@@ -278,35 +284,37 @@ function loadUser(id: string) {
 ```vue
 <script setup lang="ts">
 // Only fetch on server, skip on client navigation
-const { data } = await useFetch('/api/static-content', {
-  server: true,
-  lazy: true,
-  getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key],
-})
+	const { data } = await useFetch("/api/static-content", {
+		server: true,
+		lazy: true,
+		getCachedData: (key, nuxtApp) => nuxtApp.payload.data[key]
+	});
 </script>
 ```
 
 ## Error Handling
 
 ```vue
-<script setup lang="ts">
-const { data, error, refresh } = await useFetch('/api/posts')
-
-// Watch for errors if need event-like handling
-watch(error, (err) => {
-  if (err) {
-    console.error('Fetch failed:', err)
-    // Show toast, redirect, etc.
-  }
-}, { immediate: true })
-</script>
-
 <template>
-  <div v-if="error">
-    <p>Failed to load: {{ error.message }}</p>
-    <button @click="refresh()">Retry</button>
-  </div>
+	<div v-if="error">
+		<p>Failed to load: {{ error.message }}</p>
+		<button @click="refresh()">
+			Retry
+		</button>
+	</div>
 </template>
+
+<script setup lang="ts">
+	const { data, error, refresh } = await useFetch("/api/posts");
+
+	// Watch for errors if need event-like handling
+	watch(error, (err) => {
+		if (err) {
+			console.error("Fetch failed:", err);
+			// Show toast, redirect, etc.
+		}
+	}, { immediate: true });
+</script>
 ```
 
 ## Shared Data Across Components
@@ -314,16 +322,16 @@ watch(error, (err) => {
 ```vue
 <!-- ComponentA.vue -->
 <script setup lang="ts">
-const { data } = await useFetch('/api/user', { key: 'current-user' })
+	const { data } = await useFetch("/api/user", { key: "current-user" });
 </script>
 
 <!-- ComponentB.vue -->
 <script setup lang="ts">
-// Access cached data without refetching
-const { data: user } = useNuxtData('current-user')
+	// Access cached data without refetching
+	const { data: user } = useNuxtData("current-user");
 
-// Or refresh it
-const { refresh } = await useFetch('/api/user', { key: 'current-user' })
+	// Or refresh it
+	const { refresh } = await useFetch("/api/user", { key: "current-user" });
 </script>
 ```
 
@@ -334,7 +342,7 @@ const { refresh } = await useFetch('/api/user', { key: 'current-user' })
 ```vue
 <script setup lang="ts">
 // Don't trigger Pinia actions or side effects
-await useAsyncData(() => store.fetchUser()) // Can cause issues
+	await useAsyncData(() => store.fetchUser()); // Can cause issues
 </script>
 ```
 
@@ -342,13 +350,13 @@ await useAsyncData(() => store.fetchUser()) // Can cause issues
 
 ```vue
 <script setup lang="ts">
-await callOnce(async () => {
-  await store.fetchUser()
-})
+	await callOnce(async () => {
+		await store.fetchUser();
+	});
 </script>
 ```
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/getting-started/data-fetching
 - https://nuxt.com/docs/api/composables/use-fetch

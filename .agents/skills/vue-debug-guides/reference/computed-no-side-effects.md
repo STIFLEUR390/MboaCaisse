@@ -23,72 +23,72 @@ Computed properties are designed to declaratively describe how to derive a value
 **Incorrect:**
 ```vue
 <script setup>
-import { ref, computed } from 'vue'
+	import { computed, ref } from "vue";
 
-const items = ref([])
-const count = ref(0)
-const lastFetch = ref(null)
+	const items = ref([]);
+	const count = ref(0);
+	const lastFetch = ref(null);
 
-// BAD: Mutates other state
-const doubledCount = computed(() => {
-  count.value++  // Side effect - modifying state!
-  return count.value * 2
-})
+	// BAD: Mutates other state
+	const doubledCount = computed(() => {
+		count.value++; // Side effect - modifying state!
+		return count.value * 2;
+	});
 
-// BAD: Makes async request
-const userData = computed(async () => {
-  const response = await fetch('/api/user')  // Side effect - API call!
-  return response.json()
-})
+	// BAD: Makes async request
+	const userData = computed(async () => {
+		const response = await fetch("/api/user"); // Side effect - API call!
+		return response.json();
+	});
 
-// BAD: Modifies DOM
-const highlightedItems = computed(() => {
-  document.title = `${items.value.length} items`  // Side effect - DOM mutation!
-  return items.value.filter(i => i.highlighted)
-})
+	// BAD: Modifies DOM
+	const highlightedItems = computed(() => {
+		document.title = `${items.value.length} items`; // Side effect - DOM mutation!
+		return items.value.filter((i) => i.highlighted);
+	});
 
-// BAD: Writes to external state
-const processedData = computed(() => {
-  lastFetch.value = new Date()  // Side effect - modifying state!
-  return items.value.map(i => i.name)
-})
+	// BAD: Writes to external state
+	const processedData = computed(() => {
+		lastFetch.value = new Date(); // Side effect - modifying state!
+		return items.value.map((i) => i.name);
+	});
 </script>
 ```
 
 **Correct:**
 ```vue
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+	import { computed, onMounted, ref, watch } from "vue";
 
-const items = ref([])
-const count = ref(0)
-const userData = ref(null)
+	const items = ref([]);
+	const count = ref(0);
+	const userData = ref(null);
 
-// GOOD: Pure computation only
-const doubledCount = computed(() => {
-  return count.value * 2
-})
+	// GOOD: Pure computation only
+	const doubledCount = computed(() => {
+		return count.value * 2;
+	});
 
-// GOOD: Use lifecycle hook for initial fetch
-onMounted(async () => {
-  const response = await fetch('/api/user')
-  userData.value = await response.json()
-})
+	// GOOD: Use lifecycle hook for initial fetch
+	onMounted(async () => {
+		const response = await fetch("/api/user");
+		userData.value = await response.json();
+	});
 
-// GOOD: Pure filtering
-const highlightedItems = computed(() => {
-  return items.value.filter(i => i.highlighted)
-})
+	// GOOD: Pure filtering
+	const highlightedItems = computed(() => {
+		return items.value.filter((i) => i.highlighted);
+	});
 
-// GOOD: Use watcher for side effects
-watch(items, (newItems) => {
-  document.title = `${newItems.length} items`
-}, { immediate: true })
+	// GOOD: Use watcher for side effects
+	watch(items, (newItems) => {
+		document.title = `${newItems.length} items`;
+	}, { immediate: true });
 
-// Increment count through event handler, not computed
-function increment() {
-  count.value++
-}
+	// Increment count through event handler, not computed
+	function increment() {
+		count.value++;
+	}
 </script>
 ```
 

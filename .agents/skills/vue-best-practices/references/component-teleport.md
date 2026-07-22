@@ -25,12 +25,16 @@ When an ancestor has `transform`, `filter`, or `perspective`, fixed-position ove
 **BAD:**
 ```vue
 <template>
-  <div class="animated-container">
-    <button @click="open = true">Open</button>
+	<div class="animated-container">
+		<button @click="open = true">
+			Open
+		</button>
 
-    <!-- Broken: fixed positioning is scoped to the transformed parent -->
-    <div v-if="open" class="modal">Modal</div>
-  </div>
+		<!-- Broken: fixed positioning is scoped to the transformed parent -->
+		<div v-if="open" class="modal">
+			Modal
+		</div>
+	</div>
 </template>
 
 <style>
@@ -49,13 +53,17 @@ When an ancestor has `transform`, `filter`, or `perspective`, fixed-position ove
 **GOOD:**
 ```vue
 <template>
-  <div class="animated-container">
-    <button @click="open = true">Open</button>
+	<div class="animated-container">
+		<button @click="open = true">
+			Open
+		</button>
 
-    <Teleport to="body">
-      <div v-if="open" class="modal">Modal</div>
-    </Teleport>
-  </div>
+		<Teleport to="body">
+			<div v-if="open" class="modal">
+				Modal
+			</div>
+		</Teleport>
+	</div>
 </template>
 ```
 
@@ -64,17 +72,19 @@ When an ancestor has `transform`, `filter`, or `perspective`, fixed-position ove
 Use `:disabled` to render inline on mobile and teleport on larger screens:
 
 ```vue
-<script setup>
-import { useMediaQuery } from '@vueuse/core'
-
-const isMobile = useMediaQuery('(max-width: 768px)')
-</script>
-
 <template>
-  <Teleport to="body" :disabled="isMobile">
-    <nav class="sidebar">Navigation</nav>
-  </Teleport>
+	<Teleport to="body" :disabled="isMobile">
+		<nav class="sidebar">
+			Navigation
+		</nav>
+	</Teleport>
 </template>
+
+<script setup>
+	import { useMediaQuery } from "@vueuse/core";
+
+	const isMobile = useMediaQuery("(max-width: 768px)");
+</script>
 ```
 
 ## Logical Hierarchy Is Preserved
@@ -83,9 +93,9 @@ Teleport changes DOM position, not the Vue component tree. Props, emits, slots, 
 
 ```vue
 <template>
-  <Teleport to="body">
-    <ChildPanel :message="message" @close="open = false" />
-  </Teleport>
+	<Teleport to="body">
+		<ChildPanel :message="message" @close="open = false" />
+	</Teleport>
 </template>
 ```
 
@@ -95,13 +105,13 @@ Teleports to the same target append in declaration order:
 
 ```vue
 <template>
-  <Teleport to="#notifications">
-    <div>First</div>
-  </Teleport>
+	<Teleport to="#notifications">
+		<div>First</div>
+	</Teleport>
 
-  <Teleport to="#notifications">
-    <div>Second</div>
-  </Teleport>
+	<Teleport to="#notifications">
+		<div>Second</div>
+	</Teleport>
 </template>
 ```
 

@@ -78,11 +78,11 @@ Show config and usage for bundled executables:
 ```json
 // tauri.conf.json
 {
-  "bundle": {
-    "externalBin": [
-      "binaries/my-sidecar"
-    ]
-  }
+	"bundle": {
+		"externalBin": [
+			"binaries/my-sidecar"
+		]
+	}
 }
 ```
 
@@ -90,14 +90,14 @@ Capability permission required:
 
 ```json
 {
-  "permissions": [
-    {
-      "identifier": "shell:allow-execute",
-      "allow": [
-        { "name": "my-sidecar", "args": true, "sidecar": true }
-      ]
-    }
-  ]
+	"permissions": [
+		{
+			"identifier": "shell:allow-execute",
+			"allow": [
+				{ "name": "my-sidecar", "args": true, "sidecar": true }
+			]
+		}
+	]
 }
 ```
 
@@ -115,7 +115,7 @@ async fn run_sidecar(app: tauri::AppHandle) -> Result<String, String> {
         .output()
         .await
         .map_err(|e| e.to_string())?;
-    
+
     Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 ```
@@ -136,16 +136,16 @@ Config in tauri.conf.json:
 
 ```json
 {
-  "plugins": {
-    "deep-link": {
-      "mobile": [
-        { "scheme": "myapp" }
-      ],
-      "desktop": [
-        { "schemes": ["myapp"] }
-      ]
-    }
-  }
+	"plugins": {
+		"deep-link": {
+			"mobile": [
+				{ "scheme": "myapp" }
+			],
+			"desktop": [
+				{ "schemes": ["myapp"] }
+			]
+		}
+	}
 }
 ```
 
@@ -180,17 +180,17 @@ Show asset protocol access (most common use case):
 ```json
 // tauri.conf.json
 {
-  "app": {
-    "security": {
-      "assetScope": ["$APPDATA/assets/**", "$RESOURCE/**"]
-    }
-  }
+	"app": {
+		"security": {
+			"assetScope": ["$APPDATA/assets/**", "$RESOURCE/**"]
+		}
+	}
 }
 ```
 
 ```typescript
 // Access local file via asset protocol
-const imgSrc = convertFileSrc('/path/to/image.png');
+const imgSrc = convertFileSrc("/path/to/image.png");
 ```
 
 Note: Full custom protocol registration (`tauri::Builder::register_uri_scheme_protocol`) is available but underdocumented in official v2+ docs as of 2026-04-02. Prefer asset protocol for local file serving.

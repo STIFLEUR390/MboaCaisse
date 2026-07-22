@@ -20,12 +20,12 @@ tags: [vue3, transition, animation, css, type, timing]
 **Problematic Code:**
 ```vue
 <template>
-  <!-- BAD: Both transition and animation present, Vue might pick wrong end event -->
-  <Transition name="bounce">
-    <div v-if="show" class="box">
-      Hover me for additional effect
-    </div>
-  </Transition>
+	<!-- BAD: Both transition and animation present, Vue might pick wrong end event -->
+	<Transition name="bounce">
+		<div v-if="show" class="box">
+			Hover me for additional effect
+		</div>
+	</Transition>
 </template>
 
 <style>
@@ -64,12 +64,12 @@ tags: [vue3, transition, animation, css, type, timing]
 **Correct Code:**
 ```vue
 <template>
-  <!-- GOOD: Explicitly specify that animation controls timing -->
-  <Transition name="bounce" type="animation">
-    <div v-if="show" class="box">
-      Hover me for additional effect
-    </div>
-  </Transition>
+	<!-- GOOD: Explicitly specify that animation controls timing -->
+	<Transition name="bounce" type="animation">
+		<div v-if="show" class="box">
+			Hover me for additional effect
+		</div>
+	</Transition>
 </template>
 
 <style>

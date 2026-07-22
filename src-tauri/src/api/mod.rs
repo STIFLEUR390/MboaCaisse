@@ -12,17 +12,36 @@ pub mod settings;
 pub mod wallet;
 
 use std::sync::Arc;
+use std::sync::OnceLock;
 
 use axum::{
 	middleware,
-	routing::{get, post},
+	routing::{delete, get, patch},
 	Router,
 };
+use tauri::AppHandle;
+
+use crate::domain::user::UserRepository;
+
+/// Global Tauri AppHandle, set once during setup().
+/// Required by settings handlers to access tauri_plugin_store.
+static APP_HANDLE: OnceLock<AppHandle> = OnceLock::new();
+
+/// Store the AppHandle for later use by API handlers.
+/// Must be called once during Tauri setup().
+pub fn init_app_handle(handle: AppHandle) {
+	let _ = APP_HANDLE.set(handle);
+}
+
+/// Retrieve the stored AppHandle.
+pub fn app_handle() -> &'static AppHandle {
+	APP_HANDLE.get().expect("AppHandle not initialized — call init_app_handle() in setup")
+}
 
 /// Shared state for all API handlers.
 #[derive(Clone)]
 pub struct AppApiState {
-	pub user_repo: Arc<dyn crate::domain::user::UserRepository>,
+	pub user_repo: Arc<dyn UserRepository>,
 	pub jwt_secret: Arc<Vec<u8>>,
 }
 
@@ -34,11 +53,15 @@ pub fn build_app(state: AppApiState) -> Router {
 	let dist_path = resolve_dist_path();
 
 	let api_routes = Router::new()
-		.route("/api/auth/register", post(auth::register))
-		.route("/api/auth/login", post(auth::login))
-		.route("/api/auth/logout", post(auth::logout))
-		.route("/api/auth/me", get(crate::api::auth::me))
-		.route("/api/health", get(health::health_check));
+		.route("/api/auth/register", axum::routing::post(auth::register))
+		.route("/api/auth/login", axum::routing::post(auth::login))
+		.route("/api/auth/logout", axum::routing::post(auth::logout))
+		.route("/api/auth/me", axum::routing::get(crate::api::auth::me))
+		.route("/api/health", axum::routing::get(health::health_check))
+		// Settings (story 1.4)
+		.route("/api/settings", get(settings::get_settings))
+		.route("/api/settings", patch(settings::patch_settings))
+		.route("/api/settings", delete(settings::reset_settings));
 
 	// Static file serving with SPA fallback.
 	if std::path::Path::new(&dist_path).exists() {

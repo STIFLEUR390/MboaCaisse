@@ -18,14 +18,14 @@ cargo tauri add updater
 ### Configuration (tauri.conf.json)
 ```json
 {
-  "plugins": {
-    "updater": {
-      "active": true,
-      "endpoints": ["https://your-server.com/update/{{target}}/{{current_version}}"],
-      "pubkey": "BASE64_PUBLIC_KEY_HERE",
-      "dialog": true
-    }
-  }
+	"plugins": {
+		"updater": {
+			"active": true,
+			"endpoints": ["https://your-server.com/update/{{target}}/{{current_version}}"],
+			"pubkey": "BASE64_PUBLIC_KEY_HERE",
+			"dialog": true
+		}
+	}
 }
 ```
 - **Endpoints:** Array of HTTPS URLs.
@@ -54,19 +54,19 @@ Both files must be served from your update server.
 The update endpoint must return this JSON format:
 ```json
 {
-  "version": "1.0.1",
-  "notes": "Bug fixes",
-  "pub_date": "2026-04-02T00:00:00Z",
-  "platforms": {
-    "darwin-aarch64": {
-      "signature": "<content of .sig file>",
-      "url": "https://your-server/MyApp_1.0.1_aarch64.dmg"
-    },
-    "windows-x86_64": {
-      "signature": "<content of .sig file>",
-      "url": "https://your-server/MyApp_1.0.1_x64-setup.exe"
-    }
-  }
+	"version": "1.0.1",
+	"notes": "Bug fixes",
+	"pub_date": "2026-04-02T00:00:00Z",
+	"platforms": {
+		"darwin-aarch64": {
+			"signature": "<content of .sig file>",
+			"url": "https://your-server/MyApp_1.0.1_aarch64.dmg"
+		},
+		"windows-x86_64": {
+			"signature": "<content of .sig file>",
+			"url": "https://your-server/MyApp_1.0.1_x64-setup.exe"
+		}
+	}
 }
 ```
 
@@ -81,7 +81,7 @@ use tauri_plugin_updater::UpdaterExt;
 async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
     let update = app.updater().map_err(|e| e.to_string())?
         .check().await.map_err(|e| e.to_string())?;
-    
+
     if let Some(update) = update {
         update.download_and_install(|_, _| {}, || {})
             .await.map_err(|e| e.to_string())?;
@@ -120,17 +120,17 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
 Key `bundle` section in `tauri.conf.json`:
 ```json
 {
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "identifier": "com.example.myapp",
-    "icon": ["icons/32x32.png", "icons/icon.icns", "icons/icon.ico"],
-    "resources": [],
-    "copyright": "",
-    "category": "Utility",
-    "shortDescription": "",
-    "longDescription": ""
-  }
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"identifier": "com.example.myapp",
+		"icon": ["icons/32x32.png", "icons/icon.icns", "icons/icon.ico"],
+		"resources": [],
+		"copyright": "",
+		"category": "Utility",
+		"shortDescription": "",
+		"longDescription": ""
+	}
 }
 ```
 

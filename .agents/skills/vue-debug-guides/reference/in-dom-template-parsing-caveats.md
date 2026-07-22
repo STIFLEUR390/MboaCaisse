@@ -40,7 +40,7 @@ HTML is case-insensitive. The browser lowercases everything before Vue sees it.
 ```vue
 <!-- BlogPost.vue - PascalCase recommended -->
 <template>
-  <BlogPost postTitle="hello" @updatePost="onUpdate" />
+	<BlogPost post-title="hello" @update-post="onUpdate" />
 </template>
 ```
 
@@ -65,8 +65,8 @@ HTML only allows self-closing syntax for void elements (`<input>`, `<img>`, etc.
 **In SFCs, self-closing works fine:**
 ```vue
 <template>
-  <MyComponent />
-  <AnotherComponent />
+	<MyComponent />
+	<AnotherComponent />
 </template>
 ```
 
@@ -132,17 +132,17 @@ The simplest solution is to use Single-File Components (`.vue` files) which comp
 
 ```vue
 <!-- MyComponent.vue - All issues avoided -->
-<script setup>
-import BlogPost from './BlogPost.vue'
-</script>
-
 <template>
-  <BlogPost postTitle="hello" @updatePost="onUpdate" />
+	<BlogPost post-title="hello" @update-post="onUpdate" />
 
-  <table>
-    <BlogPostRow v-for="post in posts" :key="post.id" :post="post" />
-  </table>
+	<table>
+		<BlogPostRow v-for="post in posts" :key="post.id" :post="post" />
+	</table>
 </template>
+
+<script setup>
+	import BlogPost from "./BlogPost.vue";
+</script>
 ```
 
 ## Reference

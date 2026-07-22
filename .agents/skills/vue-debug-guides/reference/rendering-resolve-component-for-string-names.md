@@ -20,33 +20,33 @@ tags: [vue3, render-function, components, resolveComponent, migration]
 
 **Incorrect:**
 ```js
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  render() {
-    // WRONG: String names don't resolve to components
-    return h('div', [
-      h('my-component', { value: 1 }),  // Renders <my-component> HTML element!
-      h('router-link', { to: '/' }, 'Home')  // Also fails
-    ])
-  }
-}
+	render() {
+		// WRONG: String names don't resolve to components
+		return h("div", [
+			h("my-component", { value: 1 }), // Renders <my-component> HTML element!
+			h("router-link", { to: "/" }, "Home") // Also fails
+		]);
+	}
+};
 ```
 
 **Correct (Direct Import - Preferred):**
 ```js
-import { h } from 'vue'
-import MyComponent from './MyComponent.vue'
-import { RouterLink } from 'vue-router'
+import { h } from "vue";
+import { RouterLink } from "vue-router";
+import MyComponent from "./MyComponent.vue";
 
 export default {
-  render() {
-    return h('div', [
-      h(MyComponent, { value: 1 }),
-      h(RouterLink, { to: '/' }, () => 'Home')
-    ])
-  }
-}
+	render() {
+		return h("div", [
+			h(MyComponent, { value: 1 }),
+			h(RouterLink, { to: "/" }, () => "Home")
+		]);
+	}
+};
 ```
 
 **Correct (resolveComponent for Registered Components):**
@@ -93,85 +93,83 @@ export default {
 ## Handling Missing Components
 
 ```js
-import { h, resolveComponent } from 'vue'
+import { h, resolveComponent } from "vue";
 
 export default {
-  setup() {
-    // resolveComponent returns the component or the string name if not found
-    const DynamicComponent = resolveComponent('MaybeRegistered')
+	setup() {
+		// resolveComponent returns the component or the string name if not found
+		const DynamicComponent = resolveComponent("MaybeRegistered");
 
-    // Check if resolution succeeded
-    if (typeof DynamicComponent === 'string') {
-      console.warn(`Component "${DynamicComponent}" not found`)
-    }
+		// Check if resolution succeeded
+		if (typeof DynamicComponent === "string") {
+			console.warn(`Component "${DynamicComponent}" not found`);
+		}
 
-    return () => h(DynamicComponent, { value: 1 })
-  }
-}
+		return () => h(DynamicComponent, { value: 1 });
+	}
+};
 ```
 
 ## Dynamic Component Selection
 
 ```js
-import { h, resolveComponent, computed } from 'vue'
+import { computed, h, resolveComponent } from "vue";
 
 export default {
-  props: ['componentName'],
+	props: ["componentName"],
 
-  setup(props) {
-    // For truly dynamic components, resolve in render function
-    return () => {
-      const Component = resolveComponent(props.componentName)
-      return h(Component, { /* props */ })
-    }
-  }
-}
+	setup(props) {
+		// For truly dynamic components, resolve in render function
+		return () => {
+			const Component = resolveComponent(props.componentName);
+			return h(Component, { /* props */ });
+		};
+	}
+};
 ```
 
 For the equivalent of `<component :is="componentName">`, use `resolveDynamicComponent`:
 
 ```js
-import { h, resolveDynamicComponent } from 'vue'
+import { h, resolveDynamicComponent } from "vue";
 
 export default {
-  props: ['componentType'],
-  setup(props) {
-    return () => {
-      // Resolves string names, component objects, or built-in elements
-      const component = resolveDynamicComponent(props.componentType)
-      return h(component, { /* props */ })
-    }
-  }
-}
+	props: ["componentType"],
+	setup(props) {
+		return () => {
+			// Resolves string names, component objects, or built-in elements
+			const component = resolveDynamicComponent(props.componentType);
+			return h(component, { /* props */ });
+		};
+	}
+};
 ```
 
 ## Practical Example: Tab Component
 
 ```js
-import { h, resolveComponent, ref } from 'vue'
+import { h, ref, resolveComponent } from "vue";
 
 export default {
-  setup() {
-    const currentTab = ref('TabA')
-    const tabs = ['TabA', 'TabB', 'TabC']
+	setup() {
+		const currentTab = ref("TabA");
+		const tabs = ["TabA", "TabB", "TabC"];
 
-    return () => h('div', [
-      // Tab buttons
-      h('div', { class: 'tabs' },
-        tabs.map(tab =>
-          h('button', {
-            key: tab,
-            class: { active: currentTab.value === tab },
-            onClick: () => currentTab.value = tab
-          }, tab)
-        )
-      ),
+		return () => h("div", [
+			// Tab buttons
+			h("div", { class: "tabs" }, tabs.map((tab) =>
+				h("button", {
+					key: tab,
+					class: { active: currentTab.value === tab },
+					onClick: () => currentTab.value = tab
+				}, tab)
+			)),
 
-      // Dynamic component based on current tab
-      h(resolveComponent(currentTab.value))
-    ])
-  }
-}
+			// Dynamic component based on current tab
+			h(resolveComponent(currentTab.value))
+		]);
+	}
+};
 ```
 
 ## Resolving Built-in Components
@@ -179,15 +177,14 @@ export default {
 For built-in components like `<Transition>` or `<KeepAlive>`, import them directly from Vue:
 
 ```js
-import { h, Transition, KeepAlive, Teleport, Suspense } from 'vue'
+import { h, KeepAlive, Suspense, Teleport, Transition } from "vue";
 
 export default {
-  setup() {
-    return () => h(Transition, { name: 'fade' }, () =>
-      h('div', 'Content')
-    )
-  }
-}
+	setup() {
+		return () => h(Transition, { name: "fade" }, () =>
+			h("div", "Content"));
+	}
+};
 ```
 
 ## Resolving Directives
@@ -195,18 +192,18 @@ export default {
 Similar pattern for custom directives:
 
 ```js
-import { h, resolveDirective, withDirectives } from 'vue'
+import { h, resolveDirective, withDirectives } from "vue";
 
 export default {
-  render() {
-    const vFocus = resolveDirective('focus')
+	render() {
+		const vFocus = resolveDirective("focus");
 
-    return withDirectives(
-      h('input', { type: 'text' }),
-      [[vFocus]]
-    )
-  }
-}
+		return withDirectives(
+			h("input", { type: "text" }),
+			[[vFocus]]
+		);
+	}
+};
 ```
 
 ## Migration from Vue 2

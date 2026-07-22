@@ -24,162 +24,164 @@ The component's DOM is only available starting from the `mounted` hook (Options 
 ```javascript
 // WRONG: Accessing DOM in created hook
 export default {
-  created() {
-    // DOM doesn't exist yet!
-    console.log(this.$el) // undefined
-    this.$el.querySelector('.chart') // Error: Cannot read property 'querySelector' of undefined
+	created() {
+		// DOM doesn't exist yet!
+		console.log(this.$el); // undefined
+		this.$el.querySelector(".chart"); // Error: Cannot read property 'querySelector' of undefined
 
-    // Third-party library initialization fails
-    new Chart(document.getElementById('myChart')) // Element doesn't exist yet
-  }
-}
+		// Third-party library initialization fails
+		new Chart(document.getElementById("myChart")); // Element doesn't exist yet
+	}
+};
 ```
 
 ```javascript
 // WRONG: Accessing DOM in beforeMount
 export default {
-  beforeMount() {
-    // Still too early - template is compiled but not mounted
-    console.log(this.$el) // undefined in Vue 3
-    this.$refs.myInput.focus() // Error: Cannot read property 'focus' of undefined
-  }
-}
+	beforeMount() {
+		// Still too early - template is compiled but not mounted
+		console.log(this.$el); // undefined in Vue 3
+		this.$refs.myInput.focus(); // Error: Cannot read property 'focus' of undefined
+	}
+};
 ```
 
 ```vue
 <!-- WRONG: Accessing template ref synchronously in setup -->
-<script setup>
-import { ref } from 'vue'
-
-const myInput = ref(null)
-
-// This runs during setup, before mounting
-myInput.value.focus() // Error: Cannot read property 'focus' of null
-</script>
-
 <template>
-  <input ref="myInput" />
+	<input ref="myInput">
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const myInput = ref(null);
+
+	// This runs during setup, before mounting
+	myInput.value.focus(); // Error: Cannot read property 'focus' of null
+</script>
 ```
 
 **Correct:**
 ```javascript
 // CORRECT: Use created for data, mounted for DOM
 export default {
-  data() {
-    return { chartData: null }
-  },
-  async created() {
-    // Data fetching is fine in created
-    this.chartData = await fetchChartData()
-  },
-  mounted() {
-    // Now the DOM exists and is safe to access
-    console.log(this.$el) // <div>...</div>
+	data() {
+		return { chartData: null };
+	},
+	async created() {
+		// Data fetching is fine in created
+		this.chartData = await fetchChartData();
+	},
+	mounted() {
+		// Now the DOM exists and is safe to access
+		console.log(this.$el); // <div>...</div>
 
-    // Initialize DOM-dependent libraries
-    this.chart = new Chart(this.$refs.chartCanvas, {
-      data: this.chartData
-    })
-  }
-}
+		// Initialize DOM-dependent libraries
+		this.chart = new Chart(this.$refs.chartCanvas, {
+			data: this.chartData
+		});
+	}
+};
 ```
 
 ```vue
 <!-- CORRECT: Access template refs in onMounted -->
-<script setup>
-import { ref, onMounted } from 'vue'
-
-const myInput = ref(null)
-
-onMounted(() => {
-  // DOM is now available
-  myInput.value.focus() // Works!
-})
-</script>
-
 <template>
-  <input ref="myInput" />
+	<input ref="myInput">
 </template>
+
+<script setup>
+	import { onMounted, ref } from "vue";
+
+	const myInput = ref(null);
+
+	onMounted(() => {
+		// DOM is now available
+		myInput.value.focus(); // Works!
+	});
+</script>
 ```
 
 ```javascript
 // CORRECT: Using $nextTick for DOM access after data changes
 export default {
-  methods: {
-    async addItem() {
-      this.items.push(newItem)
+	methods: {
+		async addItem() {
+			this.items.push(newItem);
 
-      // Wait for Vue to update the DOM
-      await this.$nextTick()
+			// Wait for Vue to update the DOM
+			await this.$nextTick();
 
-      // Now the new element exists in DOM
-      this.$refs.list.lastElementChild.scrollIntoView()
-    }
-  }
-}
+			// Now the new element exists in DOM
+			this.$refs.list.lastElementChild.scrollIntoView();
+		}
+	}
+};
 ```
 
 ## Vue 3 Composition API Pattern
 
 ```vue
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+	import { nextTick, onMounted, ref } from "vue";
 
-const listRef = ref(null)
-const items = ref([])
+	const listRef = ref(null);
+	const items = ref([]);
 
-onMounted(() => {
-  // Safe to access DOM here
-  listRef.value.style.height = '400px'
-})
+	onMounted(() => {
+		// Safe to access DOM here
+		listRef.value.style.height = "400px";
+	});
 </script>
 ```
 
 ## Vue 3.5+ useTemplateRef Pattern
 
 ```vue
-<script setup>
-import { useTemplateRef, onMounted } from 'vue'
-
-// Vue 3.5+ recommended approach - decouples ref name from variable name
-const input = useTemplateRef('my-input')
-
-onMounted(() => {
-  input.value.focus()
-})
-</script>
-
 <template>
-  <input ref="my-input" />
+	<input ref="my-input">
 </template>
+
+<script setup>
+	import { onMounted, useTemplateRef } from "vue";
+
+	// Vue 3.5+ recommended approach - decouples ref name from variable name
+	const input = useTemplateRef("my-input");
+
+	onMounted(() => {
+		input.value.focus();
+	});
+</script>
 ```
 
 ## Composition API with nextTick
 
 ```vue
-<script setup>
-import { ref, nextTick } from 'vue'
-
-const listRef = ref(null)
-const items = ref([])
-
-async function addItem(item) {
-  items.value.push(item)
-
-  // Wait for DOM update after reactive change
-  await nextTick()
-
-  // Now new item is in DOM
-  listRef.value.lastElementChild.focus()
-}
-</script>
-
 <template>
-  <ul ref="listRef">
-    <li v-for="item in items" :key="item.id">{{ item.name }}</li>
-  </ul>
+	<ul ref="listRef">
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+		</li>
+	</ul>
 </template>
+
+<script setup>
+	import { nextTick, ref } from "vue";
+
+	const listRef = ref(null);
+	const items = ref([]);
+
+	async function addItem(item) {
+		items.value.push(item);
+
+		// Wait for DOM update after reactive change
+		await nextTick();
+
+		// Now new item is in DOM
+		listRef.value.lastElementChild.focus();
+	}
+</script>
 ```
 
 ## Common Third-Party Libraries
@@ -187,27 +189,27 @@ async function addItem(item) {
 ```javascript
 // CORRECT: Initialize in mounted
 export default {
-  mounted() {
-    // Chart.js
-    this.chart = new Chart(this.$refs.canvas, config)
+	mounted() {
+		// Chart.js
+		this.chart = new Chart(this.$refs.canvas, config);
 
-    // Leaflet maps
-    this.map = L.map(this.$refs.mapContainer).setView([51.505, -0.09], 13)
+		// Leaflet maps
+		this.map = L.map(this.$refs.mapContainer).setView([51.505, -0.09], 13);
 
-    // Monaco Editor
-    this.editor = monaco.editor.create(this.$refs.editorContainer, options)
+		// Monaco Editor
+		this.editor = monaco.editor.create(this.$refs.editorContainer, options);
 
-    // Video.js
-    this.player = videojs(this.$refs.videoElement)
-  },
-  beforeUnmount() {
-    // Don't forget cleanup!
-    this.chart?.destroy()
-    this.map?.remove()
-    this.editor?.dispose()
-    this.player?.dispose()
-  }
-}
+		// Video.js
+		this.player = videojs(this.$refs.videoElement);
+	},
+	beforeUnmount() {
+		// Don't forget cleanup!
+		this.chart?.destroy();
+		this.map?.remove();
+		this.editor?.dispose();
+		this.player?.dispose();
+	}
+};
 ```
 
 ## Reference

@@ -12,21 +12,21 @@ By default, Zod objects use `.strip()` behavior, silently removing unrecognized 
 **Default behavior (strip - silent removal):**
 
 ```typescript
-import { z } from 'zod'
+import { z } from "zod";
 
 const userSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-})
+	id: z.string(),
+	name: z.string()
+});
 
 const input = {
-  id: '123',
-  name: 'John',
-  role: 'admin',  // Extra field
-  secretToken: 'abc123',  // Another extra field
-}
+	id: "123",
+	name: "John",
+	role: "admin", // Extra field
+	secretToken: "abc123" // Another extra field
+};
 
-const user = userSchema.parse(input)
+const user = userSchema.parse(input);
 // { id: '123', name: 'John' }
 // Extra fields silently removed - was this intentional?
 ```
@@ -34,20 +34,20 @@ const user = userSchema.parse(input)
 **Using strict() to catch schema mismatches:**
 
 ```typescript
-import { z } from 'zod'
+import { z } from "zod";
 
 const userSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-}).strict()
+	id: z.string(),
+	name: z.string()
+}).strict();
 
 const input = {
-  id: '123',
-  name: 'John',
-  role: 'admin',
-}
+	id: "123",
+	name: "John",
+	role: "admin"
+};
 
-userSchema.parse(input)
+userSchema.parse(input);
 // ZodError: Unrecognized key(s) in object: 'role'
 
 // This catches:
@@ -61,23 +61,23 @@ userSchema.parse(input)
 ```typescript
 // strict() - Catch unexpected data (API contracts)
 const apiRequestSchema = z.object({
-  action: z.string(),
-  payload: z.unknown(),
-}).strict()  // Fail if client sends unknown fields
+	action: z.string(),
+	payload: z.unknown()
+}).strict(); // Fail if client sends unknown fields
 
 // strip() - Clean up data (explicit intention)
 const dbInsertSchema = z.object({
-  name: z.string(),
-  email: z.string(),
-}).strip()  // Explicitly remove metadata before insert
+	name: z.string(),
+	email: z.string()
+}).strip(); // Explicitly remove metadata before insert
 
 // passthrough() - Keep everything (pass-through proxy)
 const proxySchema = z.object({
-  id: z.string(),
-}).passthrough()  // Keep fields we don't validate
+	id: z.string()
+}).passthrough(); // Keep fields we don't validate
 
-const input = { id: '123', extra: 'data' }
-proxySchema.parse(input)  // { id: '123', extra: 'data' }
+const input = { id: "123", extra: "data" };
+proxySchema.parse(input); // { id: '123', extra: 'data' }
 ```
 
 **Choosing the right mode:**
@@ -92,14 +92,14 @@ proxySchema.parse(input)  // { id: '123', extra: 'data' }
 
 ```typescript
 const schema = z.object({
-  id: z.string(),
-  name: z.string(),
-}).catchall(z.unknown())  // Allow any additional fields of any type
+	id: z.string(),
+	name: z.string()
+}).catchall(z.unknown()); // Allow any additional fields of any type
 
 // Or restrict additional fields to specific type
 const metadataSchema = z.object({
-  id: z.string(),
-}).catchall(z.string())  // Only allow string extras
+	id: z.string()
+}).catchall(z.string()); // Only allow string extras
 ```
 
 **When NOT to use this pattern:**

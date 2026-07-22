@@ -43,12 +43,12 @@ End with a JSON status block. Use `complete` when the artifacts stand on their o
 
 ```json
 {
-  "status": "complete",
-  "intent": "brainstorm",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "html": "{doc_workspace}/brainstorm.html",
-  "intent_doc": "{doc_workspace}/brainstorm-intent.md",
-  "assumptions": [],
-  "external_handoffs": []
+	"status": "complete",
+	"intent": "brainstorm",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"html": "{doc_workspace}/brainstorm.html",
+	"intent_doc": "{doc_workspace}/brainstorm-intent.md",
+	"assumptions": [],
+	"external_handoffs": []
 }
 ```

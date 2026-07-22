@@ -208,15 +208,15 @@ development_status:
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
-generated: { date }
-last_updated: { date }
-project: { project_name }
-project_key: { project_key }
-tracking_system: { tracking_system }
-story_location: { story_location }
+generated: {date}
+last_updated: {date}
+project: {project_name}
+project_key: {project_key}
+tracking_system: {tracking_system}
+story_location: {story_location}
 
 development_status:
-  # All epics, stories, and retrospectives in order
+# All epics, stories, and retrospectives in order
 ```
 
 <action>Write the complete sprint status YAML to {status_file}</action>

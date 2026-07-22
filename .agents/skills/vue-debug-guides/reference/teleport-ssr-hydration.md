@@ -22,14 +22,14 @@ This is a critical issue for Nuxt, Quasar SSR, and custom Vue SSR setups.
 **Problem - SSR Hydration Mismatch:**
 ```vue
 <template>
-  <!-- Server renders nothing for teleported content -->
-  <!-- Client expects teleported content at #modals -->
-  <!-- = Hydration mismatch -->
-  <Teleport to="#modals">
-    <div v-if="showModal" class="modal">
-      Modal content
-    </div>
-  </Teleport>
+	<!-- Server renders nothing for teleported content -->
+	<!-- Client expects teleported content at #modals -->
+	<!-- = Hydration mismatch -->
+	<Teleport to="#modals">
+		<div v-if="showModal" class="modal">
+			Modal content
+		</div>
+	</Teleport>
 </template>
 ```
 
@@ -42,55 +42,59 @@ server rendered element contains fewer child nodes than client vdom.
 **Solution 1 - Nuxt ClientOnly:**
 ```vue
 <template>
-  <button @click="showModal = true">Open Modal</button>
+	<button @click="showModal = true">
+		Open Modal
+	</button>
 
-  <!-- Only render on client, avoiding SSR -->
-  <ClientOnly>
-    <Teleport to="body">
-      <div v-if="showModal" class="modal">
-        Modal content
-      </div>
-    </Teleport>
-  </ClientOnly>
+	<!-- Only render on client, avoiding SSR -->
+	<ClientOnly>
+		<Teleport to="body">
+			<div v-if="showModal" class="modal">
+				Modal content
+			</div>
+		</Teleport>
+	</ClientOnly>
 </template>
 ```
 
 **Solution 2 - Manual Client Detection:**
 ```vue
 <template>
-  <button @click="showModal = true">Open Modal</button>
+	<button @click="showModal = true">
+		Open Modal
+	</button>
 
-  <!-- Only render after component mounts on client -->
-  <Teleport v-if="isMounted" to="body">
-    <div v-if="showModal" class="modal">
-      Modal content
-    </div>
-  </Teleport>
+	<!-- Only render after component mounts on client -->
+	<Teleport v-if="isMounted" to="body">
+		<div v-if="showModal" class="modal">
+			Modal content
+		</div>
+	</Teleport>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+	import { onMounted, ref } from "vue";
 
-const showModal = ref(false)
-const isMounted = ref(false)
+	const showModal = ref(false);
+	const isMounted = ref(false);
 
-onMounted(() => {
-  isMounted.value = true
-})
+	onMounted(() => {
+		isMounted.value = true;
+	});
 </script>
 ```
 
 **Solution 3 - Vue 3.5+ data-allow-mismatch:**
 ```vue
 <template>
-  <!-- Suppress hydration warnings for intentional mismatches -->
-  <div data-allow-mismatch>
-    <Teleport to="body">
-      <div v-if="showModal" class="modal">
-        Modal content
-      </div>
-    </Teleport>
-  </div>
+	<!-- Suppress hydration warnings for intentional mismatches -->
+	<div data-allow-mismatch>
+		<Teleport to="body">
+			<div v-if="showModal" class="modal">
+				Modal content
+			</div>
+		</Teleport>
+	</div>
 </template>
 ```
 
@@ -101,12 +105,12 @@ Multiple teleports to the same target can cause additional hydration issues:
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- First teleport -->
-  <Teleport to="#modals">
-    <NotificationBanner />
-  </Teleport>
+	<!-- First teleport -->
+	<Teleport to="#modals">
+		<NotificationBanner />
+	</Teleport>
 
-  <ChildComponent />
+	<ChildComponent />
 </template>
 
 <!-- ChildComponent.vue -->
@@ -132,12 +136,12 @@ Many UI libraries use Teleport internally. Element Plus components that use Tele
 
 ```vue
 <template>
-  <!-- These need special SSR handling -->
-  <ClientOnly>
-    <ElDialog v-model="visible">
-      Dialog content
-    </ElDialog>
-  </ClientOnly>
+	<!-- These need special SSR handling -->
+	<ClientOnly>
+		<ElDialog v-model="visible">
+			Dialog content
+		</ElDialog>
+	</ClientOnly>
 </template>
 ```
 

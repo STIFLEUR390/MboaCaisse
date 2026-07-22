@@ -123,13 +123,13 @@ defineOptions({
 
 ```javascript
 // In Vue 3, if you declare an event in emits:
-defineEmits(['click'])
+defineEmits(["click"]);
 
 // Then @click on the component ONLY listens to emitted events
 // NOT native click events
 
 // If you don't declare 'click' in emits:
-defineEmits(['custom-event'])
+defineEmits(["custom-event"]);
 
 // Then @click on single-root component will:
 // 1. Fall through to root element as native listener
@@ -139,24 +139,24 @@ defineEmits(['custom-event'])
 ## Composition API Emit Pattern
 
 ```vue
+<template>
+	<button @click="handleClick">
+		<slot />
+	</button>
+</template>
+
 <script setup>
 // Define what events this component emits
-const emit = defineEmits(['click', 'update', 'delete'])
+	const emit = defineEmits(["click", "update", "delete"]);
 
-function handleClick(event) {
-  // Do component logic
-  processClick()
+	function handleClick(event) {
+		// Do component logic
+		processClick();
 
-  // Then emit to parent
-  emit('click', event)
-}
+		// Then emit to parent
+		emit("click", event);
+	}
 </script>
-
-<template>
-  <button @click="handleClick">
-    <slot></slot>
-  </button>
-</template>
 ```
 
 ## Migration from Vue 2

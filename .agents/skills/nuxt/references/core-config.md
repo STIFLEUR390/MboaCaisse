@@ -14,10 +14,10 @@ The main configuration file at the root of your project:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  // Configuration options
-  devtools: { enabled: true },
-  modules: ['@nuxt/ui'],
-})
+	// Configuration options
+	devtools: { enabled: true },
+	modules: ["@nuxt/ui"]
+});
 ```
 
 ### Environment Overrides
@@ -26,20 +26,20 @@ Configure environment-specific settings:
 
 ```ts
 export default defineNuxtConfig({
-  $production: {
-    routeRules: {
-      '/**': { isr: true },
-    },
-  },
-  $development: {
-    // Development-specific config
-  },
-  $env: {
-    staging: {
-      // Staging environment config
-    },
-  },
-})
+	$production: {
+		routeRules: {
+			"/**": { isr: true }
+		}
+	},
+	$development: {
+		// Development-specific config
+	},
+	$env: {
+		staging: {
+			// Staging environment config
+		}
+	}
+});
 ```
 
 Use `--envName` flag to select environment: `nuxt build --envName staging`
@@ -51,15 +51,15 @@ For values that need to be overridden via environment variables:
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  runtimeConfig: {
-    // Server-only keys
-    apiSecret: '123',
-    // Keys within public are exposed to client
-    public: {
-      apiBase: '/api',
-    },
-  },
-})
+	runtimeConfig: {
+		// Server-only keys
+		apiSecret: "123",
+		// Keys within public are exposed to client
+		public: {
+			apiBase: "/api"
+		}
+	}
+});
 ```
 
 Override with environment variables:
@@ -74,7 +74,7 @@ Access in components/composables:
 
 ```vue
 <script setup lang="ts">
-const config = useRuntimeConfig()
+	const config = useRuntimeConfig();
 // Server: config.apiSecret, config.public.apiBase
 // Client: config.public.apiBase only
 </script>
@@ -87,21 +87,21 @@ For public tokens determined at build time (not overridable via env vars):
 ```ts
 // app/app.config.ts
 export default defineAppConfig({
-  title: 'Hello Nuxt',
-  theme: {
-    dark: true,
-    colors: {
-      primary: '#ff0000',
-    },
-  },
-})
+	title: "Hello Nuxt",
+	theme: {
+		dark: true,
+		colors: {
+			primary: "#ff0000"
+		}
+	}
+});
 ```
 
 Access in components:
 
 ```vue
 <script setup lang="ts">
-const appConfig = useAppConfig()
+	const appConfig = useAppConfig();
 </script>
 ```
 
@@ -124,22 +124,22 @@ Nuxt uses `nuxt.config.ts` as single source of truth. Configure external tools w
 
 ```ts
 export default defineNuxtConfig({
-  // Nitro configuration
-  nitro: {
-    // nitro options
-  },
-  // Vite configuration
-  vite: {
-    // vite options
-    vue: {
-      // @vitejs/plugin-vue options
-    },
-  },
-  // PostCSS configuration
-  postcss: {
-    // postcss options
-  },
-})
+	// Nitro configuration
+	nitro: {
+		// nitro options
+	},
+	// Vite configuration
+	vite: {
+		// vite options
+		vue: {
+			// @vitejs/plugin-vue options
+		}
+	},
+	// PostCSS configuration
+	postcss: {
+		// postcss options
+	}
+});
 ```
 
 ## Vue Configuration
@@ -148,13 +148,13 @@ Enable Vue experimental features:
 
 ```ts
 export default defineNuxtConfig({
-  vue: {
-    propsDestructure: true,
-  },
-})
+	vue: {
+		propsDestructure: true
+	}
+});
 ```
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/getting-started/configuration
 - https://nuxt.com/docs/guide/going-further/runtime-config

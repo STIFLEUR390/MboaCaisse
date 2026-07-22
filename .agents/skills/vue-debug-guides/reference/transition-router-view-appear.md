@@ -20,28 +20,32 @@ tags: [vue3, transition, vue-router, appear, initial-load, navigation]
 **Expected Behavior (Normal Transition):**
 ```vue
 <template>
-  <!-- Without appear: No animation on initial render -->
-  <Transition name="fade">
-    <div v-if="show">Content</div>
-  </Transition>
+	<!-- Without appear: No animation on initial render -->
+	<Transition name="fade">
+		<div v-if="show">
+			Content
+		</div>
+	</Transition>
 
-  <!-- With appear: Animates on initial render -->
-  <Transition name="fade" appear>
-    <div v-if="show">Content</div>
-  </Transition>
+	<!-- With appear: Animates on initial render -->
+	<Transition name="fade" appear>
+		<div v-if="show">
+			Content
+		</div>
+	</Transition>
 </template>
 ```
 
 **RouterView Behavior (Different!):**
 ```vue
 <template>
-  <!-- RouterView transitions ALWAYS animate on initial load -->
-  <!-- The appear prop has no effect here -->
-  <RouterView v-slot="{ Component }">
-    <Transition name="fade">
-      <component :is="Component" />
-    </Transition>
-  </RouterView>
+	<!-- RouterView transitions ALWAYS animate on initial load -->
+	<!-- The appear prop has no effect here -->
+	<RouterView v-slot="{ Component }">
+		<Transition name="fade">
+			<component :is="Component" />
+		</Transition>
+	</RouterView>
 </template>
 
 <!--
@@ -68,27 +72,27 @@ Since the component wasn't present in the initial render and is "inserted" after
 
 ```vue
 <template>
-  <RouterView v-slot="{ Component }">
-    <Transition :name="isInitialLoad ? '' : 'fade'" mode="out-in">
-      <component :is="Component" />
-    </Transition>
-  </RouterView>
+	<RouterView v-slot="{ Component }">
+		<Transition :name="isInitialLoad ? '' : 'fade'" mode="out-in">
+			<component :is="Component" />
+		</Transition>
+	</RouterView>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+	import { onMounted, ref } from "vue";
+	import { useRouter } from "vue-router";
 
-const isInitialLoad = ref(true)
-const router = useRouter()
+	const isInitialLoad = ref(true);
+	const router = useRouter();
 
-// After first navigation completes, enable transitions
-router.isReady().then(() => {
-  // Small delay to ensure initial render is complete
-  setTimeout(() => {
-    isInitialLoad.value = false
-  }, 0)
-})
+	// After first navigation completes, enable transitions
+	router.isReady().then(() => {
+		// Small delay to ensure initial render is complete
+		setTimeout(() => {
+			isInitialLoad.value = false;
+		}, 0);
+	});
 </script>
 ```
 
@@ -96,23 +100,23 @@ router.isReady().then(() => {
 
 ```vue
 <template>
-  <RouterView v-slot="{ Component }">
-    <Transition name="fade" mode="out-in">
-      <component :is="Component" :class="{ 'skip-initial': isInitialLoad }" />
-    </Transition>
-  </RouterView>
+	<RouterView v-slot="{ Component }">
+		<Transition name="fade" mode="out-in">
+			<component :is="Component" :class="{ 'skip-initial': isInitialLoad }" />
+		</Transition>
+	</RouterView>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+	import { ref } from "vue";
+	import { useRouter } from "vue-router";
 
-const isInitialLoad = ref(true)
-const router = useRouter()
+	const isInitialLoad = ref(true);
+	const router = useRouter();
 
-router.isReady().then(() => {
-  isInitialLoad.value = false
-})
+	router.isReady().then(() => {
+		isInitialLoad.value = false;
+	});
 </script>
 
 <style>
@@ -139,11 +143,11 @@ If you're fine with initial animation (often desired), use the standard pattern:
 
 ```vue
 <template>
-  <RouterView v-slot="{ Component, route }">
-    <Transition :name="route.meta.transition || 'fade'" mode="out-in">
-      <component :is="Component" :key="route.path" />
-    </Transition>
-  </RouterView>
+	<RouterView v-slot="{ Component, route }">
+		<Transition :name="route.meta.transition || 'fade'" mode="out-in">
+			<component :is="Component" :key="route.path" />
+		</Transition>
+	</RouterView>
 </template>
 
 <style>
@@ -176,16 +180,16 @@ If you're fine with initial animation (often desired), use the standard pattern:
 ```javascript
 // router.js
 const routes = [
-  {
-    path: '/',
-    component: Home
-  },
-  {
-    path: '/about',
-    component: About,
-    meta: { transition: 'slide' }  // Custom transition for this route
-  }
-]
+	{
+		path: "/",
+		component: Home
+	},
+	{
+		path: "/about",
+		component: About,
+		meta: { transition: "slide" } // Custom transition for this route
+	}
+];
 ```
 
 ## Reference

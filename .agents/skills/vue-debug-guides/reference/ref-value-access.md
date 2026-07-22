@@ -21,39 +21,41 @@ When using `ref()` in Vue 3's Composition API, the reactive value is wrapped in 
 
 **Incorrect:**
 ```javascript
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const count = ref(0)
+const count = ref(0);
 
 // These do NOT work as expected
-count++           // Tries to increment the ref object, not the value
-count = 5         // Reassigns the variable, loses reactivity
-console.log(count) // Logs "[object Object]", not the number
+count++; // Tries to increment the ref object, not the value
+count = 5; // Reassigns the variable, loses reactivity
+console.log(count); // Logs "[object Object]", not the number
 
-const items = ref([1, 2, 3])
-items.push(4)     // Error: push is not a function
+const items = ref([1, 2, 3]);
+items.push(4); // Error: push is not a function
 ```
 
 **Correct:**
 ```javascript
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const count = ref(0)
+const count = ref(0);
 
 // Always use .value in JavaScript
-count.value++           // Correctly increments to 1
-count.value = 5         // Correctly sets value to 5
-console.log(count.value) // Logs "5"
+count.value++; // Correctly increments to 1
+count.value = 5; // Correctly sets value to 5
+console.log(count.value); // Logs "5"
 
-const items = ref([1, 2, 3])
-items.value.push(4)     // Correctly adds 4 to the array
+const items = ref([1, 2, 3]);
+items.value.push(4); // Correctly adds 4 to the array
 ```
 
 ```vue
 <template>
-  <!-- In templates, NO .value needed - Vue unwraps automatically -->
-  <p>{{ count }}</p>
-  <button @click="count++">Increment</button>
+	<!-- In templates, NO .value needed - Vue unwraps automatically -->
+	<p>{{ count }}</p>
+	<button @click="count++">
+		Increment
+	</button>
 </template>
 ```
 

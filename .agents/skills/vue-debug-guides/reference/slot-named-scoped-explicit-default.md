@@ -18,21 +18,21 @@ tags: [vue3, slots, scoped-slots, named-slots, compilation-error]
 
 **Incorrect:**
 ```vue
-<script setup>
-import MyComponent from './MyComponent.vue'
-</script>
-
 <template>
-  <!-- BAD: v-slot on component + named template inside causes ambiguity -->
-  <MyComponent v-slot="{ message }">
-    <p>{{ message }}</p>
+	<!-- BAD: v-slot on component + named template inside causes ambiguity -->
+	<MyComponent v-slot="{ message }">
+		<p>{{ message }}</p>
 
-    <template #footer>
-      <!-- Ambiguous: Is 'message' available here? Vue can't determine -->
-      <p>Footer: {{ message }}</p>
-    </template>
-  </MyComponent>
+		<template #footer>
+			<!-- Ambiguous: Is 'message' available here? Vue can't determine -->
+			<p>Footer: {{ message }}</p>
+		</template>
+	</MyComponent>
 </template>
+
+<script setup>
+	import MyComponent from "./MyComponent.vue";
+</script>
 ```
 
 This causes a compilation error because Vue cannot determine:
@@ -41,43 +41,43 @@ This causes a compilation error because Vue cannot determine:
 
 **Correct:**
 ```vue
-<script setup>
-import MyComponent from './MyComponent.vue'
-</script>
-
 <template>
-  <!-- GOOD: Explicit template for each slot with clear scope -->
-  <MyComponent>
-    <template #default="{ message }">
-      <p>{{ message }}</p>
-    </template>
+	<!-- GOOD: Explicit template for each slot with clear scope -->
+	<MyComponent>
+		<template #default="{ message }">
+			<p>{{ message }}</p>
+		</template>
 
-    <template #footer>
-      <!-- Clear: footer slot has its own scope, no access to default's 'message' -->
-      <p>Footer content here</p>
-    </template>
-  </MyComponent>
+		<template #footer>
+			<!-- Clear: footer slot has its own scope, no access to default's 'message' -->
+			<p>Footer content here</p>
+		</template>
+	</MyComponent>
 </template>
+
+<script setup>
+	import MyComponent from "./MyComponent.vue";
+</script>
 ```
 
 **Correct - When Footer Also Has Props:**
 ```vue
-<script setup>
-import MyComponent from './MyComponent.vue'
-</script>
-
 <template>
-  <MyComponent>
-    <template #default="{ message }">
-      <p>{{ message }}</p>
-    </template>
+	<MyComponent>
+		<template #default="{ message }">
+			<p>{{ message }}</p>
+		</template>
 
-    <template #footer="{ year }">
-      <!-- Each slot receives its own props -->
-      <p>Copyright {{ year }}</p>
-    </template>
-  </MyComponent>
+		<template #footer="{ year }">
+			<!-- Each slot receives its own props -->
+			<p>Copyright {{ year }}</p>
+		</template>
+	</MyComponent>
 </template>
+
+<script setup>
+	import MyComponent from "./MyComponent.vue";
+</script>
 ```
 
 ## The Rule

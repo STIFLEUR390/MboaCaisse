@@ -22,35 +22,36 @@ tags: [vue3, typescript, defineProps, imported-types, vue3.3]
 ```typescript
 // types/user.ts
 export interface User {
-  id: string
-  name: string
-  email?: string
+	id: string
+	name: string
+	email?: string
 }
 
 export interface ListProps<T> {
-  items: T[]
-  selectedItem?: T
+	items: T[]
+	selectedItem?: T
 }
 
-export type Status = 'pending' | 'active' | 'completed'
+export type Status = "pending" | "active" | "completed";
 ```
 
 ```vue
 <script setup lang="ts">
-import type { User, Status } from '@/types/user'
+	import type { Status, User } from "@/types/user";
 
-// WORKS: Simple imported interface
-defineProps<{
-  user: User
-}>()
+	// WORKS: Simple imported interface
+	defineProps<{
+		user: User
+	}>();
 
-// WORKS: Imported union type
-defineProps<{
-  status: Status
-}>()
+	// WORKS: Imported union type
+	defineProps<{
+		status: Status
+	}>();
 
-// WORKS: Direct imported interface
-defineProps<User>()
+	// WORKS: Direct imported interface
+	defineProps<User>();
+
 </script>
 ```
 
@@ -61,16 +62,16 @@ defineProps<User>()
 ```typescript
 // types/conditional.ts
 export type ConditionalProps<T> = T extends string
-  ? { value: string; onChange: (v: string) => void }
-  : { value: number; onChange: (v: number) => void }
+	? { value: string, onChange: (v: string) => void }
+	: { value: number, onChange: (v: number) => void };
 ```
 
 ```vue
 <script setup lang="ts">
-import type { ConditionalProps } from '@/types/conditional'
+	import type { ConditionalProps } from "@/types/conditional";
 
-// ERROR: Conditional types not supported for entire props object
-defineProps<ConditionalProps<string>>()
+	// ERROR: Conditional types not supported for entire props object
+	defineProps<ConditionalProps<string>>();
 </script>
 ```
 
@@ -78,12 +79,12 @@ defineProps<ConditionalProps<string>>()
 ```vue
 <script setup lang="ts">
 // Define the resolved type directly
-interface StringProps {
-  value: string
-  onChange: (v: string) => void
-}
+	interface StringProps {
+		value: string
+		onChange: (v: string) => void
+	}
 
-defineProps<StringProps>()
+	defineProps<StringProps>();
 </script>
 ```
 
@@ -92,11 +93,11 @@ defineProps<StringProps>()
 ```vue
 <script setup lang="ts">
 // This WORKS - conditional type on individual prop
-interface Props {
-  value: SomeType extends string ? string : number  // OK
-}
+	interface Props {
+		value: SomeType extends string ? string : number // OK
+	}
 
-defineProps<Props>()
+	defineProps<Props>();
 </script>
 ```
 
@@ -105,8 +106,8 @@ defineProps<Props>()
 ```typescript
 // global.d.ts (ambient declaration without export)
 interface GlobalUser {
-  id: string
-  name: string
+	id: string
+	name: string
 }
 
 // No export statement - this is an ambient declaration
@@ -115,9 +116,9 @@ interface GlobalUser {
 ```vue
 <script setup lang="ts">
 // ERROR: "Unresolvable type reference"
-defineProps<{
-  user: GlobalUser  // Can't resolve ambient global type
-}>()
+	defineProps<{
+		user: GlobalUser // Can't resolve ambient global type
+	}>();
 </script>
 ```
 
@@ -125,19 +126,19 @@ defineProps<{
 ```typescript
 // types/user.ts - Use explicit export
 export interface GlobalUser {
-  id: string
-  name: string
+	id: string
+	name: string
 }
 ```
 
 ```vue
 <script setup lang="ts">
-import type { GlobalUser } from '@/types/user'
+	import type { GlobalUser } from "@/types/user";
 
-// WORKS: Explicitly imported
-defineProps<{
-  user: GlobalUser
-}>()
+	// WORKS: Explicitly imported
+	defineProps<{
+		user: GlobalUser
+	}>();
 </script>
 ```
 
@@ -146,23 +147,23 @@ defineProps<{
 ```typescript
 // types/complex.ts
 export type DeepReadonly<T> = {
-  readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P]
-}
+	readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P]
+};
 
 export interface User {
-  id: string
-  profile: { name: string }
+	id: string
+	profile: { name: string }
 }
 ```
 
 ```vue
 <script setup lang="ts">
-import type { DeepReadonly, User } from '@/types/complex'
+	import type { DeepReadonly, User } from "@/types/complex";
 
-// May fail or produce incorrect types
-defineProps<{
-  user: DeepReadonly<User>
-}>()
+	// May fail or produce incorrect types
+	defineProps<{
+		user: DeepReadonly<User>
+	}>();
 </script>
 ```
 
@@ -170,8 +171,8 @@ defineProps<{
 ```typescript
 // Resolve the type explicitly
 export interface ReadonlyUser {
-  readonly id: string
-  readonly profile: { readonly name: string }
+	readonly id: string
+	readonly profile: { readonly name: string }
 }
 ```
 
@@ -179,34 +180,34 @@ export interface ReadonlyUser {
 
 ```typescript
 // types/forms.ts
-export interface TextInput { type: 'text'; value: string }
-export interface NumberInput { type: 'number'; value: number }
+export interface TextInput { type: "text", value: string }
+export interface NumberInput { type: "number", value: number }
 ```
 
 ```vue
 <script setup lang="ts">
-import type { TextInput, NumberInput } from '@/types/forms'
+	import type { NumberInput, TextInput } from "@/types/forms";
 
-// Can cause issues in some Vue versions
-defineProps<{
-  input: TextInput | NumberInput
-}>()
+	// Can cause issues in some Vue versions
+	defineProps<{
+		input: TextInput | NumberInput
+	}>();
 </script>
 ```
 
 **Workaround:**
 ```typescript
 // Define the union in the types file
-export type AnyInput = TextInput | NumberInput
+export type AnyInput = TextInput | NumberInput;
 ```
 
 ```vue
 <script setup lang="ts">
-import type { AnyInput } from '@/types/forms'
+	import type { AnyInput } from "@/types/forms";
 
-defineProps<{
-  input: AnyInput
-}>()
+	defineProps<{
+		input: AnyInput
+	}>();
 </script>
 ```
 
@@ -217,17 +218,17 @@ defineProps<{
 ```typescript
 // GOOD: Simple, explicit interface
 export interface ButtonProps {
-  variant: 'primary' | 'secondary' | 'danger'
-  size: 'sm' | 'md' | 'lg'
-  disabled?: boolean
-  loading?: boolean
+	variant: "primary" | "secondary" | "danger"
+	size: "sm" | "md" | "lg"
+	disabled?: boolean
+	loading?: boolean
 }
 
 // AVOID: Over-engineered generic types
-export type ButtonProps<V extends string, S extends string> = {
-  variant: V
-  size: S
-  // ...complex type gymnastics
+export interface ButtonProps<V extends string, S extends string> {
+	variant: V
+	size: S
+	// ...complex type gymnastics
 }
 ```
 
@@ -239,10 +240,10 @@ export type ButtonProps<V extends string, S extends string> = {
 
 // Export the resolved type
 export interface CreateUserProps {
-  name: string
-  email: string
-  age?: number  // Made optional
-  role?: 'admin' | 'user'  // Made optional
+	name: string
+	email: string
+	age?: number // Made optional
+	role?: "admin" | "user" // Made optional
 }
 ```
 
@@ -251,17 +252,17 @@ export interface CreateUserProps {
 ```vue
 <script lang="ts">
 // Regular script block for complex type definitions
-import type { ComplexType } from '@/types'
+	import type { ComplexType } from "@/types";
 
-// Resolve the type here
-type ResolvedProps = ComplexType extends SomeCondition
-  ? { a: string }
-  : { b: number }
+	// Resolve the type here
+	type ResolvedProps = ComplexType extends SomeCondition
+		? { a: string }
+		: { b: number };
 </script>
 
 <script setup lang="ts">
-// Use the resolved type
-defineProps<ResolvedProps>()
+	// Use the resolved type
+	defineProps<ResolvedProps>();
 </script>
 ```
 

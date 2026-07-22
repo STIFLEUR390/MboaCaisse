@@ -32,56 +32,56 @@ Use a virtualization library when dealing with lists that could exceed 50-100 it
 **BAD:**
 ```vue
 <template>
-  <!-- BAD: Renders ALL 10,000 items immediately -->
-  <div class="user-list">
-    <UserCard
-      v-for="user in users"
-      :key="user.id"
-      :user="user"
-    />
-  </div>
+	<!-- BAD: Renders ALL 10,000 items immediately -->
+	<div class="user-list">
+		<UserCard
+			v-for="user in users"
+			:key="user.id"
+			:user="user"
+		/>
+	</div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import UserCard from './UserCard.vue'
+	import { onMounted, ref } from "vue";
+	import UserCard from "./UserCard.vue";
 
-const users = ref([])
+	const users = ref([]);
 
-onMounted(async () => {
-  // 10,000 DOM nodes created, browser struggles
-  users.value = await fetchAllUsers()
-})
+	onMounted(async () => {
+		// 10,000 DOM nodes created, browser struggles
+		users.value = await fetchAllUsers();
+	});
 </script>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <!-- GOOD: Only renders ~20 visible items at a time -->
-  <RecycleScroller
-    class="user-list"
-    :items="users"
-    :item-size="80"
-    key-field="id"
-    v-slot="{ item }"
-  >
-    <UserCard :user="item" />
-  </RecycleScroller>
+	<!-- GOOD: Only renders ~20 visible items at a time -->
+	<RecycleScroller
+		v-slot="{ item }"
+		class="user-list"
+		:items="users"
+		:item-size="80"
+		key-field="id"
+	>
+		<UserCard :user="item" />
+	</RecycleScroller>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { RecycleScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import UserCard from './UserCard.vue'
+	import { onMounted, ref } from "vue";
+	import { RecycleScroller } from "vue-virtual-scroller";
+	import UserCard from "./UserCard.vue";
+	import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 
-const users = ref([])
+	const users = ref([]);
 
-onMounted(async () => {
-  // 10,000 items in memory, but only ~20 DOM nodes
-  users.value = await fetchAllUsers()
-})
+	onMounted(async () => {
+		// 10,000 items in memory, but only ~20 DOM nodes
+		users.value = await fetchAllUsers();
+	});
 </script>
 
 <style scoped>
@@ -95,44 +95,44 @@ onMounted(async () => {
 
 ```vue
 <template>
-  <div ref="parentRef" class="list-container">
-    <div
-      :style="{
-        height: `${rowVirtualizer.getTotalSize()}px`,
-        position: 'relative'
-      }"
-    >
-      <div
-        v-for="virtualRow in rowVirtualizer.getVirtualItems()"
-        :key="virtualRow.key"
-        :style="{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: `${virtualRow.size}px`,
-          transform: `translateY(${virtualRow.start}px)`
-        }"
-      >
-        <UserCard :user="users[virtualRow.index]" />
-      </div>
-    </div>
-  </div>
+	<div ref="parentRef" class="list-container">
+		<div
+			:style="{
+				height: `${rowVirtualizer.getTotalSize()}px`,
+				position: 'relative'
+			}"
+		>
+			<div
+				v-for="virtualRow in rowVirtualizer.getVirtualItems()"
+				:key="virtualRow.key"
+				:style="{
+					position: 'absolute',
+					top: 0,
+					left: 0,
+					width: '100%',
+					height: `${virtualRow.size}px`,
+					transform: `translateY(${virtualRow.start}px)`
+				}"
+			>
+				<UserCard :user="users[virtualRow.index]" />
+			</div>
+		</div>
+	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useVirtualizer } from '@tanstack/vue-virtual'
+	import { useVirtualizer } from "@tanstack/vue-virtual";
+	import { ref } from "vue";
 
-const users = ref([/* 10,000 users */])
-const parentRef = ref(null)
+	const users = ref([/* 10,000 users */]);
+	const parentRef = ref(null);
 
-const rowVirtualizer = useVirtualizer({
-  count: users.value.length,
-  getScrollElement: () => parentRef.value,
-  estimateSize: () => 80,  // Estimated row height
-  overscan: 5  // Render 5 extra items above/below viewport
-})
+	const rowVirtualizer = useVirtualizer({
+		count: users.value.length,
+		getScrollElement: () => parentRef.value,
+		estimateSize: () => 80, // Estimated row height
+		overscan: 5 // Render 5 extra items above/below viewport
+	});
 </script>
 
 <style scoped>
@@ -147,26 +147,26 @@ const rowVirtualizer = useVirtualizer({
 
 ```vue
 <template>
-  <!-- For variable height items, use DynamicScroller -->
-  <DynamicScroller
-    :items="messages"
-    :min-item-size="54"
-    key-field="id"
-  >
-    <template #default="{ item, index, active }">
-      <DynamicScrollerItem
-        :item="item"
-        :active="active"
-        :data-index="index"
-      >
-        <ChatMessage :message="item" />
-      </DynamicScrollerItem>
-    </template>
-  </DynamicScroller>
+	<!-- For variable height items, use DynamicScroller -->
+	<DynamicScroller
+		:items="messages"
+		:min-item-size="54"
+		key-field="id"
+	>
+		<template #default="{ item, index, active }">
+			<DynamicScrollerItem
+				:item="item"
+				:active="active"
+				:data-index="index"
+			>
+				<ChatMessage :message="item" />
+			</DynamicScrollerItem>
+		</template>
+	</DynamicScroller>
 </template>
 
 <script setup>
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+	import { DynamicScroller, DynamicScrollerItem } from "vue-virtual-scroller";
 </script>
 ```
 

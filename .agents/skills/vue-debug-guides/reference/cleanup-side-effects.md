@@ -23,91 +23,91 @@ When using custom events, timers, WebSocket connections, or third-party librarie
 **Incorrect:**
 ```javascript
 // Composition API - WRONG: No cleanup
-import { onMounted } from 'vue'
+import { onMounted } from "vue";
 
 export default {
-  setup() {
-    onMounted(() => {
-      // These keep running after component unmounts!
-      window.addEventListener('resize', handleResize)
-      setInterval(pollServer, 5000)
-      socket.on('message', handleMessage)
-    })
-  }
-}
+	setup() {
+		onMounted(() => {
+			// These keep running after component unmounts!
+			window.addEventListener("resize", handleResize);
+			setInterval(pollServer, 5000);
+			socket.on("message", handleMessage);
+		});
+	}
+};
 ```
 
 ```javascript
 // Options API - WRONG: No cleanup
 export default {
-  mounted() {
-    window.addEventListener('scroll', this.handleScroll)
-    this.timer = setInterval(this.refresh, 10000)
-  }
-  // Component unmounts, but listeners and timers persist!
-}
+	mounted() {
+		window.addEventListener("scroll", this.handleScroll);
+		this.timer = setInterval(this.refresh, 10000);
+	}
+	// Component unmounts, but listeners and timers persist!
+};
 ```
 
 **Correct:**
 ```javascript
 // Composition API - CORRECT: Proper cleanup
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from "vue";
 
 export default {
-  setup() {
-    const intervalId = ref(null)
+	setup() {
+		const intervalId = ref(null);
 
-    const handleResize = () => {
-      // handle resize
-    }
+		const handleResize = () => {
+			// handle resize
+		};
 
-    const handleMessage = (msg) => {
-      // handle message
-    }
+		const handleMessage = (msg) => {
+			// handle message
+		};
 
-    onMounted(() => {
-      window.addEventListener('resize', handleResize)
-      intervalId.value = setInterval(pollServer, 5000)
-      socket.on('message', handleMessage)
-    })
+		onMounted(() => {
+			window.addEventListener("resize", handleResize);
+			intervalId.value = setInterval(pollServer, 5000);
+			socket.on("message", handleMessage);
+		});
 
-    onUnmounted(() => {
-      // Clean up everything!
-      window.removeEventListener('resize', handleResize)
+		onUnmounted(() => {
+			// Clean up everything!
+			window.removeEventListener("resize", handleResize);
 
-      if (intervalId.value) {
-        clearInterval(intervalId.value)
-      }
+			if (intervalId.value) {
+				clearInterval(intervalId.value);
+			}
 
-      socket.off('message', handleMessage)
-    })
-  }
-}
+			socket.off("message", handleMessage);
+		});
+	}
+};
 ```
 
 ```javascript
 // Options API - CORRECT: Proper cleanup
 export default {
-  data() {
-    return {
-      timer: null
-    }
-  },
-  mounted() {
-    window.addEventListener('scroll', this.handleScroll)
-    this.timer = setInterval(this.refresh, 10000)
-  },
-  unmounted() {
-    window.removeEventListener('scroll', this.handleScroll)
-    if (this.timer) {
-      clearInterval(this.timer)
-    }
-  },
-  methods: {
-    handleScroll() { /* ... */ },
-    refresh() { /* ... */ }
-  }
-}
+	data() {
+		return {
+			timer: null
+		};
+	},
+	mounted() {
+		window.addEventListener("scroll", this.handleScroll);
+		this.timer = setInterval(this.refresh, 10000);
+	},
+	unmounted() {
+		window.removeEventListener("scroll", this.handleScroll);
+		if (this.timer) {
+			clearInterval(this.timer);
+		}
+	},
+	methods: {
+		handleScroll() { /* ... */ },
+		refresh() { /* ... */ }
+	}
+};
 ```
 
 ## Using Composable Pattern for Auto-Cleanup
@@ -154,17 +154,17 @@ export default {
 
 ```javascript
 // VueUse provides cleanup-aware composables
-import { useEventListener, useIntervalFn } from '@vueuse/core'
+import { useEventListener, useIntervalFn } from "@vueuse/core";
 
 export default {
-  setup() {
-    // Automatically cleaned up on unmount
-    useEventListener(window, 'resize', handleResize)
+	setup() {
+		// Automatically cleaned up on unmount
+		useEventListener(window, "resize", handleResize);
 
-    const { pause, resume } = useIntervalFn(pollServer, 5000)
-    // Also provides pause/resume controls
-  }
-}
+		const { pause, resume } = useIntervalFn(pollServer, 5000);
+		// Also provides pause/resume controls
+	}
+};
 ```
 
 ## Reference

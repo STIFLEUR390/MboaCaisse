@@ -16,18 +16,13 @@
 activation_steps_prepend = []
 
 # Extra instructions to run after the greeting and before step 01.
-
 activation_steps_append = []
 
 # Facts kept in context for the whole run.
 # Entries are literal text or file references prefixed with "file:".
 # File entries may use globs and are loaded during activation.
-
-persistent_facts = [
-  "file:{project-root}/**/project-context.md",
-]
+persistent_facts = [ "file:{project-root}/**/project-context.md", ]
 
 # Instruction run after Quick Dev completes.
 # Empty means no extra completion behavior.
-
 on_complete = ""

@@ -100,38 +100,38 @@ tags: [vue3, events, keyboard, modifiers, shortcuts, accessibility]
 
 ```vue
 <template>
-  <ul class="file-list">
-    <li
-      v-for="file in files"
-      :key="file.id"
-      @click.exact="selectSingle(file)"
-      @click.ctrl.exact="toggleSelection(file)"
-      @click.shift.exact="selectRange(file)"
-      @click.ctrl.shift.exact="addRangeToSelection(file)"
-      :class="{ selected: isSelected(file) }"
-    >
-      {{ file.name }}
-    </li>
-  </ul>
+	<ul class="file-list">
+		<li
+			v-for="file in files"
+			:key="file.id"
+			:class="{ selected: isSelected(file) }"
+			@click.exact="selectSingle(file)"
+			@click.ctrl.exact="toggleSelection(file)"
+			@click.shift.exact="selectRange(file)"
+			@click.ctrl.shift.exact="addRangeToSelection(file)"
+		>
+			{{ file.name }}
+		</li>
+	</ul>
 </template>
 
 <script setup>
 // Each click type has distinct, non-overlapping behavior
-function selectSingle(file) {
-  // Clear selection and select only this file
-}
+	function selectSingle(file) {
+		// Clear selection and select only this file
+	}
 
-function toggleSelection(file) {
-  // Add or remove this file from current selection
-}
+	function toggleSelection(file) {
+		// Add or remove this file from current selection
+	}
 
-function selectRange(file) {
-  // Select all files from last selected to this one
-}
+	function selectRange(file) {
+		// Select all files from last selected to this one
+	}
 
-function addRangeToSelection(file) {
-  // Add range to existing selection
-}
+	function addRangeToSelection(file) {
+		// Add range to existing selection
+	}
 </script>
 ```
 

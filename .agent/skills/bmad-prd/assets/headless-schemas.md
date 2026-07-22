@@ -14,16 +14,16 @@ Every headless run ends with one of these payloads. Omit keys for artifacts not 
 
 ```json
 {
-  "status": "complete",
-  "intent": "create",
-  "prd": "{doc_workspace}/prd.md",
-  "addendum": "{doc_workspace}/addendum.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "open_questions": [],
-  "assumptions": [],
-  "external_handoffs": [
-    {"directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok"}
-  ]
+	"status": "complete",
+	"intent": "create",
+	"prd": "{doc_workspace}/prd.md",
+	"addendum": "{doc_workspace}/addendum.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"open_questions": [],
+	"assumptions": [],
+	"external_handoffs": [
+		{ "directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok" }
+	]
 }
 ```
 
@@ -31,16 +31,16 @@ Every headless run ends with one of these payloads. Omit keys for artifacts not 
 
 ```json
 {
-  "status": "complete",
-  "intent": "update",
-  "prd": "{doc_workspace}/prd.md",
-  "memlog": "{doc_workspace}/.memlog.md",
-  "changes_summary": "1-3 sentences describing what changed and why",
-  "conflicts_with_prior_decisions": [],
-  "open_questions": [],
-  "external_handoffs": [
-    {"directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok"}
-  ]
+	"status": "complete",
+	"intent": "update",
+	"prd": "{doc_workspace}/prd.md",
+	"memlog": "{doc_workspace}/.memlog.md",
+	"changes_summary": "1-3 sentences describing what changed and why",
+	"conflicts_with_prior_decisions": [],
+	"open_questions": [],
+	"external_handoffs": [
+		{ "directive": "Confluence upload", "tool": "corp:confluence_upload", "url": "https://confluence.corp/PROD/123", "status": "ok" }
+	]
 }
 ```
 
@@ -48,16 +48,16 @@ Every headless run ends with one of these payloads. Omit keys for artifacts not 
 
 ```json
 {
-  "status": "complete",
-  "intent": "validate",
-  "validation_report": "{doc_workspace}/validation-report.md",
-  "findings_summary": {
-    "critical": 0,
-    "high": 0,
-    "medium": 0,
-    "low": 0
-  },
-  "offer_to_update": true
+	"status": "complete",
+	"intent": "validate",
+	"validation_report": "{doc_workspace}/validation-report.md",
+	"findings_summary": {
+		"critical": 0,
+		"high": 0,
+		"medium": 0,
+		"low": 0
+	},
+	"offer_to_update": true
 }
 ```
 
@@ -67,9 +67,9 @@ Every headless run ends with one of these payloads. Omit keys for artifacts not 
 
 ```json
 {
-  "status": "blocked",
-  "intent": "update",
-  "reason": "Change signal ambiguous — could be a scope expansion or a clarification; no inferred direction"
+	"status": "blocked",
+	"intent": "update",
+	"reason": "Change signal ambiguous — could be a scope expansion or a clarification; no inferred direction"
 }
 ```
 

@@ -20,11 +20,13 @@ tags: [vue3, teleport, scoped-styles, css]
 **Problem - Scoped Styles Not Applied:**
 ```vue
 <template>
-  <Teleport to="body">
-    <div class="modal">
-      <p class="modal-text">This text may not be styled!</p>
-    </div>
-  </Teleport>
+	<Teleport to="body">
+		<div class="modal">
+			<p class="modal-text">
+				This text may not be styled!
+			</p>
+		</div>
+	</Teleport>
 </template>
 
 <style scoped>
@@ -43,11 +45,13 @@ tags: [vue3, teleport, scoped-styles, css]
 **Solution 1 - Use Non-Scoped Styles for Teleported Content:**
 ```vue
 <template>
-  <Teleport to="body">
-    <div class="my-modal">
-      <p class="my-modal-text">This text will be styled</p>
-    </div>
-  </Teleport>
+	<Teleport to="body">
+		<div class="my-modal">
+			<p class="my-modal-text">
+				This text will be styled
+			</p>
+		</div>
+	</Teleport>
 </template>
 
 <style scoped>
@@ -76,11 +80,13 @@ tags: [vue3, teleport, scoped-styles, css]
 **Solution 2 - Use :deep() Selector:**
 ```vue
 <template>
-  <Teleport to="body">
-    <div class="modal">
-      <p class="modal-text">Styled with :deep()</p>
-    </div>
-  </Teleport>
+	<Teleport to="body">
+		<div class="modal">
+			<p class="modal-text">
+				Styled with :deep()
+			</p>
+		</div>
+	</Teleport>
 </template>
 
 <style scoped>
@@ -98,11 +104,13 @@ tags: [vue3, teleport, scoped-styles, css]
 **Solution 3 - CSS Modules:**
 ```vue
 <template>
-  <Teleport to="body">
-    <div :class="$style.modal">
-      <p :class="$style.modalText">Styled with CSS modules</p>
-    </div>
-  </Teleport>
+	<Teleport to="body">
+		<div :class="$style.modal">
+			<p :class="$style.modalText">
+				Styled with CSS modules
+			</p>
+		</div>
+	</Teleport>
 </template>
 
 <style module>
@@ -123,11 +131,15 @@ Using Teleport as one of multiple root nodes causes additional issues:
 
 ```vue
 <template>
-  <!-- Multi-root component -->
-  <button @click="open = true">Open</button>
-  <Teleport to="body">
-    <div class="modal">Content</div>
-  </Teleport>
+	<!-- Multi-root component -->
+	<button @click="open = true">
+		Open
+	</button>
+	<Teleport to="body">
+		<div class="modal">
+			Content
+		</div>
+	</Teleport>
 </template>
 
 <!-- Warning: class/style attributes may not be inherited -->
@@ -137,12 +149,14 @@ Pass classes explicitly to avoid inheritance issues:
 
 ```vue
 <template>
-  <button @click="open = true">Open</button>
-  <Teleport to="body">
-    <div :class="['modal', $attrs.class]" :style="$attrs.style">
-      Content
-    </div>
-  </Teleport>
+	<button @click="open = true">
+		Open
+	</button>
+	<Teleport to="body">
+		<div class="modal" :class="[$attrs.class]" :style="$attrs.style">
+			Content
+		</div>
+	</Teleport>
 </template>
 ```
 
@@ -171,19 +185,19 @@ Create a dedicated stylesheet for modal/overlay components:
 ```
 
 ```vue
-<script setup>
-import './modal-styles.css'
-</script>
-
 <template>
-  <Teleport to="body">
-    <div v-if="open" class="modal-overlay">
-      <div class="modal-content">
-        <slot />
-      </div>
-    </div>
-  </Teleport>
+	<Teleport to="body">
+		<div v-if="open" class="modal-overlay">
+			<div class="modal-content">
+				<slot />
+			</div>
+		</div>
+	</Teleport>
 </template>
+
+<script setup>
+	import "./modal-styles.css";
+</script>
 ```
 
 ## Reference

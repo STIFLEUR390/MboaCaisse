@@ -16,7 +16,7 @@ In Vue 3, fallthrough attributes overwrite explicitly set attributes on the root
 ```vue
 <!-- Parent.vue -->
 <template>
-  <Child msg="Passed from Parent" />
+	<Child msg="Passed from Parent" />
 </template>
 
 <!-- Child.vue - UNEXPECTED BEHAVIOR -->
@@ -38,7 +38,7 @@ In Vue 3, fallthrough attributes overwrite explicitly set attributes on the root
 ```vue
 <!-- Parent.vue -->
 <template>
-  <Button data-testid="parent-button" />
+	<Button data-testid="parent-button" />
 </template>
 
 <!-- Button.vue - WRONG: explicit data-testid is overwritten -->
@@ -56,16 +56,16 @@ In Vue 3, fallthrough attributes overwrite explicitly set attributes on the root
 
 ```vue
 <!-- Child.vue - CORRECT: Control attribute precedence -->
-<script setup>
-defineOptions({
-  inheritAttrs: false
-})
-</script>
-
 <template>
-  <!-- v-bind="$attrs" FIRST, then explicit attribute -->
-  <GrandChild v-bind="$attrs" msg="Set in Child" />
+	<!-- v-bind="$attrs" FIRST, then explicit attribute -->
+	<GrandChild v-bind="$attrs" msg="Set in Child" />
 </template>
+
+<script setup>
+	defineOptions({
+		inheritAttrs: false
+	});
+</script>
 
 <!--
   Result: GrandChild receives msg="Set in Child"
@@ -76,49 +76,49 @@ defineOptions({
 ### Option 2: Exclude specific attrs from fallthrough
 
 ```vue
-<script setup>
-import { computed, useAttrs } from 'vue'
-
-defineOptions({
-  inheritAttrs: false
-})
-
-const attrs = useAttrs()
-
-// Filter out attributes you want to control explicitly
-const filteredAttrs = computed(() => {
-  const { msg, ...rest } = attrs
-  return rest
-})
-</script>
-
 <template>
-  <GrandChild v-bind="filteredAttrs" msg="Set in Child" />
+	<GrandChild v-bind="filteredAttrs" msg="Set in Child" />
 </template>
+
+<script setup>
+	import { computed, useAttrs } from "vue";
+
+	defineOptions({
+		inheritAttrs: false
+	});
+
+	const attrs = useAttrs();
+
+	// Filter out attributes you want to control explicitly
+	const filteredAttrs = computed(() => {
+		const { msg, ...rest } = attrs;
+		return rest;
+	});
+</script>
 ```
 
 ### Option 3: For wrapper components, declare as prop
 
 ```vue
 <!-- Button.vue - BEST: Declare attributes you need to control -->
-<script setup>
-const props = defineProps({
-  dataTestid: {
-    type: String,
-    default: 'submit-btn'
-  }
-})
-
-defineOptions({
-  inheritAttrs: false
-})
-</script>
-
 <template>
-  <button :data-testid="dataTestid" v-bind="$attrs">
-    <slot />
-  </button>
+	<button :data-testid="dataTestid" v-bind="$attrs">
+		<slot />
+	</button>
 </template>
+
+<script setup>
+	defineOptions({
+		inheritAttrs: false
+	});
+
+	const props = defineProps({
+		dataTestid: {
+			type: String,
+			default: "submit-btn"
+		}
+	});
+</script>
 ```
 
 ## Class and Style Are Special
@@ -128,7 +128,7 @@ Unlike other attributes, `class` and `style` merge rather than overwrite:
 ```vue
 <!-- Parent.vue -->
 <template>
-  <Button class="large" style="color: red" />
+	<Button class="large" style="color: red" />
 </template>
 
 <!-- Button.vue -->

@@ -23,9 +23,7 @@ activation_steps_append = []
 # (house rules, running gags, topics to avoid). Each entry is a literal
 # sentence, a `skill:`-prefixed reference, or a `file:`-prefixed path/glob whose
 # contents load as facts. Default picks up project-context.md if one exists.
-persistent_facts = [
-  "file:{project-root}/**/project-context.md",
-]
+persistent_facts = [ "file:{project-root}/**/project-context.md", ]
 
 # Which party loads when the user just says "party mode" with no override.
 # Empty = the installed BMAD agents — exactly the default behavior of a plain
@@ -200,12 +198,23 @@ persona = "Splinter challenges easy agreement. He looks for hidden assumptions, 
 id = "code-review-crew"
 name = "Code Review Crew"
 scene = "Adversarial code review. Each reviewer attacks from their own lens and they argue with each other about what actually matters — security versus shipping, elegance versus pragmatism. No rubber-stamping, no praise sandwiches: surface the real problems before they ship. Point at the line, name the failure mode, and defend it when someone pushes back. Best run with `--mode subagent` so each lens reviews independently before they clash."
-members = ["sec-hawk", "adversary", "edge-hunter", "craftsman", "shipper"]
-memory = false  # each review stands on its own; flip to true to remember past reviews
+members = [
+	"sec-hawk",
+	"adversary",
+	"edge-hunter",
+	"craftsman",
+	"shipper"
+]
+memory = false # each review stands on its own; flip to true to remember past reviews
 
 [[workflow.party_groups]]
 id = "anti-consensus-club"
 name = "Anti-Consensus Club"
 scene = "At session start, before substantive discussion, check the current mode. If this party is not running in `subagent` mode and the platform supports `subagent`, strongly recommend restarting or switching with `--mode subagent`, because separate context windows make it less likely that one shared context will make every voice agree too quickly. Do not nag after that once the user chooses to continue. This room supports the human's judgment; it does not replace it. Do not vote, declare consensus, or speak as if the room has authority. Wildcard suggests more options. Level checks evidence and confidence. Killjoy stops repeated or unsupported discussion. Splinter challenges easy agreement. If the room agrees too quickly, name the hidden assumption. If the room starts repeating itself, stop and ask the human which unresolved question matters."
-members = ["option-generator", "claim-checker", "loop-stopper", "consensus-challenger"]
-memory = false  # this decision room should start fresh unless a user opts in
+members = [
+	"option-generator",
+	"claim-checker",
+	"loop-stopper",
+	"consensus-challenger"
+]
+memory = false # this decision room should start fresh unless a user opts in

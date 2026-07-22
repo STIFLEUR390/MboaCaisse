@@ -21,77 +21,77 @@ Only use the documented vnode properties: `type`, `props`, `children`, and `key`
 
 **Incorrect:**
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup(props, { slots }) {
-    return () => {
-      const slotContent = slots.default?.()
+	setup(props, { slots }) {
+		return () => {
+			const slotContent = slots.default?.();
 
-      // WRONG: Accessing internal properties
-      if (slotContent?.[0]?.el) {
-        // el is an internal property
-        console.log(slotContent[0].el.tagName)
-      }
+			// WRONG: Accessing internal properties
+			if (slotContent?.[0]?.el) {
+				// el is an internal property
+				console.log(slotContent[0].el.tagName);
+			}
 
-      // WRONG: Using shapeFlag internal property
-      if (slotContent?.[0]?.shapeFlag & 1) {
-        // This is internal implementation
-      }
+			// WRONG: Using shapeFlag internal property
+			if (slotContent?.[0]?.shapeFlag & 1) {
+				// This is internal implementation
+			}
 
-      return h('div', slotContent)
-    }
-  }
-}
+			return h("div", slotContent);
+		};
+	}
+};
 ```
 
 ```javascript
 // WRONG: Inspecting component instance via vnode
-const vnode = h(MyComponent)
-console.log(vnode.component) // Internal property
-console.log(vnode.appContext) // Internal property
+const vnode = h(MyComponent);
+console.log(vnode.component); // Internal property
+console.log(vnode.appContext); // Internal property
 ```
 
 **Correct:**
 ```javascript
-import { h } from 'vue'
+import { h } from "vue";
 
 export default {
-  setup(props, { slots }) {
-    return () => {
-      const slotContent = slots.default?.()
+	setup(props, { slots }) {
+		return () => {
+			const slotContent = slots.default?.();
 
-      // CORRECT: Only use documented properties
-      if (slotContent?.[0]) {
-        const vnode = slotContent[0]
-        console.log(vnode.type)     // Safe: element type or component
-        console.log(vnode.props)    // Safe: props object
-        console.log(vnode.children) // Safe: children
-        console.log(vnode.key)      // Safe: key prop
-      }
+			// CORRECT: Only use documented properties
+			if (slotContent?.[0]) {
+				const vnode = slotContent[0];
+				console.log(vnode.type); // Safe: element type or component
+				console.log(vnode.props); // Safe: props object
+				console.log(vnode.children); // Safe: children
+				console.log(vnode.key); // Safe: key prop
+			}
 
-      return h('div', slotContent)
-    }
-  }
-}
+			return h("div", slotContent);
+		};
+	}
+};
 ```
 
 ```javascript
-import { h, ref, onMounted } from 'vue'
+import { h, onMounted, ref } from "vue";
 
 export default {
-  setup() {
-    // CORRECT: Use template refs for DOM access
-    const divRef = ref(null)
+	setup() {
+		// CORRECT: Use template refs for DOM access
+		const divRef = ref(null);
 
-    onMounted(() => {
-      // Safe way to access DOM element
-      console.log(divRef.value.tagName)
-    })
+		onMounted(() => {
+			// Safe way to access DOM element
+			console.log(divRef.value.tagName);
+		});
 
-    return () => h('div', { ref: divRef }, 'Content')
-  }
-}
+		return () => h("div", { ref: divRef }, "Content");
+	}
+};
 ```
 
 ## Documented VNode Properties
@@ -106,34 +106,34 @@ export default {
 ## Safe VNode Inspection Patterns
 
 ```javascript
-import { h, isVNode } from 'vue'
+import { h, isVNode } from "vue";
 
 export default {
-  setup(props, { slots }) {
-    return () => {
-      const children = slots.default?.() || []
+	setup(props, { slots }) {
+		return () => {
+			const children = slots.default?.() || [];
 
-      // Safe: Check if something is a vnode
-      children.forEach(child => {
-        if (isVNode(child)) {
-          // Safe: Check vnode type
-          if (typeof child.type === 'string') {
-            console.log('Element:', child.type)
-          } else if (typeof child.type === 'object') {
-            console.log('Component:', child.type.name)
-          }
+			// Safe: Check if something is a vnode
+			children.forEach((child) => {
+				if (isVNode(child)) {
+					// Safe: Check vnode type
+					if (typeof child.type === "string") {
+						console.log("Element:", child.type);
+					} else if (typeof child.type === "object") {
+						console.log("Component:", child.type.name);
+					}
 
-          // Safe: Read props
-          if (child.props?.class) {
-            console.log('Has class:', child.props.class)
-          }
-        }
-      })
+					// Safe: Read props
+					if (child.props?.class) {
+						console.log("Has class:", child.props.class);
+					}
+				}
+			});
 
-      return h('div', children)
-    }
-  }
-}
+			return h("div", children);
+		};
+	}
+};
 ```
 
 ## Why This Matters

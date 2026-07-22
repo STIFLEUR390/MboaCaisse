@@ -166,16 +166,16 @@ La clé privée ne doit jamais être incluse dans MboaCaisse.
 
 ```json
 {
-  "license_id": "LIC-5C29F8",
-  "customer_id": "CUS-8A71F4",
-  "organization_id": "ORG-2B19D7",
-  "product": "mboacaisse",
-  "edition": "professional",
-  "features": ["pos", "inventory", "kitchen", "reports"],
-  "max_installations": 1,
-  "issued_at": "2026-07-21T10:00:00Z",
-  "updates_until": "2027-07-21T10:00:00Z",
-  "signature": "<ed25519_sig>"
+	"license_id": "LIC-5C29F8",
+	"customer_id": "CUS-8A71F4",
+	"organization_id": "ORG-2B19D7",
+	"product": "mboacaisse",
+	"edition": "professional",
+	"features": ["pos", "inventory", "kitchen", "reports"],
+	"max_installations": 1,
+	"issued_at": "2026-07-21T10:00:00Z",
+	"updates_until": "2027-07-21T10:00:00Z",
+	"signature": "<ed25519_sig>"
 }
 ```
 

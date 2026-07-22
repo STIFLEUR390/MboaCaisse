@@ -58,20 +58,18 @@ function UserForm() {
 **For dynamic schemas, use useMemo:**
 
 ```typescript
-import { z } from 'zod'
-import { useMemo } from 'react'
+import { useMemo } from "react";
+import { z } from "zod";
 
 function DynamicForm({ minAge }: { minAge: number }) {
-  // Schema only recreated when minAge changes
-  const userSchema = useMemo(() =>
-    z.object({
-      name: z.string().min(1),
-      age: z.number().min(minAge),
-    }),
-    [minAge]
-  )
+	// Schema only recreated when minAge changes
+	const userSchema = useMemo(() =>
+		z.object({
+			name: z.string().min(1),
+			age: z.number().min(minAge)
+		}), [minAge]);
 
-  // ...
+	// ...
 }
 ```
 
@@ -79,20 +77,20 @@ function DynamicForm({ minAge }: { minAge: number }) {
 
 ```typescript
 // schemas/user.ts - created once per process
-import { z } from 'zod'
-
-export const userSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-})
+import { z } from "zod";
 
 // api/users.ts
-import { userSchema } from '@/schemas/user'
+import { userSchema } from "@/schemas/user";
+
+export const userSchema = z.object({
+	id: z.string().uuid(),
+	email: z.string().email()
+});
 
 export async function POST(req: Request) {
-  const body = await req.json()
-  const result = userSchema.safeParse(body)  // Reuses cached schema
-  // ...
+	const body = await req.json();
+	const result = userSchema.safeParse(body); // Reuses cached schema
+	// ...
 }
 ```
 
@@ -101,34 +99,34 @@ export async function POST(req: Request) {
 ```typescript
 // BAD: Factory called on every validation
 function createUserSchema(role: string) {
-  return z.object({
-    name: z.string(),
-    permissions: z.array(z.string()),
-  })
+	return z.object({
+		name: z.string(),
+		permissions: z.array(z.string())
+	});
 }
 
 // Called in hot loop
-users.forEach(user => {
-  createUserSchema(user.role).parse(user)  // New schema every iteration!
-})
+users.forEach((user) => {
+	createUserSchema(user.role).parse(user); // New schema every iteration!
+});
 
 // GOOD: Cache by key
-const schemaCache = new Map<string, z.ZodObject<any>>()
+const schemaCache = new Map<string, z.ZodObject<any>>();
 
 function getUserSchema(role: string) {
-  if (!schemaCache.has(role)) {
-    schemaCache.set(role, z.object({
-      name: z.string(),
-      permissions: z.array(z.string()),
-    }))
-  }
-  return schemaCache.get(role)!
+	if (!schemaCache.has(role)) {
+		schemaCache.set(role, z.object({
+			name: z.string(),
+			permissions: z.array(z.string())
+		}));
+	}
+	return schemaCache.get(role)!;
 }
 
 // Reuses cached schemas
-users.forEach(user => {
-  getUserSchema(user.role).parse(user)
-})
+users.forEach((user) => {
+	getUserSchema(user.role).parse(user);
+});
 ```
 
 **When NOT to use this pattern:**

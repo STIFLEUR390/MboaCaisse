@@ -31,11 +31,11 @@ Props are inputs. Do not mutate them in the child.
 **BAD:**
 ```vue
 <script setup>
-const props = defineProps({ count: Number })
+	const props = defineProps({ count: Number });
 
-function increment() {
-  props.count++
-}
+	function increment() {
+		props.count++;
+	}
 </script>
 ```
 
@@ -47,38 +47,40 @@ If state needs to change, emit an event, use `v-model` or create a local copy.
 
 **BAD:**
 ```vue
-<script setup>
-import { ref } from 'vue'
-import UserForm from './UserForm.vue'
-
-const formRef = ref(null)
-
-function submitForm() {
-  if (formRef.value.isValid) {
-    formRef.value.submit()
-  }
-}
-</script>
-
 <template>
-  <UserForm ref="formRef" />
-  <button @click="submitForm">Submit</button>
+	<UserForm ref="formRef" />
+	<button @click="submitForm">
+		Submit
+	</button>
 </template>
+
+<script setup>
+	import { ref } from "vue";
+	import UserForm from "./UserForm.vue";
+
+	const formRef = ref(null);
+
+	function submitForm() {
+		if (formRef.value.isValid) {
+			formRef.value.submit();
+		}
+	}
+</script>
 ```
 
 **GOOD:**
 ```vue
-<script setup>
-import UserForm from './UserForm.vue'
-
-function handleSubmit(formData) {
-  api.submit(formData)
-}
-</script>
-
 <template>
-  <UserForm @submit="handleSubmit" />
+	<UserForm @submit="handleSubmit" />
 </template>
+
+<script setup>
+	import UserForm from "./UserForm.vue";
+
+	function handleSubmit(formData) {
+		api.submit(formData);
+	}
+</script>
 ```
 
 ## Type component refs when imperative access is required
@@ -87,52 +89,52 @@ Prefer props/emits by default. When a parent must call an exposed child method, 
 
 **BAD:**
 ```vue
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import DialogPanel from './DialogPanel.vue'
-
-const panelRef = ref(null)
-
-onMounted(() => {
-  panelRef.value.open()
-})
-</script>
-
 <template>
-  <DialogPanel ref="panelRef" />
+	<DialogPanel ref="panelRef" />
 </template>
+
+<script setup lang="ts">
+	import { onMounted, ref } from "vue";
+	import DialogPanel from "./DialogPanel.vue";
+
+	const panelRef = ref(null);
+
+	onMounted(() => {
+		panelRef.value.open();
+	});
+</script>
 ```
 
 **GOOD:**
 ```vue
 <!-- DialogPanel.vue -->
 <script setup lang="ts">
-function open() {}
+	function open() {}
 
-defineExpose({ open })
+	defineExpose({ open });
 </script>
 ```
 
 ```vue
 <!-- Parent.vue -->
-<script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue'
-import DialogPanel from './DialogPanel.vue'
-
-// Vue 3.5+ with useTemplateRef
-const panelRef = useTemplateRef('panelRef')
-
-// Before Vue 3.5 with manual typing and ref
-// const panelRef = ref<InstanceType<typeof DialogPanel> | null>(null)
-
-onMounted(() => {
-  panelRef.value?.open()
-})
-</script>
-
 <template>
-  <DialogPanel ref="panelRef" />
+	<DialogPanel ref="panelRef" />
 </template>
+
+<script setup lang="ts">
+	import { onMounted, useTemplateRef } from "vue";
+	import DialogPanel from "./DialogPanel.vue";
+
+	// Vue 3.5+ with useTemplateRef
+	const panelRef = useTemplateRef("panelRef");
+
+	// Before Vue 3.5 with manual typing and ref
+	// const panelRef = ref<InstanceType<typeof DialogPanel> | null>(null)
+
+	onMounted(() => {
+		panelRef.value?.open();
+	});
+</script>
 ```
 
 ## Emits: Explicit Events Up
@@ -148,28 +150,28 @@ Component events do not bubble. If a parent needs to know about an event, re-emi
 **GOOD:**
 ```vue
 <!-- Child.vue -->
-<script setup>
-const emit = defineEmits(['saved'])
-
-function onGrandchildSaved(payload) {
-  emit('saved', payload)
-}
-</script>
-
 <template>
-  <Grandchild @saved="onGrandchildSaved" />
+	<Grandchild @saved="onGrandchildSaved" />
 </template>
+
+<script setup>
+	const emit = defineEmits(["saved"]);
+
+	function onGrandchildSaved(payload) {
+		emit("saved", payload);
+	}
+</script>
 ```
 
 **Event naming:** use kebab-case in templates and camelCase in script:
 ```vue
-<script setup>
-const emit = defineEmits(['updateUser'])
-</script>
-
 <template>
-  <ProfileForm @update-user="emit('updateUser', $event)" />
+	<ProfileForm @update-user="emit('updateUser', $event)" />
 </template>
+
+<script setup>
+	const emit = defineEmits(["updateUser"]);
+</script>
 ```
 
 ## `v-model`: Predictable Two-Way Bindings
@@ -178,39 +180,39 @@ Use `defineModel` by default for component bindings and emit updates on input. O
 
 **BAD:**
 ```vue
-<script setup>
-const props = defineProps({ value: String })
-</script>
-
 <template>
-  <input :value="props.value" @input="$emit('input', $event.target.value)" />
+	<input :value="props.value" @input="$emit('input', $event.target.value)">
 </template>
+
+<script setup>
+	const props = defineProps({ value: String });
+</script>
 ```
 
 **GOOD (Vue 3.4+):**
 ```vue
-<script setup>
-const model = defineModel({ type: String })
-</script>
-
 <template>
-  <input v-model="model" />
+	<input v-model="model">
 </template>
+
+<script setup>
+	const model = defineModel({ type: String });
+</script>
 ```
 
 **GOOD (Vue < 3.4):**
 ```vue
-<script setup>
-const props = defineProps({ modelValue: String })
-const emit = defineEmits(['update:modelValue'])
-</script>
-
 <template>
-  <input
-    :value="props.modelValue"
-    @input="emit('update:modelValue', $event.target.value)"
-  />
+	<input
+		:value="props.modelValue"
+		@input="emit('update:modelValue', $event.target.value)"
+	>
 </template>
+
+<script setup>
+	const props = defineProps({ modelValue: String });
+	const emit = defineEmits(["update:modelValue"]);
+</script>
 ```
 
 If you need the updated value immediately after a change, use the input event value or `nextTick` in the parent.
@@ -246,8 +248,8 @@ const { toggleTheme } = inject(themeActionsKey)
 
 Use symbols for keys to avoid collisions in large apps:
 ```ts
-export const themeKey = Symbol('theme')
-export const themeActionsKey = Symbol('theme-actions')
+export const themeKey = Symbol("theme");
+export const themeActionsKey = Symbol("theme-actions");
 ```
 
 ## Use TypeScript Contracts for Public Component APIs
@@ -257,51 +259,52 @@ In TypeScript projects, type component boundaries directly with `defineProps`, `
 **BAD:**
 ```vue
 <script setup lang="ts">
-import { inject } from 'vue'
+	import { inject } from "vue";
 
-const props = defineProps({
-  userId: String
-})
+	const props = defineProps({
+		userId: String
+	});
 
-const emit = defineEmits(['save'])
-const settings = inject('settings')
+	const emit = defineEmits(["save"]);
+	const settings = inject("settings");
 
-// Payload shape is not checked here
-emit('save', 123)
+	// Payload shape is not checked here
+	emit("save", 123);
 
-// Key is string-based and not type-safe
-settings?.theme = 'dark'
+	// Key is string-based and not type-safe
+	settings?.theme = "dark";
 </script>
 ```
 
 **GOOD:**
 ```vue
 <script setup lang="ts">
-import { inject, provide } from 'vue'
-import type { InjectionKey } from 'vue'
+	import type { InjectionKey } from "vue";
+	import { inject, provide } from "vue";
 
-interface Props {
-  userId: string
-}
+	interface Props {
+		userId: string
+	}
 
-interface Emits {
-  save: [payload: { id: string; draft: boolean }]
-}
+	interface Emits {
+		save: [payload: { id: string, draft: boolean }]
+	}
 
-interface Settings {
-  theme: 'light' | 'dark'
-}
+	interface Settings {
+		theme: "light" | "dark"
+	}
 
-const settingsKey: InjectionKey<Settings> = Symbol('settings')
+	const props = defineProps<Props>();
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
+	const emit = defineEmits<Emits>();
 
-provide(settingsKey, { theme: 'light' })
+	const settingsKey: InjectionKey<Settings> = Symbol("settings");
 
-const settings = inject(settingsKey)
-if (settings) {
-  emit('save', { id: props.userId, draft: false })
-}
+	provide(settingsKey, { theme: "light" });
+
+	const settings = inject(settingsKey);
+	if (settings) {
+		emit("save", { id: props.userId, draft: false });
+	}
 </script>
 ```

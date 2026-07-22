@@ -36,23 +36,25 @@ components/
 **GOOD:**
 ```vue
 <!-- components/UserCard.vue -->
-<script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
-  user: { type: Object, required: true }
-})
-
-const displayName = computed(() =>
-  `${props.user.firstName} ${props.user.lastName}`
-)
-</script>
-
 <template>
-  <div class="user-card">
-    <h3 class="name">{{ displayName }}</h3>
-  </div>
+	<div class="user-card">
+		<h3 class="name">
+			{{ displayName }}
+		</h3>
+	</div>
 </template>
+
+<script setup>
+	import { computed } from "vue";
+
+	const props = defineProps({
+		user: { type: Object, required: true }
+	});
+
+	const displayName = computed(() =>
+		`${props.user.firstName} ${props.user.lastName}`
+	);
+</script>
 
 <style scoped>
 .user-card {
@@ -69,24 +71,24 @@ const displayName = computed(() =>
 
 **BAD:**
 ```vue
-<script setup>
-import userProfile from './user-profile.vue'
-</script>
-
 <template>
-  <user-profile :user="currentUser" />
+	<user-profile :user="currentUser" />
 </template>
+
+<script setup>
+	import userProfile from "./user-profile.vue";
+</script>
 ```
 
 **GOOD:**
 ```vue
-<script setup>
-import UserProfile from './UserProfile.vue'
-</script>
-
 <template>
-  <UserProfile :user="currentUser" />
+	<UserProfile :user="currentUser" />
 </template>
+
+<script setup>
+	import UserProfile from "./UserProfile.vue";
+</script>
 ```
 
 ## Best practices for `<style>` block in SFCs
@@ -127,10 +129,10 @@ button { border-radius: 999px; }
 **BAD:**
 ```vue
 <template>
-  <article>
-    <h1>{{ title }}</h1>
-    <p>{{ subtitle }}</p>
-  </article>
+	<article>
+		<h1>{{ title }}</h1>
+		<p>{{ subtitle }}</p>
+	</article>
 </template>
 
 <style scoped>
@@ -143,10 +145,14 @@ p { line-height: 1.6; }
 **GOOD:**
 ```vue
 <template>
-  <article class="article">
-    <h1 class="article-title">{{ title }}</h1>
-    <p class="article-subtitle">{{ subtitle }}</p>
-  </article>
+	<article class="article">
+		<h1 class="article-title">
+			{{ title }}
+		</h1>
+		<p class="article-subtitle">
+			{{ subtitle }}
+		</p>
+	</article>
 </template>
 
 <style scoped>
@@ -161,19 +167,19 @@ p { line-height: 1.6; }
 For Vue 3.5+: use `useTemplateRef()` to access template refs.
 
 ```vue
-<script setup lang="ts">
-import { onMounted, useTemplateRef } from 'vue'
-
-const inputRef = useTemplateRef<HTMLInputElement>('input')
-
-onMounted(() => {
-  inputRef.value?.focus()
-})
-</script>
-
 <template>
-  <input ref="input" />
+	<input ref="input">
 </template>
+
+<script setup lang="ts">
+	import { onMounted, useTemplateRef } from "vue";
+
+	const inputRef = useTemplateRef<HTMLInputElement>("input");
+
+	onMounted(() => {
+		inputRef.value?.focus();
+	});
+</script>
 ```
 
 ## Use camelCase in `:style` bindings
@@ -181,18 +187,18 @@ onMounted(() => {
 **BAD:**
 ```vue
 <template>
-  <div :style="{ 'font-size': fontSize + 'px', 'background-color': bg }">
-    Content
-  </div>
+	<div :style="{ 'font-size': `${fontSize}px`, 'background-color': bg }">
+		Content
+	</div>
 </template>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <div :style="{ fontSize: fontSize + 'px', backgroundColor: bg }">
-    Content
-  </div>
+	<div :style="{ fontSize: `${fontSize}px`, backgroundColor: bg }">
+		Content
+	</div>
 </template>
 ```
 
@@ -228,17 +234,17 @@ It leads to unclear intent and unnecessary work.
 **GOOD:**
 
 ```vue
-<script setup lang="ts">
-import { computed } from 'vue'
-
-const activeUsers = computed(() => users.value.filter(u => u.active))
-</script>
-
 <template>
-  <li v-for="user in activeUsers" :key="user.id">
-    {{ user.name }}
-  </li>
+	<li v-for="user in activeUsers" :key="user.id">
+		{{ user.name }}
+	</li>
 </template>
+
+<script setup lang="ts">
+	import { computed } from "vue";
+
+	const activeUsers = computed(() => users.value.filter((u) => u.active));
+</script>
 ```
 
 **To conditionally show/hide the entire list**
@@ -257,32 +263,32 @@ const activeUsers = computed(() => users.value.filter(u => u.active))
 **BAD:**
 ```vue
 <template>
-  <!-- DANGEROUS: untrusted input can inject scripts -->
-  <article v-html="userProvidedContent"></article>
+	<!-- DANGEROUS: untrusted input can inject scripts -->
+	<article v-html="userProvidedContent" />
 </template>
 ```
 
 **GOOD:**
 ```vue
-<script setup>
-import { computed } from 'vue'
-import DOMPurify from 'dompurify'
-
-const props = defineProps<{
-  trustedHtml?: string
-  plainText: string
-}>()
-
-const safeHtml = computed(() => DOMPurify.sanitize(props.trustedHtml ?? ''))
-</script>
-
 <template>
-  <!-- Preferred: escaped interpolation -->
-  <p>{{ props.plainText }}</p>
+	<!-- Preferred: escaped interpolation -->
+	<p>{{ props.plainText }}</p>
 
-  <!-- Only for trusted/sanitized HTML -->
-  <article v-html="safeHtml"></article>
+	<!-- Only for trusted/sanitized HTML -->
+	<article v-html="safeHtml" />
 </template>
+
+<script setup>
+	import DOMPurify from "dompurify";
+	import { computed } from "vue";
+
+	const props = defineProps<{
+		trustedHtml?: string
+		plainText: string
+	}>();
+
+	const safeHtml = computed(() => DOMPurify.sanitize(props.trustedHtml ?? ""));
+</script>
 ```
 
 ## Choose `v-if` vs `v-show` by toggle behavior
@@ -290,21 +296,21 @@ const safeHtml = computed(() => DOMPurify.sanitize(props.trustedHtml ?? ''))
 **BAD:**
 ```vue
 <template>
-  <!-- Frequent toggles with v-if cause repeated mount/unmount -->
-  <ComplexPanel v-if="isPanelOpen" />
+	<!-- Frequent toggles with v-if cause repeated mount/unmount -->
+	<ComplexPanel v-if="isPanelOpen" />
 
-  <!-- Rarely shown content with v-show pays initial render cost -->
-  <AdminPanel v-show="isAdmin" />
+	<!-- Rarely shown content with v-show pays initial render cost -->
+	<AdminPanel v-show="isAdmin" />
 </template>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <!-- Frequent toggles: keep in DOM, toggle display -->
-  <ComplexPanel v-show="isPanelOpen" />
+	<!-- Frequent toggles: keep in DOM, toggle display -->
+	<ComplexPanel v-show="isPanelOpen" />
 
-  <!-- Rare condition: lazy render only when true -->
-  <AdminPanel v-if="isAdmin" />
+	<!-- Rare condition: lazy render only when true -->
+	<AdminPanel v-if="isAdmin" />
 </template>
 ```

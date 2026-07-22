@@ -24,22 +24,22 @@ tags: [vue3, transition, animation, performance, keys]
 **BAD:**
 ```vue
 <template>
-  <Transition name="fade">
-    <h3>Title</h3>
-    <p>Description</p>
-  </Transition>
+	<Transition name="fade">
+		<h3>Title</h3>
+		<p>Description</p>
+	</Transition>
 </template>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <Transition name="fade">
-    <div>
-      <h3>Title</h3>
-      <p>Description</p>
-    </div>
-  </Transition>
+	<Transition name="fade">
+		<div>
+			<h3>Title</h3>
+			<p>Description</p>
+		</div>
+	</Transition>
 </template>
 ```
 
@@ -50,20 +50,28 @@ Vue reuses the same DOM element when the tag type does not change. Add `key` so 
 **BAD:**
 ```vue
 <template>
-  <Transition name="fade">
-    <p v-if="isActive">Active</p>
-    <p v-else>Inactive</p>
-  </Transition>
+	<Transition name="fade">
+		<p v-if="isActive">
+			Active
+		</p>
+		<p v-else>
+			Inactive
+		</p>
+	</Transition>
 </template>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <Transition name="fade" mode="out-in">
-    <p v-if="isActive" key="active">Active</p>
-    <p v-else key="inactive">Inactive</p>
-  </Transition>
+	<Transition name="fade" mode="out-in">
+		<p v-if="isActive" key="active">
+			Active
+		</p>
+		<p v-else key="inactive">
+			Inactive
+		</p>
+	</Transition>
 </template>
 ```
 
@@ -74,18 +82,18 @@ When swapping components or views, use `mode="out-in"` to prevent both from bein
 **BAD:**
 ```vue
 <template>
-  <Transition name="fade">
-    <component :is="currentView" />
-  </Transition>
+	<Transition name="fade">
+		<component :is="currentView" />
+	</Transition>
 </template>
 ```
 
 **GOOD:**
 ```vue
 <template>
-  <Transition name="fade" mode="out-in">
-    <component :is="currentView" :key="currentView" />
-  </Transition>
+	<Transition name="fade" mode="out-in">
+		<component :is="currentView" :key="currentView" />
+	</Transition>
 </template>
 ```
 

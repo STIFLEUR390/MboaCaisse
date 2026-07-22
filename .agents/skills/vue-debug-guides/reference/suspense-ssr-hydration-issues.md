@@ -17,21 +17,21 @@ In SSR applications, hydration mismatches cause:
 
 ```vue
 <template>
-  <!-- Async component directly in Suspense can fail hydration -->
-  <Suspense>
-    <AsyncDashboard />
-    <template #fallback>
-      Loading...
-    </template>
-  </Suspense>
+	<!-- Async component directly in Suspense can fail hydration -->
+	<Suspense>
+		<AsyncDashboard />
+		<template #fallback>
+			Loading...
+		</template>
+	</Suspense>
 </template>
 
 <script setup>
-import { defineAsyncComponent } from 'vue'
+	import { defineAsyncComponent } from "vue";
 
-const AsyncDashboard = defineAsyncComponent(
-  () => import('./Dashboard.vue')
-)
+	const AsyncDashboard = defineAsyncComponent(
+		() => import("./Dashboard.vue")
+	);
 </script>
 ```
 
@@ -41,18 +41,22 @@ const AsyncDashboard = defineAsyncComponent(
 
 ```vue
 <template>
-  <!-- Each async component wrapped in its own Suspense -->
-  <div class="dashboard">
-    <Suspense>
-      <AsyncHeader />
-      <template #fallback><HeaderSkeleton /></template>
-    </Suspense>
+	<!-- Each async component wrapped in its own Suspense -->
+	<div class="dashboard">
+		<Suspense>
+			<AsyncHeader />
+			<template #fallback>
+				<HeaderSkeleton />
+			</template>
+		</Suspense>
 
-    <Suspense>
-      <AsyncContent />
-      <template #fallback><ContentSkeleton /></template>
-    </Suspense>
-  </div>
+		<Suspense>
+			<AsyncContent />
+			<template #fallback>
+				<ContentSkeleton />
+			</template>
+		</Suspense>
+	</div>
 </template>
 ```
 
@@ -60,19 +64,19 @@ const AsyncDashboard = defineAsyncComponent(
 
 ```vue
 <template>
-  <!-- Prevent SSR for problematic async components -->
-  <ClientOnly>
-    <Suspense>
-      <AsyncDashboard />
-      <template #fallback>
-        Loading dashboard...
-      </template>
-    </Suspense>
+	<!-- Prevent SSR for problematic async components -->
+	<ClientOnly>
+		<Suspense>
+			<AsyncDashboard />
+			<template #fallback>
+				Loading dashboard...
+			</template>
+		</Suspense>
 
-    <template #fallback>
-      <DashboardSkeleton />
-    </template>
-  </ClientOnly>
+		<template #fallback>
+			<DashboardSkeleton />
+		</template>
+	</ClientOnly>
 </template>
 ```
 
@@ -80,17 +84,17 @@ const AsyncDashboard = defineAsyncComponent(
 
 ```vue
 <script setup>
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
+	import { useQuery, useQueryClient } from "@tanstack/vue-query";
 
-// IMPORTANT: All useQuery calls must be BEFORE any await
-const { data, suspense } = useQuery({
-  queryKey: ['dashboard'],
-  queryFn: fetchDashboardData,
-  staleTime: 1000 * 60 * 5, // 5 minutes - prevents refetch after hydration
-})
+	// IMPORTANT: All useQuery calls must be BEFORE any await
+	const { data, suspense } = useQuery({
+		queryKey: ["dashboard"],
+		queryFn: fetchDashboardData,
+		staleTime: 1000 * 60 * 5 // 5 minutes - prevents refetch after hydration
+	});
 
-// Wait for suspense AFTER all useQuery calls
-await suspense()
+	// Wait for suspense AFTER all useQuery calls
+	await suspense();
 
 // Now safe to use data
 </script>
@@ -99,38 +103,42 @@ await suspense()
 ### Solution 4: Handle Hydration Errors Gracefully
 
 ```vue
-<script setup>
-import { ref, onErrorCaptured, onMounted } from 'vue'
-
-const hydrationError = ref(false)
-const isClient = ref(false)
-
-onMounted(() => {
-  isClient.value = true
-})
-
-onErrorCaptured((err) => {
-  if (err.message?.includes('hydration')) {
-    hydrationError.value = true
-    return false
-  }
-})
-</script>
-
 <template>
-  <div v-if="hydrationError" class="hydration-recovery">
-    <!-- Force client-only re-render -->
-    <Suspense v-if="isClient">
-      <AsyncContent />
-      <template #fallback>Recovering...</template>
-    </Suspense>
-  </div>
+	<div v-if="hydrationError" class="hydration-recovery">
+		<!-- Force client-only re-render -->
+		<Suspense v-if="isClient">
+			<AsyncContent />
+			<template #fallback>
+				Recovering...
+			</template>
+		</Suspense>
+	</div>
 
-  <Suspense v-else>
-    <AsyncContent />
-    <template #fallback>Loading...</template>
-  </Suspense>
+	<Suspense v-else>
+		<AsyncContent />
+		<template #fallback>
+			Loading...
+		</template>
+	</Suspense>
 </template>
+
+<script setup>
+	import { onErrorCaptured, onMounted, ref } from "vue";
+
+	const hydrationError = ref(false);
+	const isClient = ref(false);
+
+	onMounted(() => {
+		isClient.value = true;
+	});
+
+	onErrorCaptured((err) => {
+		if (err.message?.includes("hydration")) {
+			hydrationError.value = true;
+			return false;
+		}
+	});
+</script>
 ```
 
 ## Common SSR + Suspense Issues

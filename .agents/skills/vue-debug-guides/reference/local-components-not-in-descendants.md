@@ -20,58 +20,58 @@ tags: [vue3, component-registration, local-registration, scope, nested-component
 **Incorrect:**
 ```vue
 <!-- ParentComponent.vue -->
-<script setup>
-import Card from './Card.vue'
-import ChildComponent from './ChildComponent.vue'
-</script>
-
 <template>
-  <Card>Parent content</Card>
-  <ChildComponent />
+	<Card>Parent content</Card>
+	<ChildComponent />
 </template>
+
+<script setup>
+	import Card from "./Card.vue";
+	import ChildComponent from "./ChildComponent.vue";
+</script>
 ```
 
 ```vue
 <!-- ChildComponent.vue -->
+<template>
+	<!-- ERROR: Card is not available here! -->
+	<Card>
+		Child content
+	</Card>
+</template>
+
 <script setup>
 // WRONG: Expecting Card to be available because parent imported it
 // This will cause "Failed to resolve component: Card" error
 </script>
-
-<template>
-  <!-- ERROR: Card is not available here! -->
-  <Card>
-    Child content
-  </Card>
-</template>
 ```
 
 **Correct:**
 ```vue
 <!-- ParentComponent.vue -->
-<script setup>
-import Card from './Card.vue'
-import ChildComponent from './ChildComponent.vue'
-</script>
-
 <template>
-  <Card>Parent content</Card>
-  <ChildComponent />
+	<Card>Parent content</Card>
+	<ChildComponent />
 </template>
+
+<script setup>
+	import Card from "./Card.vue";
+	import ChildComponent from "./ChildComponent.vue";
+</script>
 ```
 
 ```vue
 <!-- ChildComponent.vue -->
+<template>
+	<Card>
+		Child content
+	</Card>
+</template>
+
 <script setup>
 // CORRECT: Each component must import what it uses
-import Card from './Card.vue'
+	import Card from "./Card.vue";
 </script>
-
-<template>
-  <Card>
-    Child content
-  </Card>
-</template>
 ```
 
 ## Common Scenarios
@@ -79,65 +79,65 @@ import Card from './Card.vue'
 ### Scenario 1: Deeply Nested Components
 ```vue
 <!-- GrandchildComponent.vue -->
-<script setup>
-// Even if parent and grandparent both use Card,
-// grandchild must import it separately
-import Card from '@/components/Card.vue'
-import Button from '@/components/Button.vue'
-</script>
-
 <template>
-  <Card>
-    <Button>Click me</Button>
-  </Card>
+	<Card>
+		<Button>Click me</Button>
+	</Card>
 </template>
+
+<script setup>
+	import Button from "@/components/Button.vue";
+	// Even if parent and grandparent both use Card,
+	// grandchild must import it separately
+	import Card from "@/components/Card.vue";
+</script>
 ```
 
 ### Scenario 2: Slot Content with Components
 ```vue
 <!-- Parent.vue -->
-<script setup>
-import Modal from './Modal.vue'
-import Form from './Form.vue'
-</script>
-
 <template>
-  <!-- Form is registered in Parent, so it works in slot content -->
-  <Modal>
-    <Form /> <!-- This works because slot content is compiled in Parent's scope -->
-  </Modal>
+	<!-- Form is registered in Parent, so it works in slot content -->
+	<Modal>
+		<Form /> <!-- This works because slot content is compiled in Parent's scope -->
+	</Modal>
 </template>
+
+<script setup>
+	import Form from "./Form.vue";
+	import Modal from "./Modal.vue";
+</script>
 ```
 
 ```vue
 <!-- Modal.vue -->
+<template>
+	<div class="modal">
+		<slot /> <!-- Form component works here because it's parent's slot content -->
+	</div>
+</template>
+
 <script setup>
 // Modal doesn't need to import Form because slot content
 // is compiled in the parent's scope, not Modal's scope
 </script>
-
-<template>
-  <div class="modal">
-    <slot /> <!-- Form component works here because it's parent's slot content -->
-  </div>
-</template>
 ```
 
 ### Scenario 3: Dynamic Components
 ```vue
 <!-- Container.vue -->
-<script setup>
-import TabA from './TabA.vue'
-import TabB from './TabB.vue'
-import { ref, shallowRef } from 'vue'
-
-// When using dynamic components, all possible components must be imported
-const currentTab = shallowRef(TabA)
-</script>
-
 <template>
-  <component :is="currentTab" />
+	<component :is="currentTab" />
 </template>
+
+<script setup>
+	import { ref, shallowRef } from "vue";
+	import TabA from "./TabA.vue";
+	import TabB from "./TabB.vue";
+
+	// When using dynamic components, all possible components must be imported
+	const currentTab = shallowRef(TabA);
+</script>
 ```
 
 ## Why This Design?

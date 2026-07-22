@@ -21,11 +21,11 @@ tags: [vue3, sfc, scoped-css, slots, deep-selector]
 ```vue
 <!-- Card.vue (child component) -->
 <template>
-  <div class="card">
-    <div class="card-body">
-      <slot />
-    </div>
-  </div>
+	<div class="card">
+		<div class="card-body">
+			<slot />
+		</div>
+	</div>
 </template>
 
 <style scoped>
@@ -48,11 +48,11 @@ tags: [vue3, sfc, scoped-css, slots, deep-selector]
 ```vue
 <!-- Parent.vue -->
 <template>
-  <Card>
-    <!-- This h2 and p won't be styled by Card's scoped CSS -->
-    <h2>Card Title</h2>
-    <p>Card description text.</p>
-  </Card>
+	<Card>
+		<!-- This h2 and p won't be styled by Card's scoped CSS -->
+		<h2>Card Title</h2>
+		<p>Card description text.</p>
+	</Card>
 </template>
 ```
 
@@ -60,11 +60,11 @@ tags: [vue3, sfc, scoped-css, slots, deep-selector]
 ```vue
 <!-- Card.vue - Using :slotted() -->
 <template>
-  <div class="card">
-    <div class="card-body">
-      <slot />
-    </div>
-  </div>
+	<div class="card">
+		<div class="card-body">
+			<slot />
+		</div>
+	</div>
 </template>
 
 <style scoped>
@@ -153,17 +153,17 @@ Both work, but have subtle differences:
 
 ```vue
 <template>
-  <div class="card">
-    <header class="card-header">
-      <slot name="header" />
-    </header>
-    <div class="card-body">
-      <slot />
-    </div>
-    <footer class="card-footer">
-      <slot name="footer" />
-    </footer>
-  </div>
+	<div class="card">
+		<header class="card-header">
+			<slot name="header" />
+		</header>
+		<div class="card-body">
+			<slot />
+		</div>
+		<footer class="card-footer">
+			<slot name="footer" />
+		</footer>
+	</div>
 </template>
 
 <style scoped>
@@ -208,9 +208,9 @@ For complex slot styling, unscoped styles may be cleaner:
 
 ```vue
 <template>
-  <article class="article-card">
-    <slot />
-  </article>
+	<article class="article-card">
+		<slot />
+	</article>
 </template>
 
 <style>

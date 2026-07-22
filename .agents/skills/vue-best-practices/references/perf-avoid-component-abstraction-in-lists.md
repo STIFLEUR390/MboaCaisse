@@ -24,10 +24,10 @@ Don't avoid abstraction entirely, but be mindful of component depth in frequentl
 ```vue
 <!-- BAD: Deep abstraction in list items -->
 <template>
-  <div class="user-list">
-    <!-- For 100 users: Creates 400 component instances -->
-    <UserCard v-for="user in users" :key="user.id" :user="user" />
-  </div>
+	<div class="user-list">
+		<!-- For 100 users: Creates 400 component instances -->
+		<UserCard v-for="user in users" :key="user.id" :user="user" />
+	</div>
 </template>
 
 <!-- UserCard.vue -->
@@ -50,10 +50,10 @@ Don't avoid abstraction entirely, but be mindful of component depth in frequentl
 ```vue
 <!-- GOOD: Flattened structure in list items -->
 <template>
-  <div class="user-list">
-    <!-- For 100 users: Creates 100 component instances -->
-    <UserCard v-for="user in users" :key="user.id" :user="user" />
-  </div>
+	<div class="user-list">
+		<!-- For 100 users: Creates 100 component instances -->
+		<UserCard v-for="user in users" :key="user.id" :user="user" />
+	</div>
 </template>
 
 <!-- UserCard.vue - Flattened, uses native elements -->
@@ -69,9 +69,9 @@ Don't avoid abstraction entirely, but be mindful of component depth in frequentl
 </template>
 
 <script setup>
-defineProps({
-  user: Object
-})
+	defineProps({
+		user: Object
+	});
 </script>
 
 <style scoped>
@@ -111,34 +111,38 @@ defineProps({
 
 ```javascript
 // In development, profile component counts
-import { onMounted, getCurrentInstance } from 'vue'
+import { getCurrentInstance, onMounted } from "vue";
 
 onMounted(() => {
-  const instance = getCurrentInstance()
-  let count = 0
+	const instance = getCurrentInstance();
+	let count = 0;
 
-  function countComponents(vnode) {
-    if (vnode.component) count++
-    if (vnode.children) {
-      vnode.children.forEach(child => {
-        if (child.component || child.children) countComponents(child)
-      })
-    }
-  }
+	function countComponents(vnode) {
+		if (vnode.component) count++;
+		if (vnode.children) {
+			vnode.children.forEach((child) => {
+				if (child.component || child.children) countComponents(child);
+			});
+		}
+	}
 
-  // Use Vue DevTools instead for accurate counts
-  console.log('Check Vue DevTools Components tab for instance counts')
-})
+	// Use Vue DevTools instead for accurate counts
+	console.log("Check Vue DevTools Components tab for instance counts");
+});
 ```
 
 ## Alternatives to Wrapper Components
 
 ```vue
 <!-- Instead of a <Button> component for styling: -->
-<button class="btn btn-primary">Click</button>
+<button class="btn btn-primary">
+Click
+</button>
 
 <!-- Instead of a <Text> component: -->
-<span class="text-body">{{ content }}</span>
+<span class="text-body">
+{{ content }}
+</span>
 
 <!-- Instead of layout wrapper components in lists: -->
 <div class="flex items-center gap-2">

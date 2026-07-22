@@ -47,8 +47,8 @@ Contains all application code. Can also be at root level (without `app/` folder)
 ```ts
 // nuxt.config.ts - customize source directory
 export default defineNuxtConfig({
-  srcDir: 'src/', // Change from 'app/' to 'src/'
-})
+	srcDir: "src/" // Change from 'app/' to 'src/'
+});
 ```
 
 ### `app/components/`
@@ -71,7 +71,7 @@ components/
 
 ```vue
 <template>
-  <LazyHeavyChart v-if="showChart" />
+	<LazyHeavyChart v-if="showChart" />
 </template>
 ```
 
@@ -99,7 +99,7 @@ Re-export nested composables:
 
 ```ts
 // composables/index.ts
-export { useHelper } from './nested/utils'
+export { useHelper } from "./nested/utils";
 ```
 
 ### `app/pages/`
@@ -138,11 +138,11 @@ layouts/
 ```vue
 <!-- layouts/default.vue -->
 <template>
-  <div>
-    <TheHeader />
-    <slot />
-    <TheFooter />
-  </div>
+	<div>
+		<TheHeader />
+		<slot />
+		<TheFooter />
+	</div>
 </template>
 ```
 
@@ -150,10 +150,10 @@ Use in pages:
 
 ```vue
 <script setup>
-definePageMeta({
-  layout: 'admin',
-  // layout: false // Disable layout
-})
+	definePageMeta({
+		layout: "admin"
+		// layout: false // Disable layout
+	});
 </script>
 ```
 
@@ -230,7 +230,7 @@ Reference in components:
 
 ```vue
 <template>
-  <img src="~/assets/images/hero.png" />
+	<img src="~/assets/images/hero.png">
 </template>
 
 <style>
@@ -261,7 +261,7 @@ Reference in components:
 | `.server.vue` | Server-only component |
 | `.global.ts` | Global middleware |
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/directory-structure
 - https://nuxt.com/docs/directory-structure/app

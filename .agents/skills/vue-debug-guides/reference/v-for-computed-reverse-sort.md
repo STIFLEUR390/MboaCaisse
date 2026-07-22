@@ -21,17 +21,17 @@ Computed properties should be pure - they calculate a value without side effects
 
 **Incorrect:**
 ```javascript
-const numbers = ref([1, 2, 3, 4, 5])
+const numbers = ref([1, 2, 3, 4, 5]);
 
 // WRONG: Mutates the original array
 const reversedNumbers = computed(() => {
-  return numbers.value.reverse()  // Modifies numbers.value!
-})
+	return numbers.value.reverse(); // Modifies numbers.value!
+});
 
 // WRONG: Same issue with sort
 const sortedItems = computed(() => {
-  return items.value.sort((a, b) => a.name.localeCompare(b.name))
-})
+	return items.value.sort((a, b) => a.name.localeCompare(b.name));
+});
 ```
 
 **Correct:**
@@ -70,7 +70,7 @@ When using methods to filter/sort in nested v-for loops, the same rule applies:
 ```javascript
 // CORRECT: Method that doesn't mutate
 function getSortedChildren(parent) {
-  return [...parent.children].sort((a, b) => a.order - b.order)
+	return [...parent.children].sort((a, b) => a.order - b.order);
 }
 ```
 

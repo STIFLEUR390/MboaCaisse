@@ -7,13 +7,18 @@
 //!   4. Full application router (API + static files + middleware)
 //!   5. Tauri plugins
 //!   6. Axum server + mDNS
-//!   7. Tray icon
+//!   7. Window lifecycle (hide-to-tray, headless)
+//!   8. Tray icon (Show, Quit)
+//!
+//! AD-9:  ExitRequested → shutdown → backup. Only triggered by tray Quit.
+//! AD-12: Config via tauri_plugin_store (port, hostname, backup_interval, headless).
 
 mod api;
 mod db;
 mod domain;
 mod mdns;
 mod server;
+mod settings;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -27,6 +32,7 @@ use tauri::Manager;
 use api::AppApiState;
 use db::users::DbUserRepository;
 use domain::user::UserRepository;
+use settings::Config;
 
 #[cfg(desktop)]
 use tauri::{
@@ -34,16 +40,30 @@ use tauri::{
 	tray::TrayIcon,
 	tray::TrayIconBuilder,
 };
+use tauri::tray::TrayIconEvent;
 
 pub struct AppState {
 	pub db_pool: SqlitePool,
 }
 
+#[derive(Clone)]
 pub struct AppHandles {
 	#[cfg(desktop)]
 	pub tray_handle: Arc<std::sync::Mutex<Option<TrayIcon>>>,
 	pub mdns_daemon: Arc<std::sync::Mutex<Option<mdns_sd::ServiceDaemon>>>,
 	pub shutdown_tx: watch::Sender<bool>,
+}
+
+/// Parse common truthy/falsy strings into bool.
+/// Accepts "1", "true", "yes", "y" (case-insensitive) as true.
+/// Accepts "0", "false", "no", "n" as false.
+/// Everything else (empty, unset, gibberish) returns None.
+fn parse_env_bool(val: &str) -> Option<bool> {
+	match val.to_lowercase().as_str() {
+		"1" | "true" | "yes" | "y" => Some(true),
+		"0" | "false" | "no" | "n" => Some(false),
+		_ => None,
+	}
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -57,6 +77,12 @@ pub fn run() {
 
 	info!("Starting MboaCaisse...");
 
+	// Resolve headless mode BEFORE setup.
+	// Env var / CLI takes priority over store value.
+	let env_headless = std::env::var("HEADLESS")
+		.ok()
+		.and_then(|v| parse_env_bool(&v));
+
 	let db_path = "mboacaisse.db";
 	let pool = init_pool(db_path).expect("Failed to initialise database pool");
 	{
@@ -66,7 +92,7 @@ pub fn run() {
 	}
 	let app_state = AppState { db_pool: pool.clone() };
 
-	// JWT secret
+	// JWT secret — kept in memory only (not stored on disk for now)
 	let jwt_secret = load_or_generate_jwt_secret();
 	info!("JWT secret initialised ({} bytes)", jwt_secret.len());
 
@@ -79,19 +105,104 @@ pub fn run() {
 	let app_router = api::build_app(api_state);
 
 	// Channels for server lifecycle
-	let (shutdown_tx, shutdown_rx) = watch::channel(false);
+	let (shutdown_tx, shutdown_rx) = watch::channel::<bool>(false);
 	let (ready_tx, ready_rx) = std::sync::mpsc::channel::<()>();
 
-	// Handles
 	#[cfg(desktop)]
 	let tray_handle: Arc<std::sync::Mutex<Option<TrayIcon>>> = Arc::new(std::sync::Mutex::new(None));
-	let mdns_daemon: Arc<std::sync::Mutex<Option<mdns_sd::ServiceDaemon>>> = Arc::new(std::sync::Mutex::new(None));
 
 	info!("Database initialised successfully");
 
 	tauri::Builder::default()
 		.setup(move |app| {
 			app.manage(app_state);
+
+			// Store the AppHandle for API handlers (settings, etc.)
+			api::init_app_handle(app.handle().clone());
+
+			// ------ Resolve effective config ------
+			let cfg = Config::load(&app.handle());
+			let headless = env_headless.unwrap_or(cfg.headless);
+			let effective_port = resolve_port().unwrap_or(cfg.port);
+			let hostname = cfg.hostname.clone();
+
+			info!(
+				"Startup config — port: {}, hostname: {}, headless: {}, backup_interval: {}h",
+				effective_port, hostname, headless, cfg.backup_interval_hours
+			);
+
+			// ------ Window lifecycle (hide-to-tray) ------
+			let window = app.get_webview_window("main").expect("main window");
+
+			// If headless, hide the window immediately after creation.
+			// Note: on slower machines the window may briefly flash before hiding.
+			// For alpha this is acceptable; a future improvement could set
+			// `visible: false` in the Tauri window config or builder.
+			if headless {
+				let _ = window.hide();
+				info!("Headless mode active — window hidden at startup");
+			}
+
+			// Intercept CloseRequested — hide instead of closing.
+			// The app only exits via tray Quit menu item.
+			{
+				let window_clone = window.clone();
+				window.on_window_event(move |event| {
+					if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+						api.prevent_close();
+						info!("Window close requested — hiding to tray");
+						let _ = window_clone.hide();
+					}
+				});
+			}
+
+			// ------ Tray icon ------
+			#[cfg(desktop)]
+			{
+				let show_i = MenuItem::with_id(app, "show", "Show", true, None::<&str>)?;
+				let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+				let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
+
+				let tray = TrayIconBuilder::new()
+					.menu(&menu)
+					.show_menu_on_left_click(true)
+					.icon(app.default_window_icon()
+						.expect("default_window_icon must be configured in tauri.conf.json")
+						.clone())
+					.on_menu_event(|app_handle, event| {
+						match event.id.as_ref() {
+							"show" => {
+								info!("Show requested via tray menu");
+								if let Some(w) = app_handle.get_webview_window("main") {
+									let _ = w.show();
+									let _ = w.set_focus();
+								}
+							}
+							"quit" => {
+								info!("Quit requested via tray menu — initiating graceful shutdown");
+								// Rely on RunEvent::ExitRequested to send the shutdown signal.
+								// This avoids a fragile sleep between send and exit.
+								app_handle.exit(0);
+							}
+							other => warn!("Unhandled tray menu item: {}", other),
+						}
+					})
+					.on_tray_icon_event(|tray, event| {
+						if let TrayIconEvent::Click { .. } = event {
+							if let Some(window) = tray.app_handle().get_webview_window("main") {
+								let _ = window.show();
+								let _ = window.set_focus();
+							}
+						}
+					})
+					.build(app)?;
+				*tray_handle.lock().unwrap() = Some(tray);
+				info!("Tray icon created with Show/Quit menu");
+			}
+
+			// ------ Persistent handles ------
+			let mdns_daemon: Arc<std::sync::Mutex<Option<mdns_sd::ServiceDaemon>>> =
+				Arc::new(std::sync::Mutex::new(None));
 
 			app.manage(AppHandles {
 				#[cfg(desktop)]
@@ -100,46 +211,24 @@ pub fn run() {
 				shutdown_tx: shutdown_tx.clone(),
 			});
 
-			// Start the Axum HTTP server
-			let port = resolve_port();
+			// ------ Start the Axum HTTP server ------
 			let srv_shutdown_rx = shutdown_rx.clone();
 			let app_router_clone = app_router.clone();
 			tauri::async_runtime::spawn(async move {
-				server::start_server(port, app_router_clone, srv_shutdown_rx, ready_tx).await;
+				server::start_server(effective_port, app_router_clone, srv_shutdown_rx, ready_tx).await;
 			});
-
 			let _ = ready_rx.recv();
-			info!("Axum server listening and ready");
+			info!("Axum server listening and ready on port {}", effective_port);
 
-			// Start mDNS
+			// ------ Start mDNS ------
 			let mdns_clone = mdns_daemon.clone();
+			let mdns_hostname = hostname.clone();
 			std::thread::spawn(move || {
-				let daemon = mdns::start_mdns(port);
+				let daemon = mdns::start_mdns(effective_port, &mdns_hostname);
 				if let Some(d) = daemon {
 					*mdns_clone.lock().unwrap() = Some(d);
 				}
 			});
-
-			// Tray icon
-			#[cfg(desktop)]
-			{
-				let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-				let menu = Menu::with_items(app, &[&quit_i])?;
-				let tray = TrayIconBuilder::new()
-					.menu(&menu)
-					.show_menu_on_left_click(true)
-					.icon(app.default_window_icon().unwrap().clone())
-					.on_menu_event(|app_handle, event| match event.id.as_ref() {
-						"quit" => {
-							info!("Quit requested via tray menu");
-							app_handle.exit(0);
-						}
-						other => warn!("Unhandled tray menu item: {}", other),
-					})
-					.build(app)?;
-				*tray_handle.lock().unwrap() = Some(tray);
-				info!("Tray icon created");
-			}
 
 			info!("MboaCaisse setup complete");
 			Ok(())
@@ -151,29 +240,50 @@ pub fn run() {
 		.plugin(tauri_plugin_store::Builder::new().build())
 		.build(tauri::generate_context!())
 		.expect("error while building tauri application")
-		.run(|app_handle, event| {
-			if let tauri::RunEvent::ExitRequested { .. } = &event {
-				info!("ExitRequested received — initiating graceful shutdown");
-				let handles = app_handle.state::<AppHandles>();
-				let _ = handles.shutdown_tx.send(true);
-			}
-			if let tauri::RunEvent::Exit = &event {
-				info!("Exit event received — creating pre-shutdown database backup");
-				let state = app_handle.state::<AppState>();
-				backup_database(&state.db_pool);
+		.run(move |app_handle, event| {
+			match &event {
+				tauri::RunEvent::ExitRequested { .. } => {
+					info!("ExitRequested received — initiating graceful shutdown");
+					let handles = app_handle.state::<AppHandles>();
+					let _ = handles.shutdown_tx.send(true);
+				}
+				tauri::RunEvent::Exit => {
+					info!("Exit event received — creating pre-shutdown database backup");
+					let state = app_handle.state::<AppState>();
+					backup_database(&state.db_pool);
+
+					// Send notification in headless mode (no window to see tray disappear)
+					if let Ok(headless_str) = std::env::var("HEADLESS") {
+						if parse_env_bool(&headless_str).unwrap_or(false) {
+							#[cfg(desktop)]
+							{
+								use tauri_plugin_notification::NotificationExt;
+								let _ = app_handle.notification()
+									.builder()
+									.title("MboaCaisse")
+									.body("MboaCaisse arrêté")
+									.show();
+							}
+						}
+					}
+				}
+				_ => {}
 			}
 		});
 }
 
-fn resolve_port() -> u16 {
+/// Resolve port from environment variable (dev mode only).
+/// Returns `None` if no env var is set, letting the caller fall back
+/// to the store config or default.
+fn resolve_port() -> Option<u16> {
 	if let Ok(port_str) = std::env::var("TAURI_DEV_PORT") {
-		if let Ok(port) = port_str.parse::<u16>() {
-			if (3000..=3099).contains(&port) {
-				return port;
-			}
+		match port_str.parse::<u16>() {
+			Ok(port) if (3000..=3099).contains(&port) => return Some(port),
+			Ok(_) => warn!("TAURI_DEV_PORT={} is outside allowed range (3000-3099) — ignoring", port_str),
+			Err(_) => warn!("TAURI_DEV_PORT='{}' is not a valid port number — ignoring", port_str),
 		}
 	}
-	3000
+	None
 }
 
 fn load_or_generate_jwt_secret() -> Arc<Vec<u8>> {

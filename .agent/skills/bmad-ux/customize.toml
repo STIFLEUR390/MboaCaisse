@@ -14,9 +14,7 @@ activation_steps_append = []
 
 # Persistent facts loaded at activation and kept in mind for the run.
 # Entries: literal sentence, `skill:NAME`, or `file:PATH` (glob ok).
-persistent_facts = [
-  "file:{project-root}/**/project-context.md",
-]
+persistent_facts = [ "file:{project-root}/**/project-context.md", ]
 
 # Runs at workflow completion. String or array of instructions.
 on_complete = ""
@@ -27,16 +25,16 @@ on_complete = ""
 # override TOML to seed an org-specific canonical aesthetic.
 # Each entry: `file:PATH` (or bare relative path, resolved skill-relative).
 design_md_examples = [
-  "assets/design-example-mobile.md",
-  "assets/design-example-shadcn.md",
-  "assets/design-example-editorial.md",
+	"assets/design-example-mobile.md",
+	"assets/design-example-shadcn.md",
+	"assets/design-example-editorial.md",
 ]
 
 # Reference EXPERIENCE.md spines for the behavioral/flow/IA layer. Each entry:
 # `file:PATH` (or bare relative path, resolved skill-relative).
 experience_md_examples = [
-  "assets/experience-example-mobile.md",
-  "assets/experience-example-shadcn.md",
+	"assets/experience-example-mobile.md",
+	"assets/experience-example-shadcn.md",
 ]
 
 # Design handoff targets — external tools that can take over the design /
@@ -46,9 +44,7 @@ experience_md_examples = [
 # Each entry: `tool:NAME: <directive>`, `skill:NAME`, or plain-text descriptor.
 # Default: Google Stitch (emits DESIGN.md + per-screen HTML). Other producers:
 # Vercel v0, Figma, Galileo, Anima, internal generators.
-design_handoffs = [
-  "Google Stitch (https://stitch.withgoogle.com) — emits DESIGN.md + per-screen HTML. Paste assembled prompt; save outputs to {doc_workspace}.",
-]
+design_handoffs = [ "Google Stitch (https://stitch.withgoogle.com) — emits DESIGN.md + per-screen HTML. Paste assembled prompt; save outputs to {doc_workspace}.", ]
 
 # HTML skeleton filled in by the validation synthesis pass.
 validation_report_template = "assets/validation-report-template.html"
@@ -69,18 +65,18 @@ run_folder_pattern = "ux-{project_name}-{date}"
 # {doc_workspace}/.working/; finalize promotes those with lasting reference
 # value to mockups/ or wireframes/. See references/creative-tools.md.
 creative_tools = [
-  "file:assets/color-themes.md",
-  "file:assets/design-directions.md",
-  "file:assets/excalidraw-wireframe.md",
-  "file:assets/key-screens.md",
+	"file:assets/color-themes.md",
+	"file:assets/design-directions.md",
+	"file:assets/excalidraw-wireframe.md",
+	"file:assets/key-screens.md",
 ]
 
 # Polish passes applied to DESIGN.md and EXPERIENCE.md at finalize.
 # Entries: `skill:NAME`, `file:PATH`, or plain text directive.
 # Suggested order: structural → content/voice → prose mechanics.
 doc_standards = [
-  "skill:bmad-editorial-review-structure",
-  "skill:bmad-editorial-review-prose",
+	"skill:bmad-editorial-review-structure",
+	"skill:bmad-editorial-review-prose",
 ]
 
 # Information retrieval registry. Consulted on demand when the conversation

@@ -21,67 +21,67 @@ When you modify reactive state, Vue doesn't update the DOM synchronously. Instea
 
 **Incorrect:**
 ```javascript
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const message = ref('Hello')
-const messageEl = ref(null)
+const message = ref("Hello");
+const messageEl = ref(null);
 
 function updateMessage() {
-  message.value = 'Updated!'
+	message.value = "Updated!";
 
-  // WRONG: DOM still shows "Hello" at this point
-  console.log(messageEl.value.textContent) // "Hello" - stale!
+	// WRONG: DOM still shows "Hello" at this point
+	console.log(messageEl.value.textContent); // "Hello" - stale!
 
-  // WRONG: Scrolling/focusing may not work correctly
-  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+	// WRONG: Scrolling/focusing may not work correctly
+	scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
 }
 ```
 
 **Correct:**
 ```javascript
-import { ref, nextTick } from 'vue'
+import { nextTick, ref } from "vue";
 
-const message = ref('Hello')
-const messageEl = ref(null)
+const message = ref("Hello");
+const messageEl = ref(null);
 
 async function updateMessage() {
-  message.value = 'Updated!'
+	message.value = "Updated!";
 
-  // CORRECT: Wait for DOM to update
-  await nextTick()
+	// CORRECT: Wait for DOM to update
+	await nextTick();
 
-  // Now the DOM is updated
-  console.log(messageEl.value.textContent) // "Updated!"
+	// Now the DOM is updated
+	console.log(messageEl.value.textContent); // "Updated!"
 
-  // Scrolling and focusing now work correctly
-  scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight
+	// Scrolling and focusing now work correctly
+	scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
 }
 
 // Alternative: callback syntax
 function updateWithCallback() {
-  message.value = 'Updated!'
+	message.value = "Updated!";
 
-  nextTick(() => {
-    console.log(messageEl.value.textContent) // "Updated!"
-  })
+	nextTick(() => {
+		console.log(messageEl.value.textContent); // "Updated!"
+	});
 }
 ```
 
 ```vue
 <script setup>
-import { ref, nextTick } from 'vue'
+	import { nextTick, ref } from "vue";
 
-const items = ref([])
-const listRef = ref(null)
+	const items = ref([]);
+	const listRef = ref(null);
 
-async function addItem() {
-  items.value.push({ id: Date.now(), text: 'New item' })
+	async function addItem() {
+		items.value.push({ id: Date.now(), text: "New item" });
 
-  await nextTick()
+		await nextTick();
 
-  // Now we can safely scroll to the new item
-  listRef.value.lastElementChild?.scrollIntoView({ behavior: 'smooth' })
-}
+		// Now we can safely scroll to the new item
+		listRef.value.lastElementChild?.scrollIntoView({ behavior: "smooth" });
+	}
 </script>
 ```
 

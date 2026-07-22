@@ -16,10 +16,10 @@ This error occurs when calling Nuxt composables outside the proper context.
 ```ts
 // composables/bad.ts
 // Called at module level - no Nuxt context!
-const config = useRuntimeConfig()
+const config = useRuntimeConfig();
 
 export function useMyComposable() {
-  return config.public.apiBase
+	return config.public.apiBase;
 }
 ```
 
@@ -28,9 +28,9 @@ export function useMyComposable() {
 ```ts
 // composables/good.ts
 export function useMyComposable() {
-  // Called inside the composable - has context
-  const config = useRuntimeConfig()
-  return config.public.apiBase
+	// Called inside the composable - has context
+	const config = useRuntimeConfig();
+	return config.public.apiBase;
 }
 ```
 
@@ -45,13 +45,13 @@ Nuxt composables work in:
 ```ts
 // ✅ Plugin
 export default defineNuxtPlugin(() => {
-  const config = useRuntimeConfig() // Works
-})
+	const config = useRuntimeConfig(); // Works
+});
 
 // ✅ Middleware
 export default defineNuxtRouteMiddleware(() => {
-  const route = useRoute() // Works
-})
+	const route = useRoute(); // Works
+});
 ```
 
 ## Avoid State Leaks Between Requests
@@ -61,10 +61,10 @@ export default defineNuxtRouteMiddleware(() => {
 ```ts
 // composables/bad.ts
 // This state is SHARED between all requests on server!
-const globalState = ref({ user: null })
+const globalState = ref({ user: null });
 
 export function useUser() {
-  return globalState
+	return globalState;
 }
 ```
 
@@ -73,8 +73,8 @@ export function useUser() {
 ```ts
 // composables/good.ts
 export function useUser() {
-  // useState creates request-isolated state
-  return useState('user', () => ({ user: null }))
+	// useState creates request-isolated state
+	return useState("user", () => ({ user: null }));
 }
 ```
 
@@ -94,7 +94,7 @@ Hydration mismatches occur when server HTML differs from client render.
 ```vue
 <script setup>
 // localStorage doesn't exist on server!
-const theme = localStorage.getItem('theme') || 'light'
+	const theme = localStorage.getItem("theme") || "light";
 </script>
 ```
 
@@ -103,7 +103,7 @@ const theme = localStorage.getItem('theme') || 'light'
 ```vue
 <script setup>
 // useCookie works on both server and client
-const theme = useCookie('theme', { default: () => 'light' })
+	const theme = useCookie("theme", { default: () => "light" });
 </script>
 ```
 
@@ -111,30 +111,32 @@ const theme = useCookie('theme', { default: () => 'light' })
 
 ```vue
 <template>
-  <div>{{ Math.random() }}</div>
-  <div>{{ new Date().toLocaleTimeString() }}</div>
+	<div>{{ Math.random() }}</div>
+	<div>{{ new Date().toLocaleTimeString() }}</div>
 </template>
 ```
 
 ### ✅ Correct: Use useState for Consistency
 
 ```vue
+<template>
+	<div>{{ randomValue }}</div>
+</template>
+
 <script setup>
 // Value is generated once on server, hydrated on client
-const randomValue = useState('random', () => Math.random())
+	const randomValue = useState("random", () => Math.random());
 </script>
-
-<template>
-  <div>{{ randomValue }}</div>
-</template>
 ```
 
 ### ❌ Wrong: Conditional Rendering on Client State
 
 ```vue
 <template>
-  <!-- window doesn't exist on server -->
-  <div v-if="window?.innerWidth > 768">Desktop</div>
+	<!-- window doesn't exist on server -->
+	<div v-if="window?.innerWidth > 768">
+		Desktop
+	</div>
 </template>
 ```
 
@@ -142,15 +144,21 @@ const randomValue = useState('random', () => Math.random())
 
 ```vue
 <template>
-  <!-- CSS media queries work on both -->
-  <div class="hidden md:block">Desktop</div>
-  <div class="md:hidden">Mobile</div>
+	<!-- CSS media queries work on both -->
+	<div class="hidden md:block">
+		Desktop
+	</div>
+	<div class="md:hidden">
+		Mobile
+	</div>
 
-  <!-- Or use ClientOnly for JS-dependent rendering -->
-  <ClientOnly>
-    <ResponsiveComponent />
-    <template #fallback>Loading...</template>
-  </ClientOnly>
+	<!-- Or use ClientOnly for JS-dependent rendering -->
+	<ClientOnly>
+		<ResponsiveComponent />
+		<template #fallback>
+			Loading...
+		</template>
+	</ClientOnly>
 </template>
 ```
 
@@ -160,10 +168,10 @@ const randomValue = useState('random', () => Math.random())
 
 ```vue
 <script setup>
-if (import.meta.client) {
-  // Only runs in browser
-  window.addEventListener('scroll', handleScroll)
-}
+	if (import.meta.client) {
+		// Only runs in browser
+		window.addEventListener("scroll", handleScroll);
+	}
 </script>
 ```
 
@@ -171,13 +179,13 @@ if (import.meta.client) {
 
 ```vue
 <script setup>
-const el = ref<HTMLElement>()
+	const el = ref<HTMLElement>();
 
-onMounted(() => {
-  // Safe - only runs on client after hydration
-  el.value?.focus()
-  initThirdPartyLib()
-})
+	onMounted(() => {
+		// Safe - only runs on client after hydration
+		el.value?.focus();
+		initThirdPartyLib();
+	});
 </script>
 ```
 
@@ -185,10 +193,10 @@ onMounted(() => {
 
 ```vue
 <script setup>
-onMounted(async () => {
-  const { Chart } = await import('chart.js')
-  new Chart(canvas.value, config)
-})
+	onMounted(async () => {
+		const { Chart } = await import("chart.js");
+		new Chart(canvas.value, config);
+	});
 </script>
 ```
 
@@ -198,10 +206,10 @@ onMounted(async () => {
 
 ```vue
 <script setup>
-if (import.meta.server) {
-  // Only runs on server
-  const secrets = useRuntimeConfig().apiSecret
-}
+	if (import.meta.server) {
+		// Only runs on server
+		const secrets = useRuntimeConfig().apiSecret;
+	}
 </script>
 ```
 
@@ -209,14 +217,14 @@ if (import.meta.server) {
 
 ```vue
 <!-- components/ServerData.server.vue -->
+<template>
+	<div>{{ data }}</div>
+</template>
+
 <script setup>
 // This entire component only runs on server
-const data = await fetchSensitiveData()
+	const data = await fetchSensitiveData();
 </script>
-
-<template>
-  <div>{{ data }}</div>
-</template>
 ```
 
 ## Async Composable Patterns
@@ -225,8 +233,8 @@ const data = await fetchSensitiveData()
 
 ```vue
 <script setup>
-await someAsyncOperation()
-const route = useRoute() // May fail - context lost after await
+	await someAsyncOperation();
+	const route = useRoute(); // May fail - context lost after await
 </script>
 ```
 
@@ -235,10 +243,10 @@ const route = useRoute() // May fail - context lost after await
 ```vue
 <script setup>
 // Get all composables before any await
-const route = useRoute()
-const config = useRuntimeConfig()
+	const route = useRoute();
+	const config = useRuntimeConfig();
 
-await someAsyncOperation()
+	await someAsyncOperation();
 // Now safe to use route and config
 </script>
 ```
@@ -250,9 +258,9 @@ await someAsyncOperation()
 ```ts
 // plugins/analytics.client.ts
 export default defineNuxtPlugin(() => {
-  // Only runs on client
-  initAnalytics()
-})
+	// Only runs on client
+	initAnalytics();
+});
 ```
 
 ### Server-only Plugins
@@ -260,9 +268,9 @@ export default defineNuxtPlugin(() => {
 ```ts
 // plugins/server-init.server.ts
 export default defineNuxtPlugin(() => {
-  // Only runs on server
-  initServerConnections()
-})
+	// Only runs on server
+	initServerConnections();
+});
 ```
 
 ### Provide/Inject Pattern
@@ -270,20 +278,20 @@ export default defineNuxtPlugin(() => {
 ```ts
 // plugins/api.ts
 export default defineNuxtPlugin(() => {
-  const api = createApiClient()
+	const api = createApiClient();
 
-  return {
-    provide: {
-      api,
-    },
-  }
-})
+	return {
+		provide: {
+			api
+		}
+	};
+});
 ```
 
 ```vue
 <script setup>
-const { $api } = useNuxtApp()
-const data = await $api.get('/users')
+	const { $api } = useNuxtApp();
+	const data = await $api.get("/users");
 </script>
 ```
 
@@ -293,7 +301,7 @@ const data = await $api.get('/users')
 
 ```vue
 <script setup>
-import SomeLibrary from 'browser-only-lib' // Breaks SSR
+	import SomeLibrary from "browser-only-lib"; // Breaks SSR
 </script>
 ```
 
@@ -301,12 +309,12 @@ import SomeLibrary from 'browser-only-lib' // Breaks SSR
 
 ```vue
 <script setup>
-let library: typeof import('browser-only-lib')
+	let library: typeof import("browser-only-lib");
 
-onMounted(async () => {
-  library = await import('browser-only-lib')
-  library.init()
-})
+	onMounted(async () => {
+		library = await import("browser-only-lib");
+		library.init();
+	});
 </script>
 ```
 
@@ -314,12 +322,14 @@ onMounted(async () => {
 
 ```vue
 <template>
-  <ClientOnly>
-    <BrowserOnlyComponent />
-    <template #fallback>
-      <div class="skeleton">Loading...</div>
-    </template>
-  </ClientOnly>
+	<ClientOnly>
+		<BrowserOnlyComponent />
+		<template #fallback>
+			<div class="skeleton">
+				Loading...
+			</div>
+		</template>
+	</ClientOnly>
 </template>
 ```
 
@@ -329,8 +339,8 @@ onMounted(async () => {
 
 ```vue
 <script setup>
-console.log('Server:', import.meta.server)
-console.log('Client:', import.meta.client)
+	console.log("Server:", import.meta.server);
+	console.log("Client:", import.meta.client);
 </script>
 ```
 
@@ -347,7 +357,7 @@ DevTools shows payload data and hydration state.
 | "window is not defined" | Browser API used during SSR |
 | "document is not defined" | DOM access during SSR |
 
-<!-- 
+<!--
 Source references:
 - https://nuxt.com/docs/guide/concepts/auto-imports#vue-and-nuxt-composables
 - https://nuxt.com/docs/guide/best-practices/hydration

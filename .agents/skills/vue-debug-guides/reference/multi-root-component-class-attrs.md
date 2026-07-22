@@ -16,9 +16,9 @@ When a Vue 3 component has multiple root elements, class and style bindings from
 ```vue
 <!-- ChildComponent.vue - WRONG: classes from parent won't apply -->
 <template>
-  <header>Header</header>
-  <main>Content</main>
-  <footer>Footer</footer>
+	<header>Header</header>
+	<main>Content</main>
+	<footer>Footer</footer>
 </template>
 
 <!-- Parent usage -->
@@ -31,9 +31,11 @@ When a Vue 3 component has multiple root elements, class and style bindings from
 ```vue
 <!-- ChildComponent.vue - CORRECT: explicitly bind $attrs.class -->
 <template>
-  <header>Header</header>
-  <main :class="$attrs.class" :style="$attrs.style">Content</main>
-  <footer>Footer</footer>
+	<header>Header</header>
+	<main :class="$attrs.class" :style="$attrs.style">
+		Content
+	</main>
+	<footer>Footer</footer>
 </template>
 
 <!-- Or bind all attrs to one element -->
@@ -47,17 +49,20 @@ When a Vue 3 component has multiple root elements, class and style bindings from
 ## Accessing $attrs in script setup
 
 ```vue
+<template>
+	<header>Header</header>
+	<main :class="attrs.class">
+		Content
+	</main>
+	<footer>Footer</footer>
+</template>
+
 <script setup>
-import { useAttrs } from 'vue'
-const attrs = useAttrs()
+	import { useAttrs } from "vue";
+
+	const attrs = useAttrs();
 // attrs.class and attrs.style are available
 </script>
-
-<template>
-  <header>Header</header>
-  <main :class="attrs.class">Content</main>
-  <footer>Footer</footer>
-</template>
 ```
 
 ## Disabling Automatic Inheritance
@@ -65,22 +70,23 @@ const attrs = useAttrs()
 For single-root components where you want to control attribute placement:
 
 ```vue
+<template>
+	<div class="wrapper">
+		<input v-bind="attrs">
+	</div>
+</template>
+
 <script>
-export default {
-  inheritAttrs: false
-}
 </script>
 
 <script setup>
-import { useAttrs } from 'vue'
-const attrs = useAttrs()
-</script>
+	import { useAttrs } from "vue";
 
-<template>
-  <div class="wrapper">
-    <input v-bind="attrs" />
-  </div>
-</template>
+	export default {
+		inheritAttrs: false
+	};
+	const attrs = useAttrs();
+</script>
 ```
 
 ## Vue 2 to Vue 3 Migration Note

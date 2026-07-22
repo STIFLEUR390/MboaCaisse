@@ -24,42 +24,42 @@ This is a known edge case that occurs when the timing is specific - if a parent 
 ```vue
 <!-- Parent component with lazy-loaded child in transition -->
 <template>
-  <transition>
-    <Suspense>
-      <component :is="currentComponent" />
-    </Suspense>
-  </transition>
+	<transition>
+		<Suspense>
+			<component :is="currentComponent" />
+		</Suspense>
+	</transition>
 </template>
 ```
 
 ```javascript
 // Child component - unmount hooks may not fire if parent changes quickly
 export default {
-  setup() {
-    const socket = new WebSocket('wss://example.com')
+	setup() {
+		const socket = new WebSocket("wss://example.com");
 
-    onMounted(() => {
-      console.log('Mounted - this will run')
-      socket.connect()
-    })
+		onMounted(() => {
+			console.log("Mounted - this will run");
+			socket.connect();
+		});
 
-    onUnmounted(() => {
-      // WARNING: This may NOT run if component is inside transition
-      // and parent navigates away during mounting phase!
-      console.log('Unmounted - might not run')
-      socket.close()
-    })
-  }
-}
+		onUnmounted(() => {
+			// WARNING: This may NOT run if component is inside transition
+			// and parent navigates away during mounting phase!
+			console.log("Unmounted - might not run");
+			socket.close();
+		});
+	}
+};
 ```
 
 **Safer Patterns:**
 ```vue
 <!-- SAFER: Use out-in mode to ensure proper sequencing -->
 <template>
-  <transition mode="out-in">
-    <component :is="currentComponent" :key="currentKey" />
-  </transition>
+	<transition mode="out-in">
+		<component :is="currentComponent" :key="currentKey" />
+	</transition>
 </template>
 ```
 
@@ -105,26 +105,26 @@ export default {
 ```javascript
 // SAFER: Use AbortController pattern for cancellable operations
 export default {
-  setup() {
-    const abortController = new AbortController()
+	setup() {
+		const abortController = new AbortController();
 
-    onMounted(() => {
-      fetch('/api/data', { signal: abortController.signal })
-        .then(handleData)
-        .catch(err => {
-          if (err.name !== 'AbortError') {
-            handleError(err)
-          }
-        })
-    })
+		onMounted(() => {
+			fetch("/api/data", { signal: abortController.signal })
+				.then(handleData)
+				.catch((err) => {
+					if (err.name !== "AbortError") {
+						handleError(err);
+					}
+				});
+		});
 
-    onUnmounted(() => {
-      // If this doesn't fire, request continues but response is ignored
-      // Not a memory leak - just potentially wasted network call
-      abortController.abort()
-    })
-  }
-}
+		onUnmounted(() => {
+			// If this doesn't fire, request continues but response is ignored
+			// Not a memory leak - just potentially wasted network call
+			abortController.abort();
+		});
+	}
+};
 ```
 
 ## Testing for This Issue
@@ -132,14 +132,14 @@ export default {
 ```javascript
 // Test by rapidly switching components during async loading
 async function testUnmountHooks() {
-  // Mount component A (has async setup)
-  await mountComponent('A')
+	// Mount component A (has async setup)
+	await mountComponent("A");
 
-  // Immediately switch to B before A finishes mounting
-  await mountComponent('B')
+	// Immediately switch to B before A finishes mounting
+	await mountComponent("B");
 
-  // Check if A's unmount hooks fired
-  // They may not have!
+	// Check if A's unmount hooks fired
+	// They may not have!
 }
 ```
 

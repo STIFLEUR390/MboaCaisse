@@ -25,9 +25,9 @@ This is a common mistake when learning Vue 3 with TypeScript.
 ```vue
 <script setup lang="ts">
 // ERROR: Cannot use both type argument and runtime argument
-const emit = defineEmits<{
-  submit: [data: FormData]
-}>(['submit'])  // This array argument causes the error!
+	const emit = defineEmits<{
+		submit: [data: FormData]
+	}>(["submit"]); // This array argument causes the error!
 </script>
 ```
 
@@ -41,11 +41,11 @@ Use one or the other.
 ```vue
 <script setup lang="ts">
 // ERROR: Same problem with object syntax
-const emit = defineEmits<{
-  submit: [data: FormData]
-}>({
-  submit: (data) => !!data
-})
+	const emit = defineEmits<{
+		submit: [data: FormData]
+	}>({
+		submit: (data) => !!data
+	});
 </script>
 ```
 
@@ -54,26 +54,26 @@ const emit = defineEmits<{
 ```vue
 <script setup lang="ts">
 // CORRECT: Type argument only, no runtime argument
-const emit = defineEmits<{
-  submit: [data: FormData]
-  cancel: []
-  'update:modelValue': [value: string]
-}>()
+	const emit = defineEmits<{
+		submit: [data: FormData]
+		cancel: []
+		"update:modelValue": [value: string]
+	}>();
 
-emit('submit', formData)  // TypeScript validates this
-emit('cancel')
-emit('unknown')  // TypeScript error: unknown event
+	emit("submit", formData); // TypeScript validates this
+	emit("cancel");
+	emit("unknown"); // TypeScript error: unknown event
 </script>
 ```
 
 **Alternative call signature syntax:**
 ```vue
 <script setup lang="ts">
-const emit = defineEmits<{
-  (e: 'submit', data: FormData): void
-  (e: 'cancel'): void
-  (e: 'update:modelValue', value: string): void
-}>()
+	const emit = defineEmits<{
+		(e: "submit", data: FormData): void
+		(e: "cancel"): void
+		(e: "update:modelValue", value: string): void
+	}>();
 </script>
 ```
 
@@ -83,10 +83,10 @@ const emit = defineEmits<{
 ```vue
 <script setup>
 // CORRECT: Runtime array, no type argument
-const emit = defineEmits(['submit', 'cancel', 'update:modelValue'])
+	const emit = defineEmits(["submit", "cancel", "update:modelValue"]);
 
-emit('submit', formData)
-emit('cancel')
+	emit("submit", formData);
+	emit("cancel");
 </script>
 ```
 
@@ -94,16 +94,16 @@ emit('cancel')
 ```vue
 <script setup>
 // CORRECT: Runtime object for validation
-const emit = defineEmits({
-  submit: (data) => {
-    if (!data?.email) {
-      console.warn('Missing email')
-      return false
-    }
-    return true
-  },
-  cancel: null  // No validation
-})
+	const emit = defineEmits({
+		submit: (data) => {
+			if (!data?.email) {
+				console.warn("Missing email");
+				return false;
+			}
+			return true;
+		},
+		cancel: null // No validation
+	});
 </script>
 ```
 
@@ -112,30 +112,32 @@ const emit = defineEmits({
 If you want TypeScript types AND runtime validation, define the validator separately:
 
 ```vue
-<script setup lang="ts">
-interface FormData {
-  email: string
-  message: string
-}
-
-// Type-based declaration for TypeScript
-const emit = defineEmits<{
-  submit: [data: FormData]
-}>()
-
-// Separate validation function
-function emitSubmit(data: FormData) {
-  if (!data.email.includes('@')) {
-    console.warn('Invalid email format')
-    return
-  }
-  emit('submit', data)
-}
-</script>
-
 <template>
-  <button @click="emitSubmit(formData)">Submit</button>
+	<button @click="emitSubmit(formData)">
+		Submit
+	</button>
 </template>
+
+<script setup lang="ts">
+	interface FormData {
+		email: string
+		message: string
+	}
+
+	// Type-based declaration for TypeScript
+	const emit = defineEmits<{
+		submit: [data: FormData]
+	}>();
+
+	// Separate validation function
+	function emitSubmit(data: FormData) {
+		if (!data.email.includes("@")) {
+			console.warn("Invalid email format");
+			return;
+		}
+		emit("submit", data);
+	}
+</script>
 ```
 
 ## Choosing Between Styles
@@ -154,14 +156,15 @@ This restriction also applies to `defineProps`:
 
 ```vue
 <script setup lang="ts">
+// CORRECT: Runtime only
+const props = defineProps({ name: String })
+
 // ERROR: Cannot mix
 const props = defineProps<{ name: string }>({ name: String })
 
 // CORRECT: Type-based only
 const props = defineProps<{ name: string }>()
 
-// CORRECT: Runtime only
-const props = defineProps({ name: String })
 </script>
 ```
 

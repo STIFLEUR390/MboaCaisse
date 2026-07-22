@@ -19,102 +19,102 @@ tags: [vue3, component-registration, self-reference, recursive-components, sfc]
 **Example:**
 ```vue
 <!-- TreeItem.vue -->
-<script setup>
-defineProps({
-  item: Object
-})
-</script>
-
 <template>
-  <div class="tree-item">
-    <span>{{ item.name }}</span>
-    <!-- Self-reference using filename -->
-    <TreeItem
-      v-for="child in item.children"
-      :key="child.id"
-      :item="child"
-    />
-  </div>
+	<div class="tree-item">
+		<span>{{ item.name }}</span>
+		<!-- Self-reference using filename -->
+		<TreeItem
+			v-for="child in item.children"
+			:key="child.id"
+			:item="child"
+		/>
+	</div>
 </template>
+
+<script setup>
+	defineProps({
+		item: Object
+	});
+</script>
 ```
 
 ```vue
 <!-- Comment.vue - recursive comments -->
-<script setup>
-defineProps({
-  comment: Object
-})
-</script>
-
 <template>
-  <div class="comment">
-    <p>{{ comment.text }}</p>
-    <div class="replies" v-if="comment.replies?.length">
-      <!-- Self-reference for nested replies -->
-      <Comment
-        v-for="reply in comment.replies"
-        :key="reply.id"
-        :comment="reply"
-      />
-    </div>
-  </div>
+	<div class="comment">
+		<p>{{ comment.text }}</p>
+		<div v-if="comment.replies?.length" class="replies">
+			<!-- Self-reference for nested replies -->
+			<Comment
+				v-for="reply in comment.replies"
+				:key="reply.id"
+				:comment="reply"
+			/>
+		</div>
+	</div>
 </template>
+
+<script setup>
+	defineProps({
+		comment: Object
+	});
+</script>
 ```
 
 ## Priority: Imports Override Self-Reference
 
 ```vue
 <!-- FooBar.vue -->
+<template>
+	<!-- This renders the IMPORTED FooBar, not this file -->
+	<FooBar />
+</template>
+
 <script setup>
 // If you import a component named FooBar, it takes precedence
-import FooBar from './different/FooBar.vue'
+	import FooBar from "./different/FooBar.vue";
 </script>
-
-<template>
-  <!-- This renders the IMPORTED FooBar, not this file -->
-  <FooBar />
-</template>
 ```
 
 To explicitly self-reference when there's a naming conflict:
 
 ```vue
 <!-- FooBar.vue -->
+<template>
+	<OtherFooBar />
+	<!-- FooBar still refers to self (this file) because
+       the import was aliased -->
+	<FooBar />
+</template>
+
 <script setup>
-import OtherFooBar from './different/FooBar.vue'
+	import OtherFooBar from "./different/FooBar.vue";
 // No way to explicitly import "self" in script setup
 // Must rename the import to avoid conflict
 </script>
-
-<template>
-  <OtherFooBar />
-  <!-- FooBar still refers to self (this file) because
-       the import was aliased -->
-  <FooBar />
-</template>
 ```
 
 ## Options API: Explicit Name Option
 
 ```vue
 <!-- RecursiveList.vue -->
-<script>
-export default {
-  name: 'RecursiveList', // Explicit name for self-reference
-  props: {
-    items: Array
-  }
-}
-</script>
-
 <template>
-  <ul>
-    <li v-for="item in items" :key="item.id">
-      {{ item.name }}
-      <RecursiveList v-if="item.children" :items="item.children" />
-    </li>
-  </ul>
+	<ul>
+		<li v-for="item in items" :key="item.id">
+			{{ item.name }}
+			<RecursiveList v-if="item.children" :items="item.children" />
+		</li>
+	</ul>
 </template>
+
+<script>
+	export default {
+		name: "RecursiveList", // Explicit name for self-reference
+		props: {
+			items: Array
+		}
+	};
+</script>
 ```
 
 ## Common Use Cases for Self-Reference
@@ -128,29 +128,29 @@ export default {
 
 ```vue
 <!-- TreeNode.vue -->
-<script setup>
-defineProps({
-  node: Object,
-  maxDepth: { type: Number, default: 10 },
-  currentDepth: { type: Number, default: 0 }
-})
-</script>
-
 <template>
-  <div class="node">
-    {{ node.name }}
-    <!-- Guard against infinite recursion -->
-    <template v-if="node.children && currentDepth < maxDepth">
-      <TreeNode
-        v-for="child in node.children"
-        :key="child.id"
-        :node="child"
-        :max-depth="maxDepth"
-        :current-depth="currentDepth + 1"
-      />
-    </template>
-  </div>
+	<div class="node">
+		{{ node.name }}
+		<!-- Guard against infinite recursion -->
+		<template v-if="node.children && currentDepth < maxDepth">
+			<TreeNode
+				v-for="child in node.children"
+				:key="child.id"
+				:node="child"
+				:max-depth="maxDepth"
+				:current-depth="currentDepth + 1"
+			/>
+		</template>
+	</div>
 </template>
+
+<script setup>
+	defineProps({
+		node: Object,
+		maxDepth: { type: Number, default: 10 },
+		currentDepth: { type: Number, default: 0 }
+	});
+</script>
 ```
 
 ## Reference

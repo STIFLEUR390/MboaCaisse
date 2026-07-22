@@ -23,94 +23,94 @@ Debug hooks only work in development mode and are stripped in production builds.
 
 **Debugging computed properties:**
 ```javascript
-import { ref, computed } from 'vue'
+import { computed, ref } from "vue";
 
-const count = ref(0)
+const count = ref(0);
 const doubled = computed(() => count.value * 2, {
-  onTrack(event) {
-    // Called when a dependency is tracked
-    // event.target = the reactive object
-    // event.key = the property being accessed
-    debugger
-    console.log('Tracking:', event)
-  },
-  onTrigger(event) {
-    // Called when a dependency mutation triggers re-computation
-    debugger
-    console.log('Triggered by:', event)
-  }
-})
+	onTrack(event) {
+		// Called when a dependency is tracked
+		// event.target = the reactive object
+		// event.key = the property being accessed
+		debugger;
+		console.log("Tracking:", event);
+	},
+	onTrigger(event) {
+		// Called when a dependency mutation triggers re-computation
+		debugger;
+		console.log("Triggered by:", event);
+	}
+});
 ```
 
 **Debugging watchers:**
 ```javascript
-import { ref, watch, watchEffect } from 'vue'
+import { ref, watch, watchEffect } from "vue";
 
-const source = ref(0)
+const source = ref(0);
 
 // With watch()
 watch(source, (newVal, oldVal) => {
-  console.log('Changed:', oldVal, '->', newVal)
+	console.log("Changed:", oldVal, "->", newVal);
 }, {
-  onTrack(e) {
-    debugger // Pause to see what's being tracked
-  },
-  onTrigger(e) {
-    debugger // Pause to see what triggered the watcher
-  }
-})
+	onTrack(e) {
+		debugger; // Pause to see what's being tracked
+	},
+	onTrigger(e) {
+		debugger; // Pause to see what triggered the watcher
+	}
+});
 
 // With watchEffect()
 watchEffect(() => {
-  console.log('Source is:', source.value)
+	console.log("Source is:", source.value);
 }, {
-  onTrack(e) {
-    console.log('Tracking dependency:', e.key)
-  },
-  onTrigger(e) {
-    console.log('Triggered by:', e.key, 'mutation')
-  }
-})
+	onTrack(e) {
+		console.log("Tracking dependency:", e.key);
+	},
+	onTrigger(e) {
+		console.log("Triggered by:", e.key, "mutation");
+	}
+});
 ```
 
 **Debugging component renders:**
 ```vue
 <script setup>
-import { onRenderTracked, onRenderTriggered, ref } from 'vue'
+	import { onRenderTracked, onRenderTriggered, ref } from "vue";
 
-const count = ref(0)
+	const count = ref(0);
 
-// Called for every reactive dependency accessed during render
-onRenderTracked((event) => {
-  console.log('Render tracked:', event.key, 'from', event.target)
-  debugger // Pause to inspect which dependencies are tracked
-})
+	// Called for every reactive dependency accessed during render
+	onRenderTracked((event) => {
+		console.log("Render tracked:", event.key, "from", event.target);
+		debugger; // Pause to inspect which dependencies are tracked
+	});
 
-// Called when a reactive dependency triggers re-render
-onRenderTriggered((event) => {
-  console.log('Render triggered by:', event.key)
-  console.log('Old value:', event.oldValue)
-  console.log('New value:', event.newValue)
-  debugger // Pause to see exactly what caused the re-render
-})
+	// Called when a reactive dependency triggers re-render
+	onRenderTriggered((event) => {
+		console.log("Render triggered by:", event.key);
+		console.log("Old value:", event.oldValue);
+		console.log("New value:", event.newValue);
+		debugger; // Pause to see exactly what caused the re-render
+	});
 </script>
 ```
 
 **Options API equivalent:**
 ```javascript
 export default {
-  data() {
-    return { count: 0 }
-  },
-  renderTracked(event) {
-    console.log('Dependency tracked during render:', event)
-    debugger
-  },
-  renderTriggered(event) {
-    console.log('Re-render triggered by:', event)
-    debugger
-  }
-}
+	data() {
+		return { count: 0 };
+	},
+	renderTracked(event) {
+		console.log("Dependency tracked during render:", event);
+		debugger;
+	},
+	renderTriggered(event) {
+		console.log("Re-render triggered by:", event);
+		debugger;
+	}
+};
 ```
 
 **Debug event properties:**

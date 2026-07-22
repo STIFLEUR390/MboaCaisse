@@ -22,28 +22,28 @@ tags: [vue3, keepalive, vue-router, nested-routes, double-mount, bug]
 ```vue
 <!-- App.vue -->
 <template>
-  <router-view v-slot="{ Component }">
-    <KeepAlive>
-      <component :is="Component" />
-    </KeepAlive>
-  </router-view>
+	<router-view v-slot="{ Component }">
+		<KeepAlive>
+			<component :is="Component" />
+		</KeepAlive>
+	</router-view>
 </template>
 ```
 
 ```javascript
 // router.js
 const routes = [
-  {
-    path: '/parent',
-    component: Parent,
-    children: [
-      {
-        path: 'child',
-        component: Child  // This may mount TWICE!
-      }
-    ]
-  }
-]
+	{
+		path: "/parent",
+		component: Parent,
+		children: [
+			{
+				path: "child",
+				component: Child // This may mount TWICE!
+			}
+		]
+	}
+];
 ```
 
 **Symptoms:**
@@ -59,19 +59,19 @@ Add logging to confirm the issue:
 ```vue
 <!-- Child.vue -->
 <script setup>
-import { onMounted, onActivated } from 'vue'
+	import { onActivated, onMounted } from "vue";
 
-let mountCount = 0
+	let mountCount = 0;
 
-onMounted(() => {
-  mountCount++
-  console.log('Child mounted - count:', mountCount)
-  // If you see "count: 2", you have the double mount issue
-})
+	onMounted(() => {
+		mountCount++;
+		console.log("Child mounted - count:", mountCount);
+		// If you see "count: 2", you have the double mount issue
+	});
 
-onActivated(() => {
-  console.log('Child activated')
-})
+	onActivated(() => {
+		console.log("Child activated");
+	});
 </script>
 ```
 
@@ -83,19 +83,19 @@ Don't use `useRoute()` directly with KeepAlive:
 
 ```vue
 <script setup>
-import { ref, onActivated } from 'vue'
-import { useRoute } from 'vue-router'
+	import { onActivated, ref } from "vue";
+	import { useRoute } from "vue-router";
 
-// Problem: useRoute() can cause issues with KeepAlive
-// const route = useRoute()
+	// Problem: useRoute() can cause issues with KeepAlive
+	// const route = useRoute()
 
-// Solution: Get route info in onActivated
-const routeParams = ref({})
+	// Solution: Get route info in onActivated
+	const routeParams = ref({});
 
-onActivated(() => {
-  const route = useRoute()
-  routeParams.value = { ...route.params }
-})
+	onActivated(() => {
+		const route = useRoute();
+		routeParams.value = { ...route.params };
+	});
 </script>
 ```
 
@@ -104,26 +104,26 @@ onActivated(() => {
 Only cache leaf routes, not parent layouts:
 
 ```vue
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-// Only cache specific leaf routes
-const cachedRoutes = computed(() => {
-  // Don't cache parent routes that have children
-  return ['UserProfile', 'UserSettings'] // Only leaf components
-})
-</script>
-
 <template>
-  <router-view v-slot="{ Component, route: currentRoute }">
-    <KeepAlive :include="cachedRoutes">
-      <component :is="Component" :key="currentRoute.fullPath" />
-    </KeepAlive>
-  </router-view>
+	<router-view v-slot="{ Component, route: currentRoute }">
+		<KeepAlive :include="cachedRoutes">
+			<component :is="Component" :key="currentRoute.fullPath" />
+		</KeepAlive>
+	</router-view>
 </template>
+
+<script setup>
+	import { computed } from "vue";
+	import { useRoute } from "vue-router";
+
+	const route = useRoute();
+
+	// Only cache specific leaf routes
+	const cachedRoutes = computed(() => {
+		// Don't cache parent routes that have children
+		return ["UserProfile", "UserSettings"]; // Only leaf components
+	});
+</script>
 ```
 
 ### Option 3: Guard Against Double Initialization
@@ -132,21 +132,21 @@ Protect your component from double mount effects:
 
 ```vue
 <script setup>
-import { ref, onMounted } from 'vue'
+	import { onMounted, ref } from "vue";
 
-const isInitialized = ref(false)
+	const isInitialized = ref(false);
 
-onMounted(() => {
-  if (isInitialized.value) {
-    console.warn('Double mount detected, skipping initialization')
-    return
-  }
-  isInitialized.value = true
+	onMounted(() => {
+		if (isInitialized.value) {
+			console.warn("Double mount detected, skipping initialization");
+			return;
+		}
+		isInitialized.value = true;
 
-  // Safe to initialize
-  fetchData()
-  setupEventListeners()
-})
+		// Safe to initialize
+		fetchData();
+		setupEventListeners();
+	});
 </script>
 ```
 
@@ -154,44 +154,44 @@ onMounted(() => {
 
 ```vue
 <!-- App.vue -->
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-
-const route = useRoute()
-
-// Define which routes should be cached in route meta
-const shouldCache = computed(() => {
-  return route.meta.keepAlive !== false
-})
-</script>
-
 <template>
-  <router-view v-slot="{ Component }">
-    <KeepAlive v-if="shouldCache">
-      <component :is="Component" />
-    </KeepAlive>
-    <component v-else :is="Component" />
-  </router-view>
+	<router-view v-slot="{ Component }">
+		<KeepAlive v-if="shouldCache">
+			<component :is="Component" />
+		</KeepAlive>
+		<component :is="Component" v-else />
+	</router-view>
 </template>
+
+<script setup>
+	import { computed } from "vue";
+	import { useRoute } from "vue-router";
+
+	const route = useRoute();
+
+	// Define which routes should be cached in route meta
+	const shouldCache = computed(() => {
+		return route.meta.keepAlive !== false;
+	});
+</script>
 ```
 
 ```javascript
 // router.js
 const routes = [
-  {
-    path: '/parent',
-    component: Parent,
-    meta: { keepAlive: false }, // Don't cache parent routes
-    children: [
-      {
-        path: 'child',
-        component: Child,
-        meta: { keepAlive: true } // Cache leaf routes
-      }
-    ]
-  }
-]
+	{
+		path: "/parent",
+		component: Parent,
+		meta: { keepAlive: false }, // Don't cache parent routes
+		children: [
+			{
+				path: "child",
+				component: Child,
+				meta: { keepAlive: true } // Cache leaf routes
+			}
+		]
+	}
+];
 ```
 
 ### Option 5: Flatten Route Structure
@@ -201,11 +201,11 @@ Avoid nesting if possible:
 ```javascript
 // Instead of nested routes
 const routes = [
-  // Flat structure avoids the issue
-  { path: '/users', component: UserList },
-  { path: '/users/:id', component: UserDetail },
-  { path: '/users/:id/settings', component: UserSettings }
-]
+	// Flat structure avoids the issue
+	{ path: "/users", component: UserList },
+	{ path: "/users/:id", component: UserDetail },
+	{ path: "/users/:id/settings", component: UserSettings }
+];
 ```
 
 ## Key Points

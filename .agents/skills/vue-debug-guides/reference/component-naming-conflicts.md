@@ -20,63 +20,63 @@ tags: [vue3, component-registration, naming-conflicts, global-local, debugging]
 **Incorrect:**
 ```javascript
 // main.js
-import { createApp } from 'vue'
-import Button from './components/Button.vue'
+import { createApp } from "vue";
+import Button from "./components/Button.vue";
 
-const app = createApp(App)
-app.component('Button', Button) // Global Button
+const app = createApp(App);
+app.component("Button", Button); // Global Button
 ```
 
 ```vue
 <!-- SomeComponent.vue -->
+<template>
+	<!-- Which Button renders? Behavior may be unexpected -->
+	<Button>Click me</Button>
+</template>
+
 <script setup>
 // This local Button might conflict with global Button
-import Button from './local/Button.vue'
+	import Button from "./local/Button.vue";
 </script>
-
-<template>
-  <!-- Which Button renders? Behavior may be unexpected -->
-  <Button>Click me</Button>
-</template>
 ```
 
 ```vue
 <!-- Another confusing scenario -->
+<template>
+	<!-- Using kebab-case - might match a global 'my-button' instead -->
+	<MyButton>Click</MyButton>
+</template>
+
 <script setup>
 // Registering with camelCase
-import MyButton from './MyButton.vue'
+	import MyButton from "./MyButton.vue";
 </script>
-
-<template>
-  <!-- Using kebab-case - might match a global 'my-button' instead -->
-  <my-button>Click</my-button>
-</template>
 ```
 
 **Correct:**
 ```javascript
 // main.js - use prefixes for global components
-import { createApp } from 'vue'
-import BaseButton from './components/BaseButton.vue'
-import BaseIcon from './components/BaseIcon.vue'
+import { createApp } from "vue";
+import BaseButton from "./components/BaseButton.vue";
+import BaseIcon from "./components/BaseIcon.vue";
 
-const app = createApp(App)
-app.component('BaseButton', BaseButton)
-app.component('BaseIcon', BaseIcon)
+const app = createApp(App);
+app.component("BaseButton", BaseButton);
+app.component("BaseIcon", BaseIcon);
 ```
 
 ```vue
 <!-- SomeComponent.vue -->
+<template>
+	<!-- No ambiguity - each name is unique -->
+	<BaseButton>Generic button</BaseButton>
+	<SubmitButton>Submit form</SubmitButton>
+</template>
+
 <script setup>
 // Local components have distinct names
-import SubmitButton from './local/SubmitButton.vue'
+	import SubmitButton from "./local/SubmitButton.vue";
 </script>
-
-<template>
-  <!-- No ambiguity - each name is unique -->
-  <BaseButton>Generic button</BaseButton>
-  <SubmitButton>Submit form</SubmitButton>
-</template>
 ```
 
 ## Explicit Aliasing for Clarity
@@ -84,29 +84,29 @@ import SubmitButton from './local/SubmitButton.vue'
 When you intentionally want to override or have similar names, use explicit aliasing:
 
 ```vue
+<template>
+	<LocalButton>Local version</LocalButton>
+</template>
+
 <script setup>
 // Explicit alias to avoid confusion
-import { default as LocalButton } from './Button.vue'
+	import { default as LocalButton } from "./Button.vue";
 </script>
-
-<template>
-  <LocalButton>Local version</LocalButton>
-</template>
 ```
 
 ```vue
 <!-- Options API with explicit component name -->
 <script>
-import ThirdPartyModal from 'some-library'
-import CustomModal from './CustomModal.vue'
+	import ThirdPartyModal from "some-library";
+	import CustomModal from "./CustomModal.vue";
 
-export default {
-  components: {
-    // Explicit names prevent ambiguity
-    LibraryModal: ThirdPartyModal,
-    CustomModal
-  }
-}
+	export default {
+		components: {
+			// Explicit names prevent ambiguity
+			LibraryModal: ThirdPartyModal,
+			CustomModal
+		}
+	};
 </script>
 ```
 
@@ -120,29 +120,29 @@ Understanding Vue's component resolution order helps debug issues:
 
 ```vue
 <!-- If all exist: GlobalButton, local Button, and file is Button.vue -->
-<script setup>
-import Button from './Button.vue' // Local registration
-</script>
-
 <template>
-  <!-- Resolves to locally imported Button, not global -->
-  <Button />
+	<!-- Resolves to locally imported Button, not global -->
+	<Button />
 </template>
+
+<script setup>
+	import Button from "./Button.vue"; // Local registration
+</script>
 ```
 
 ## Third-Party Library Conflicts
 
 ```vue
+<template>
+	<AntButton>Ant Design</AntButton>
+	<ElButton>Element Plus</ElButton>
+</template>
+
 <script setup>
 // Be explicit when using components from multiple libraries
-import { Button as AntButton } from 'ant-design-vue'
-import { Button as ElButton } from 'element-plus'
+	import { Button as AntButton } from "ant-design-vue";
+	import { Button as ElButton } from "element-plus";
 </script>
-
-<template>
-  <AntButton>Ant Design</AntButton>
-  <ElButton>Element Plus</ElButton>
-</template>
 ```
 
 ## Naming Convention Strategy

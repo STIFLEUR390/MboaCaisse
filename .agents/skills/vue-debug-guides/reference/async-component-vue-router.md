@@ -11,51 +11,51 @@ Vue Router's lazy loading is specifically designed for route-level code splittin
 ## Bad Code
 
 ```javascript
-import { defineAsyncComponent } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { defineAsyncComponent } from "vue";
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/dashboard',
-      // WRONG: Don't use defineAsyncComponent here
-      component: defineAsyncComponent(() =>
-        import('./views/Dashboard.vue')
-      )
-    },
-    {
-      path: '/profile',
-      // WRONG: This also won't work as expected
-      component: defineAsyncComponent({
-        loader: () => import('./views/Profile.vue'),
-        loadingComponent: LoadingSpinner
-      })
-    }
-  ]
-})
+	history: createWebHistory(),
+	routes: [
+		{
+			path: "/dashboard",
+			// WRONG: Don't use defineAsyncComponent here
+			component: defineAsyncComponent(() =>
+				import("./views/Dashboard.vue")
+			)
+		},
+		{
+			path: "/profile",
+			// WRONG: This also won't work as expected
+			component: defineAsyncComponent({
+				loader: () => import("./views/Profile.vue"),
+				loadingComponent: LoadingSpinner
+			})
+		}
+	]
+});
 ```
 
 ## Good Code
 
 ```javascript
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/dashboard',
-      // CORRECT: Use dynamic import directly
-      component: () => import('./views/Dashboard.vue')
-    },
-    {
-      path: '/profile',
-      // CORRECT: Simple arrow function with import
-      component: () => import('./views/Profile.vue')
-    }
-  ]
-})
+	history: createWebHistory(),
+	routes: [
+		{
+			path: "/dashboard",
+			// CORRECT: Use dynamic import directly
+			component: () => import("./views/Dashboard.vue")
+		},
+		{
+			path: "/profile",
+			// CORRECT: Simple arrow function with import
+			component: () => import("./views/Profile.vue")
+		}
+	]
+});
 ```
 
 ## Handling Loading States with Vue Router
@@ -63,26 +63,26 @@ const router = createRouter({
 For route-level loading states, use Vue Router's navigation guards or a global loading indicator:
 
 ```vue
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const isLoading = ref(false)
-
-router.beforeEach(() => {
-  isLoading.value = true
-})
-
-router.afterEach(() => {
-  isLoading.value = false
-})
-</script>
-
 <template>
-  <LoadingBar v-if="isLoading" />
-  <RouterView />
+	<LoadingBar v-if="isLoading" />
+	<RouterView />
 </template>
+
+<script setup>
+	import { ref } from "vue";
+	import { useRouter } from "vue-router";
+
+	const router = useRouter();
+	const isLoading = ref(false);
+
+	router.beforeEach(() => {
+		isLoading.value = true;
+	});
+
+	router.afterEach(() => {
+		isLoading.value = false;
+	});
+</script>
 ```
 
 ## When to Use defineAsyncComponent

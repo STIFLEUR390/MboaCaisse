@@ -21,75 +21,75 @@ This caveat trips up developers when they store refs inside reactive objects or 
 
 **Incorrect:**
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-const count = ref(0)
-const object = { id: ref(1) }
-</script>
-
 <template>
-  <!-- WRONG: Nested ref in expression - does NOT unwrap -->
-  <p>ID + 1 = {{ object.id + 1 }}</p>
-  <!-- Renders: "ID + 1 = [object Object]1" -->
+	<!-- WRONG: Nested ref in expression - does NOT unwrap -->
+	<p>ID + 1 = {{ object.id + 1 }}</p>
+	<!-- Renders: "ID + 1 = [object Object]1" -->
 
-  <!-- Surprisingly, plain interpolation DOES work -->
-  <p>ID = {{ object.id }}</p>
-  <!-- Renders: "ID = 1" (unwrapped because it's the final expression) -->
+	<!-- Surprisingly, plain interpolation DOES work -->
+	<p>ID = {{ object.id }}</p>
+	<!-- Renders: "ID = 1" (unwrapped because it's the final expression) -->
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const count = ref(0);
+	const object = { id: ref(1) };
+</script>
 ```
 
 **Correct:**
 ```vue
-<script setup>
-import { ref } from 'vue'
-
-const count = ref(0)
-const object = { id: ref(1) }
-
-// SOLUTION 1: Destructure to top-level
-const { id } = object
-</script>
-
 <template>
-  <!-- CORRECT: Top-level ref unwraps in all expressions -->
-  <p>Count + 1 = {{ count + 1 }}</p>
-  <!-- Renders: "Count + 1 = 1" -->
+	<!-- CORRECT: Top-level ref unwraps in all expressions -->
+	<p>Count + 1 = {{ count + 1 }}</p>
+	<!-- Renders: "Count + 1 = 1" -->
 
-  <!-- CORRECT: Destructured ref is now top-level -->
-  <p>ID + 1 = {{ id + 1 }}</p>
-  <!-- Renders: "ID + 1 = 2" -->
+	<!-- CORRECT: Destructured ref is now top-level -->
+	<p>ID + 1 = {{ id + 1 }}</p>
+	<!-- Renders: "ID + 1 = 2" -->
 </template>
+
+<script setup>
+	import { ref } from "vue";
+
+	const count = ref(0);
+	const object = { id: ref(1) };
+
+	// SOLUTION 1: Destructure to top-level
+	const { id } = object;
+</script>
 ```
 
 ```vue
-<script setup>
-import { ref, computed } from 'vue'
-
-const object = { id: ref(1) }
-
-// SOLUTION 2: Use computed for derived values
-const idPlusOne = computed(() => object.id.value + 1)
-</script>
-
 <template>
-  <!-- CORRECT: Computed handles the .value access -->
-  <p>ID + 1 = {{ idPlusOne }}</p>
+	<!-- CORRECT: Computed handles the .value access -->
+	<p>ID + 1 = {{ idPlusOne }}</p>
 </template>
+
+<script setup>
+	import { computed, ref } from "vue";
+
+	const object = { id: ref(1) };
+
+	// SOLUTION 2: Use computed for derived values
+	const idPlusOne = computed(() => object.id.value + 1);
+</script>
 ```
 
 ```vue
-<script setup>
-import { reactive } from 'vue'
-
-// SOLUTION 3: Use reactive object instead (refs inside reactive auto-unwrap)
-const object = reactive({ id: 1 })
-</script>
-
 <template>
-  <!-- CORRECT: Plain reactive property works in expressions -->
-  <p>ID + 1 = {{ object.id + 1 }}</p>
+	<!-- CORRECT: Plain reactive property works in expressions -->
+	<p>ID + 1 = {{ object.id + 1 }}</p>
 </template>
+
+<script setup>
+	import { reactive } from "vue";
+
+	// SOLUTION 3: Use reactive object instead (refs inside reactive auto-unwrap)
+	const object = reactive({ id: 1 });
+</script>
 ```
 
 ```javascript

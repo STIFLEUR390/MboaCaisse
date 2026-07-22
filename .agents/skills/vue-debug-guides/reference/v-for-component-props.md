@@ -59,29 +59,29 @@ This isolation is intentional - it keeps components reusable and their data depe
 
 ```vue
 <!-- Child component: UserCard.vue -->
-<script setup>
-defineProps({
-  user: {
-    type: Object,
-    required: true
-  },
-  index: {
-    type: Number,
-    required: true
-  },
-  isFirst: {
-    type: Boolean,
-    default: false
-  }
-})
-</script>
-
 <template>
-  <div class="user-card">
-    <span>{{ index + 1 }}. {{ user.name }}</span>
-    <span v-if="isFirst">(First User)</span>
-  </div>
+	<div class="user-card">
+		<span>{{ index + 1 }}. {{ user.name }}</span>
+		<span v-if="isFirst">(First User)</span>
+	</div>
 </template>
+
+<script setup>
+	defineProps({
+		user: {
+			type: Object,
+			required: true
+		},
+		index: {
+			type: Number,
+			required: true
+		},
+		isFirst: {
+			type: Boolean,
+			default: false
+		}
+	});
+</script>
 ```
 
 ## Why Explicit Props?

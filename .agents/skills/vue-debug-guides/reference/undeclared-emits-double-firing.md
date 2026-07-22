@@ -24,30 +24,32 @@ This is a common bug when wrapping native elements or migrating from Vue 2 to Vu
 **Incorrect - Undeclared emit causes double firing:**
 ```vue
 <!-- MyButton.vue -->
+<template>
+	<!-- Native click listener from parent falls through to button -->
+	<!-- PLUS we re-emit click -->
+	<button @click="$emit('click', $event)">
+		<slot />
+	</button>
+</template>
+
 <script setup>
 // NO defineEmits declaration!
 </script>
-
-<template>
-  <!-- Native click listener from parent falls through to button -->
-  <!-- PLUS we re-emit click -->
-  <button @click="$emit('click', $event)">
-    <slot></slot>
-  </button>
-</template>
 ```
 
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- This handler fires TWICE on each click! -->
-  <MyButton @click="handleClick">Click me</MyButton>
+	<!-- This handler fires TWICE on each click! -->
+	<MyButton @click="handleClick">
+		Click me
+	</MyButton>
 </template>
 
 <script setup>
-function handleClick() {
-  console.log('clicked') // Logs twice!
-}
+	function handleClick() {
+		console.log("clicked"); // Logs twice!
+	}
 </script>
 ```
 
@@ -63,24 +65,26 @@ function handleClick() {
 **Correct - Declare the emit:**
 ```vue
 <!-- MyButton.vue -->
+<template>
+	<!-- Now @click="handleClick" in parent only listens to emit() -->
+	<button @click="emit('click', $event)">
+		<slot />
+	</button>
+</template>
+
 <script setup>
 // Declare 'click' as a component event
-const emit = defineEmits(['click'])
+	const emit = defineEmits(["click"]);
 </script>
-
-<template>
-  <!-- Now @click="handleClick" in parent only listens to emit() -->
-  <button @click="emit('click', $event)">
-    <slot></slot>
-  </button>
-</template>
 ```
 
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- Now fires only once -->
-  <MyButton @click="handleClick">Click me</MyButton>
+	<!-- Now fires only once -->
+	<MyButton @click="handleClick">
+		Click me
+	</MyButton>
 </template>
 ```
 
@@ -94,15 +98,15 @@ When you declare `click` in `emits`:
 **Correct - Using emits option:**
 ```vue
 <script>
-export default {
-  emits: ['click', 'input', 'change'],
+	export default {
+		emits: ["click", "input", "change"],
 
-  methods: {
-    handleClick(event) {
-      this.$emit('click', event)
-    }
-  }
-}
+		methods: {
+			handleClick(event) {
+				this.$emit("click", event);
+			}
+		}
+	};
 </script>
 ```
 
@@ -112,35 +116,35 @@ export default {
 
 ```vue
 <!-- CustomInput.vue -->
+<template>
+	<input
+		@input="emit('input', $event)"
+		@change="emit('change', $event)"
+		@focus="emit('focus', $event)"
+		@blur="emit('blur', $event)"
+	>
+</template>
+
 <script setup>
 // Declare all events you re-emit
-const emit = defineEmits(['input', 'change', 'focus', 'blur'])
+	const emit = defineEmits(["input", "change", "focus", "blur"]);
 </script>
-
-<template>
-  <input
-    @input="emit('input', $event)"
-    @change="emit('change', $event)"
-    @focus="emit('focus', $event)"
-    @blur="emit('blur', $event)"
-  />
-</template>
 ```
 
 ### Wrapper Components
 
 ```vue
 <!-- IconButton.vue -->
-<script setup>
-const emit = defineEmits(['click'])
-</script>
-
 <template>
-  <button @click="emit('click', $event)">
-    <Icon :name="icon" />
-    <slot></slot>
-  </button>
+	<button @click="emit('click', $event)">
+		<Icon :name="icon" />
+		<slot />
+	</button>
 </template>
+
+<script setup>
+	const emit = defineEmits(["click"]);
+</script>
 ```
 
 ## Alternative: Don't Re-emit, Let It Fall Through
@@ -149,24 +153,26 @@ If your component has a single root element and you want native event behavior:
 
 ```vue
 <!-- MyButton.vue -->
+<template>
+	<!-- Native @click from parent falls through to this button -->
+	<button>
+		<slot />
+	</button>
+</template>
+
 <script setup>
 // Don't declare 'click' - let it fall through naturally
-const emit = defineEmits(['custom-action'])
+	const emit = defineEmits(["custom-action"]);
 </script>
-
-<template>
-  <!-- Native @click from parent falls through to this button -->
-  <button>
-    <slot></slot>
-  </button>
-</template>
 ```
 
 ```vue
 <!-- Parent.vue -->
 <template>
-  <!-- This native click falls through to the button -->
-  <MyButton @click="handleClick">Click me</MyButton>
+	<!-- This native click falls through to the button -->
+	<MyButton @click="handleClick">
+		Click me
+	</MyButton>
 </template>
 ```
 
@@ -179,11 +185,11 @@ This works because:
 
 ```vue
 <script setup>
-function handleClick(event) {
-  console.log('Event type:', event?.type)
-  console.log('Is native:', event instanceof Event)
-  console.trace('Click handler called')
-}
+	function handleClick(event) {
+		console.log("Event type:", event?.type);
+		console.log("Is native:", event instanceof Event);
+		console.trace("Click handler called");
+	}
 </script>
 ```
 

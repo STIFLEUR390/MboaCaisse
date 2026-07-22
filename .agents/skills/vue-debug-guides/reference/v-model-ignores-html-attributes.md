@@ -69,14 +69,14 @@ const country = ref('us')
 ```javascript
 // Options API equivalent
 export default {
-  data() {
-    return {
-      username: 'default_user',
-      isSubscribed: true,
-      country: 'us'
-    }
-  }
-}
+	data() {
+		return {
+			username: "default_user",
+			isSubscribed: true,
+			country: "us"
+		};
+	}
+};
 ```
 
 ## Reference

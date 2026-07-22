@@ -22,13 +22,16 @@ If your code relies on the wrapper element for styling or layout, you must expli
 **Vue 2 Behavior (wrapper element by default):**
 ```vue
 <template>
-  <transition-group name="list">
-    <div v-for="item in items" :key="item.id">{{ item }}</div>
-  </transition-group>
+	<transition-group name="list">
+		<div v-for="item in items" :key="item.id">
+			{{ item }}
+		</div>
+	</transition-group>
 </template>
 
 <!-- Renders as: -->
-<span>  <!-- Default wrapper in Vue 2 -->
+<span>
+  <!-- Default wrapper in Vue 2 -->
   <div>Item 1</div>
   <div>Item 2</div>
 </span>
@@ -37,24 +40,33 @@ If your code relies on the wrapper element for styling or layout, you must expli
 **Vue 3 Behavior (no wrapper by default):**
 ```vue
 <template>
-  <TransitionGroup name="list">
-    <div v-for="item in items" :key="item.id">{{ item }}</div>
-  </TransitionGroup>
+	<TransitionGroup name="list">
+		<div v-for="item in items" :key="item.id">
+			{{ item }}
+		</div>
+	</TransitionGroup>
 </template>
 
 <!-- Renders as (fragment): -->
-<div>Item 1</div>
-<div>Item 2</div>
+<div>
+Item 1
+</div>
+
+<div>
+Item 2
+</div>
 <!-- No wrapper element! -->
 ```
 
 **Vue 3 - Explicitly specify wrapper:**
 ```vue
 <template>
-  <!-- Use tag prop to specify wrapper element -->
-  <TransitionGroup name="list" tag="ul">
-    <li v-for="item in items" :key="item.id">{{ item }}</li>
-  </TransitionGroup>
+	<!-- Use tag prop to specify wrapper element -->
+	<TransitionGroup name="list" tag="ul">
+		<li v-for="item in items" :key="item.id">
+			{{ item }}
+		</li>
+	</TransitionGroup>
 </template>
 
 <!-- Renders as: -->
@@ -71,9 +83,11 @@ If your code relies on the wrapper element for styling or layout, you must expli
 **Vue 2 code that breaks in Vue 3:**
 ```vue
 <template>
-  <transition-group class="grid-container" name="list">
-    <div v-for="item in items" :key="item.id">{{ item }}</div>
-  </transition-group>
+	<transition-group class="grid-container" name="list">
+		<div v-for="item in items" :key="item.id">
+			{{ item }}
+		</div>
+	</transition-group>
 </template>
 
 <style>
@@ -89,9 +103,11 @@ In Vue 3, the class is not applied to anything because there's no wrapper elemen
 **Fixed for Vue 3:**
 ```vue
 <template>
-  <TransitionGroup class="grid-container" name="list" tag="div">
-    <div v-for="item in items" :key="item.id">{{ item }}</div>
-  </TransitionGroup>
+	<TransitionGroup class="grid-container" name="list" tag="div">
+		<div v-for="item in items" :key="item.id">
+			{{ item }}
+		</div>
+	</TransitionGroup>
 </template>
 ```
 
@@ -117,12 +133,12 @@ Vue 3's fragment support means you might not need a wrapper at all:
 
 ```vue
 <template>
-  <div class="parent-with-styles">
-    <!-- No tag needed if parent handles layout -->
-    <TransitionGroup name="fade">
-      <span v-for="item in items" :key="item.id">{{ item }}</span>
-    </TransitionGroup>
-  </div>
+	<div class="parent-with-styles">
+		<!-- No tag needed if parent handles layout -->
+		<TransitionGroup name="fade">
+			<span v-for="item in items" :key="item.id">{{ item }}</span>
+		</TransitionGroup>
+	</div>
 </template>
 
 <style>

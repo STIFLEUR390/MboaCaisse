@@ -22,20 +22,20 @@ Move comparison logic to the parent and pass the boolean result instead. This is
 **Incorrect:**
 ```vue
 <template>
-  <!-- BAD: activeId changes -> ALL 100 ListItems re-render -->
-  <ListItem
-    v-for="item in list"
-    :key="item.id"
-    :id="item.id"
-    :active-id="activeId"
-  />
+	<!-- BAD: activeId changes -> ALL 100 ListItems re-render -->
+	<ListItem
+		v-for="item in list"
+		:id="item.id"
+		:key="item.id"
+		:active-id="activeId"
+	/>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const list = ref([/* 100 items */])
-const activeId = ref(null)
+	const list = ref([/* 100 items */]);
+	const activeId = ref(null);
 
 // When activeId changes from 1 to 2:
 // - ListItem 1 needs to re-render (was active, now not)
@@ -47,36 +47,36 @@ const activeId = ref(null)
 ```vue
 <!-- ListItem.vue - receives activeId and compares internally -->
 <template>
-  <div :class="{ active: id === activeId }">
-    {{ id }}
-  </div>
+	<div :class="{ active: id === activeId }">
+		{{ id }}
+	</div>
 </template>
 
 <script setup>
-defineProps({
-  id: Number,
-  activeId: Number  // This prop changes for ALL items
-})
+	defineProps({
+		id: Number,
+		activeId: Number // This prop changes for ALL items
+	});
 </script>
 ```
 
 **Correct:**
 ```vue
 <template>
-  <!-- GOOD: Only items whose :active actually changed will re-render -->
-  <ListItem
-    v-for="item in list"
-    :key="item.id"
-    :id="item.id"
-    :active="item.id === activeId"
-  />
+	<!-- GOOD: Only items whose :active actually changed will re-render -->
+	<ListItem
+		v-for="item in list"
+		:id="item.id"
+		:key="item.id"
+		:active="item.id === activeId"
+	/>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+	import { ref } from "vue";
 
-const list = ref([/* 100 items */])
-const activeId = ref(null)
+	const list = ref([/* 100 items */]);
+	const activeId = ref(null);
 
 // When activeId changes from 1 to 2:
 // - ListItem 1: :active changed from true to false -> re-renders
@@ -88,16 +88,16 @@ const activeId = ref(null)
 ```vue
 <!-- ListItem.vue - receives pre-computed boolean -->
 <template>
-  <div :class="{ active }">
-    {{ id }}
-  </div>
+	<div :class="{ active }">
+		{{ id }}
+	</div>
 </template>
 
 <script setup>
-defineProps({
-  id: Number,
-  active: Boolean  // This only changes for items that truly changed
-})
+	defineProps({
+		id: Number,
+		active: Boolean // This only changes for items that truly changed
+	});
 </script>
 ```
 
@@ -109,7 +109,8 @@ defineProps({
   v-for="(item, index) in items"
   :key="item.id"
   :index="index"
-  :total="items.length"  <!-- Changes when list changes -->
+  :total="items.length"  <!-- Changes when list changes --
+>
 />
 
 <!-- BAD: Passing entire selection set -->

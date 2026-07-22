@@ -39,7 +39,7 @@ title: "PRFAQ Distillate: {project_name}"
 type: llm-distillate
 source: "prfaq-{project_name}.md"
 created: "{timestamp}"
-purpose: "Token-efficient context for downstream PRD creation"
+purpose: Token-efficient context for downstream PRD creation
 ---
 ```
 
@@ -65,12 +65,12 @@ purpose: "Token-efficient context for downstream PRD creation"
 **Headless mode output:**
 ```json
 {
-  "status": "complete",
-  "prfaq": "{planning_artifacts}/prfaq-{project_name}.md",
-  "distillate": "{planning_artifacts}/prfaq-{project_name}-distillate.md",
-  "verdict": "forged|needs-heat|cracked",
-  "key_risks": ["top unresolved items"],
-  "open_questions": ["unresolved items from FAQs"]
+	"status": "complete",
+	"prfaq": "{planning_artifacts}/prfaq-{project_name}.md",
+	"distillate": "{planning_artifacts}/prfaq-{project_name}-distillate.md",
+	"verdict": "forged|needs-heat|cracked",
+	"key_risks": ["top unresolved items"],
+	"open_questions": ["unresolved items from FAQs"]
 }
 ```
 
