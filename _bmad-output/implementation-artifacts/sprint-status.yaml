@@ -1,0 +1,101 @@
+# generated: 2026-07-22
+# last_updated: 2026-07-22
+# project: MboaCaisse
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: {project-root}/_bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; sprint-status surfaces open ones
+
+generated: "2026-07-22"
+last_updated: "2026-07-22"
+project: MboaCaisse
+project_key: NOKEY
+tracking_system: file-system
+story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+development_status:
+  # === Epic 1: Socle Serveur & Authentification ===
+  epic-1: backlog
+  1-1-structure-rust-layered-migrations-initiales: backlog
+  1-2-serveur-axum-embarque-mdns: backlog
+  1-3-authentification-register-login-jwt: backlog
+  1-4-fenetre-native-tray-mode-headless: backlog
+  1-5-roles-permissions-middleware-guard-seed-admin: backlog
+  epic-1-retrospective: optional
+
+  # === Epic 1.5: Wallet Ledger ===
+  epic-1-5: backlog
+  1-5-1-wallet-domain-migration: backlog
+  1-5-2-api-wallet-identification-solde: backlog
+  1-5-3-migration-wallet-ledger: backlog
+  epic-1-5-retrospective: optional
+
+  # === Epic 3: Ventes & Encaissement ===
+  epic-3: backlog
+  3-1-crud-produits-categories: backlog
+  3-2-cycle-de-vie-commande: backlog
+  3-3-payment-gate: backlog
+  3-4-encaissement-multi-moyen-credit-manuel: backlog
+  3-5-kitchen-display: backlog
+  3-6-ticket-numerique: backlog
+  epic-3-retrospective: optional
+
+  # === Epic 2 (E2b): Fidélité ===
+  epic-2: backlog
+  2-1-cashback-automatique: backlog
+  2-2-parrainage: backlog
+  epic-2-retrospective: optional
+
+  # === Epic 4: Menu Public QR ===
+  epic-4: backlog
+  4-1-table-management-qr-generation: backlog
+  4-2-landing-qr-menu-public: backlog
+  4-3-panier: backlog
+  4-4-identification-paiement: backlog
+  4-5-confirmation-statut-commande: backlog
+  4-6-edge-cases-accessibilite: backlog
+  epic-4-retrospective: optional
+
+  # === Epic 5: Administration ===
+  epic-5: backlog
+  5-1-licence-ed25519-activation: backlog
+  5-2-feature-flags: backlog
+  5-3-rapports-de-base: backlog
+  5-4-backup-restore: backlog
+  5-5-mdns-personnalisable-p1: backlog
+  5-6-bundles-extensions-p2: backlog
+  epic-5-retrospective: optional
