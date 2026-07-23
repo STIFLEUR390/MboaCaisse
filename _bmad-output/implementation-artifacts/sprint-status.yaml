@@ -1,5 +1,5 @@
 # generated: 2026-07-22
-# last_updated: 2026-07-22
+# last_updated: 2026-07-23
 # project: MboaCaisse
 # project_key: NOKEY
 # tracking_system: file-system
@@ -41,7 +41,7 @@
 # - Retrospective appends its action items to action_items; sprint-status surfaces open ones
 
 generated: 2026-07-22
-last_updated: 2026-07-22
+last_updated: 2026-07-23
 project: MboaCaisse
 project_key: NOKEY
 tracking_system: file-system
@@ -49,13 +49,13 @@ story_location: "{project-root}/_bmad-output/implementation-artifacts"
 
 development_status:
   # === Epic 1: Socle Serveur & Authentification ===
-  epic-1: in-progress
-  1-1-structure-rust-layered-migrations-initiales: in-progress
+  epic-1: done
+  1-1-structure-rust-layered-migrations-initiales: done
   1-2-serveur-axum-embarque-mdns: done
   1-3-authentification-register-login-jwt: done
   1-4-fenetre-native-tray-mode-headless: done
   1-5-roles-permissions-middleware-guard-seed-admin: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # === Epic 1.5: Wallet Ledger ===
   epic-1-5: backlog

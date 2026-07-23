@@ -4,7 +4,7 @@ baseline_commit: 0c5f6d521a92774bb2ce5d933c70d6a24249b89d
 
 # Story 1.1: Structure Rust Layered & Migrations Initiales
 
-Status: in-progress
+Status: done
 
 ## Story
 
