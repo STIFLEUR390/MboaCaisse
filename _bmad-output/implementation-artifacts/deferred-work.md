@@ -22,3 +22,12 @@
 - Pas de validation du format téléphone (9 chiffres) — sera dans l'API (story 1.5.2)
 - get_balance retourne 0 pour client inexistant — acceptable pour l'alpha
 - Aucun test ajouté — pas de framework de test configuré
+
+## Deferred from: code review of 3-1-crud-produits-categories (2026-07-23)
+
+- DELETE /api/categories makes 3-4 DB queries instead of one — optimisation, pas bloquant
+- Race condition in DELETE category guards (non-atomic check-then-delete) — pas de concurrence en alpha
+- update_category only guards self-parent, not deep cycles — non exploitable avec API actuelle
+- domain_to_http doesn't return spec error codes INVALID_NAME/INVALID_PRICE — spec secondaire
+- delete_category returns NOT_FOUND instead of CATEGORY_NOT_FOUND on race path — edge case
+- search_products uses LIKE without escaping % and _ wildcards — pas exposé via API

@@ -17,11 +17,12 @@ use std::sync::OnceLock;
 
 use axum::{
 	middleware,
-	routing::{delete, get, patch, post},
+	routing::{delete, get, patch, post, put},
 	Router,
 };
 use tauri::AppHandle;
 
+use crate::domain::product::ProductRepository;
 use crate::domain::user::UserRepository;
 use crate::domain::wallet::WalletRepository;
 
@@ -37,7 +38,9 @@ pub fn init_app_handle(handle: AppHandle) {
 
 /// Retrieve the stored AppHandle.
 pub fn app_handle() -> &'static AppHandle {
-	APP_HANDLE.get().expect("AppHandle not initialized — call init_app_handle() in setup")
+	APP_HANDLE
+		.get()
+		.expect("AppHandle not initialized — call init_app_handle() in setup")
 }
 
 /// Shared state for all API handlers.
@@ -45,6 +48,7 @@ pub fn app_handle() -> &'static AppHandle {
 pub struct AppApiState {
 	pub user_repo: Arc<dyn UserRepository>,
 	pub wallet_repo: Arc<dyn WalletRepository>,
+	pub product_repo: Arc<dyn ProductRepository>,
 	pub jwt_secret: Arc<Vec<u8>>,
 }
 
@@ -73,9 +77,39 @@ pub fn build_app(state: AppApiState) -> Router {
 		.route("/api/users/{id}", patch(users::update_user))
 		.route("/api/users/{id}", delete(users::delete_user))
 		// Wallet API (story 1.5.2)
-		.route("/api/wallet/register", post(crate::api::wallet::register))
-		.route("/api/wallet/by-phone/{phone}", get(crate::api::wallet::get_by_phone))
-		.route("/api/wallet/{id}/ledger", get(crate::api::wallet::get_ledger));
+		.route(
+			"/api/wallet/register",
+			post(crate::api::wallet::register),
+		)
+		.route(
+			"/api/wallet/by-phone/{phone}",
+			get(crate::api::wallet::get_by_phone),
+		)
+		.route(
+			"/api/wallet/{id}/ledger",
+			get(crate::api::wallet::get_ledger),
+		)
+		// Products CRUD (story 3.1)
+		.route("/api/products", get(products::list_products))
+		.route("/api/products", post(products::create_product))
+		.route("/api/products/{id}", get(products::get_product))
+		.route("/api/products/{id}", put(products::update_product))
+		.route(
+			"/api/products/{id}",
+			delete(products::delete_product),
+		)
+		// Categories CRUD (story 3.1)
+		.route("/api/categories", get(products::list_categories))
+		.route("/api/categories", post(products::create_category))
+		.route("/api/categories/{id}", get(products::get_category))
+		.route(
+			"/api/categories/{id}",
+			put(products::update_category),
+		)
+		.route(
+			"/api/categories/{id}",
+			delete(products::delete_category),
+		);
 
 	// Static file serving with SPA fallback.
 	if std::path::Path::new(&dist_path).exists() {

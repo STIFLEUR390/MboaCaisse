@@ -65,8 +65,8 @@ development_status:
   epic-1-5-retrospective: optional
 
   # === Epic 3: Ventes & Encaissement ===
-  epic-3: backlog
-  3-1-crud-produits-categories: backlog
+  epic-3: in-progress
+  3-1-crud-produits-categories: done
   3-2-cycle-de-vie-commande: backlog
   3-3-payment-gate: backlog
   3-4-encaissement-multi-moyen-credit-manuel: backlog
