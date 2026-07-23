@@ -17,3 +17,8 @@
 - Aucun test ajouté — le projet n'a pas de framework de test configuré.
 - Pas de typage Zod pour les appels API frontend [admin/users.vue] — typage manuel suffit pour l'alpha.
 - Pas de bouton "Réessayer" sur erreur chargement [admin/users.vue] — UX mineure, l'utilisateur peut recharger la page.
+
+## Deferred from: code review of story 1.5.1 (2026-07-23)
+- Pas de validation du format téléphone (9 chiffres) — sera dans l'API (story 1.5.2)
+- get_balance retourne 0 pour client inexistant — acceptable pour l'alpha
+- Aucun test ajouté — pas de framework de test configuré

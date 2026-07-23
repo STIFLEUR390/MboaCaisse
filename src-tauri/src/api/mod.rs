@@ -23,6 +23,7 @@ use axum::{
 use tauri::AppHandle;
 
 use crate::domain::user::UserRepository;
+use crate::domain::wallet::WalletRepository;
 
 /// Global Tauri AppHandle, set once during setup().
 /// Required by settings handlers to access tauri_plugin_store.
@@ -43,6 +44,7 @@ pub fn app_handle() -> &'static AppHandle {
 #[derive(Clone)]
 pub struct AppApiState {
 	pub user_repo: Arc<dyn UserRepository>,
+	pub wallet_repo: Arc<dyn WalletRepository>,
 	pub jwt_secret: Arc<Vec<u8>>,
 }
 
