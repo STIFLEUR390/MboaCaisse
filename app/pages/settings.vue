@@ -136,7 +136,9 @@
 
 			<!-- Retry on load error -->
 			<div v-else class="text-center py-12 space-y-4">
-				<p class="text-(--ui-text-muted)">Impossible de charger les paramètres.</p>
+				<p class="text-(--ui-text-muted)">
+					Impossible de charger les paramètres.
+				</p>
 				<UButton color="primary" variant="outline" @click="initForm">
 					Réessayer
 				</UButton>
@@ -179,6 +181,7 @@
 		port: 3000,
 		hostname: "mboacaisse",
 		backup_interval_hours: 24,
+		wallet_negative: false,
 		headless: false
 	});
 
@@ -198,7 +201,9 @@
 		formState.port = (store.config.port as number) || 3000;
 		formState.hostname = (store.config.hostname as string) || "mboacaisse";
 		formState.backup_interval_hours = (store.config.backup_interval_hours as number) || 24;
+		formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 		formState.headless = (store.config.headless as boolean) || false;
+		formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 	}
 
 	onMounted(initForm);
@@ -217,6 +222,9 @@
 		}
 		if (formState.headless !== store.config.headless) {
 			changed.headless = formState.headless;
+		}
+		if (formState.wallet_negative !== store.config.wallet_negative) {
+			changed.wallet_negative = formState.wallet_negative;
 		}
 
 		if (Object.keys(changed).length === 0) {
@@ -244,7 +252,9 @@
 			formState.port = (store.config.port as number) || 3000;
 			formState.hostname = (store.config.hostname as string) || "mboacaisse";
 			formState.backup_interval_hours = (store.config.backup_interval_hours as number) || 24;
+			formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 			formState.headless = (store.config.headless as boolean) || false;
+			formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 		}
 	}
 
@@ -260,7 +270,9 @@
 		formState.port = (store.config.port as number) || 3000;
 		formState.hostname = (store.config.hostname as string) || "mboacaisse";
 		formState.backup_interval_hours = (store.config.backup_interval_hours as number) || 24;
+		formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 		formState.headless = (store.config.headless as boolean) || false;
+		formState.wallet_negative = (store.config.wallet_negative as boolean) || false;
 
 		restartRequiredKeys.value = ["port", "hostname", "headless"];
 		showRestart.value = true;

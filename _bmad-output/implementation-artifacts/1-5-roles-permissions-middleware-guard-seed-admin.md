@@ -203,7 +203,6 @@ so that l'accès aux fonctionnalités est contrôlé par rôle.
   - [x] T7.9 Page /admin/users frontend fonctionnelle (build génère la route)
   - [x] T7.10 Navigation filtrée par rôle (minRole dans pages.ts)
 
-
 ## Review Findings
 
 ### Code Review — 2026-07-22

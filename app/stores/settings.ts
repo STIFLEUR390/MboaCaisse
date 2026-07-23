@@ -27,6 +27,7 @@ export const useSettingsStore = defineStore("settings", () => {
 			port: 3000,
 			hostname: "mboacaisse",
 			backup_interval_hours: 24,
+			wallet_negative: false,
 			headless: false
 		},
 		loading: false,

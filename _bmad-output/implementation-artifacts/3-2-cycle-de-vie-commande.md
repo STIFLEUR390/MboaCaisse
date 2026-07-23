@@ -4,7 +4,6 @@ baseline_commit: 8d142b6
 
 # Story 3.2: Cycle de Vie Commande
 
-
 ## Story
 
 As a caissier,
@@ -40,12 +39,12 @@ So que la cuisine, le serveur et le client savent où en est la commande.
 **When** POST `/api/orders` avec :
 ```json
 {
-  "table_id": "table-1",
-  "client_id": "cli-xxx",
-  "items": [
-    { "product_id": "p1", "quantity": 2, "notes": "sans glace" },
-    { "product_id": "p2", "quantity": 1 }
-  ]
+	"table_id": "table-1",
+	"client_id": "cli-xxx",
+	"items": [
+		{ "product_id": "p1", "quantity": 2, "notes": "sans glace" },
+		{ "product_id": "p2", "quantity": 1 }
+	]
 }
 ```
 **Then** chaque `product_id` est vérifié (existence dans products)
@@ -287,23 +286,23 @@ Le `unit_price` dans `order_items` est lu depuis `products.price` au moment de l
 
 ```json
 {
-  "id": "0190...",
-  "table_id": "table-1",
-  "client_id": "cli-xxx",
-  "status": "pending_payment",
-  "total": 3500,
-  "created_at": "2026-07-23T10:30:00.000Z",
-  "updated_at": "2026-07-23T10:30:00.000Z",
-  "items": [
-    {
-      "id": "0190...",
-      "product_id": "p1",
-      "quantity": 2,
-      "unit_price": 1500,
-      "notes": "sans glace",
-      "created_at": "2026-07-23T10:30:00.000Z"
-    }
-  ]
+	"id": "0190...",
+	"table_id": "table-1",
+	"client_id": "cli-xxx",
+	"status": "pending_payment",
+	"total": 3500,
+	"created_at": "2026-07-23T10:30:00.000Z",
+	"updated_at": "2026-07-23T10:30:00.000Z",
+	"items": [
+		{
+			"id": "0190...",
+			"product_id": "p1",
+			"quantity": 2,
+			"unit_price": 1500,
+			"notes": "sans glace",
+			"created_at": "2026-07-23T10:30:00.000Z"
+		}
+	]
 }
 ```
 
@@ -416,7 +415,6 @@ bmad-create-story via GPT-5 (Codex)
 - **Routes order Axum** : Déclarer les routes spécifiques AVANT les routes génériques (`{id}/status` avant `{id}`). Voir section gotchas.
 
 ### Completion Notes List
-
 
 ### Completion Notes List
 

@@ -250,8 +250,6 @@ Produits (10) :
 - Un curl POST /api/products crée bien un produit
 - Un curl DELETE /api/categories/{id} avec produits attachés retourne 422
 
-
-
 ### Review Findings
 
 - [x] [Review][Patch] POST /api/products — ajouter validation existence category_id [api/products.rs:181]

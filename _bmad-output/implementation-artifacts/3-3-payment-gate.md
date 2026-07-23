@@ -19,9 +19,9 @@ so that le solde client est garanti avant que la cuisine prépare.
 **When** POST `/api/payments` avec
 ```json
 {
-  "order_id": "ord-xxx",
-  "method": "wallet",
-  "client_id": "cli-yyy"
+	"order_id": "ord-xxx",
+	"method": "wallet",
+	"client_id": "cli-yyy"
 }
 ```
 **Then** le système vérifie le solde du client (`wallet_repo.get_balance`) avant de débiter
@@ -329,7 +329,6 @@ Si la logique devient plus complexe (story 3.4 avec split payments), un refactor
 
 ### Review Follow-ups
 - [ ]
-
 
 <!-- Les éléments ci-dessous seront remplis lors de la revue de code -->
 

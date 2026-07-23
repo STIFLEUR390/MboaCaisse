@@ -201,16 +201,16 @@
 
 	function roleColor(role: string): string {
 		switch (role) {
-			case "admin": return "info";
-			case "caissier": return "success";
-			case "vendeur": return "warning";
-			case "gestionnaire_stock": return "neutral";
-			default: return "neutral";
+		case "admin": return "info";
+		case "caissier": return "success";
+		case "vendeur": return "warning";
+		case "gestionnaire_stock": return "neutral";
+		default: return "neutral";
 		}
 	}
 
 	function roleLabel(role: string): string {
-		const option = roleOptions.find(o => o.value === role);
+		const option = roleOptions.find((o) => o.value === role);
 		return option?.label || role;
 	}
 

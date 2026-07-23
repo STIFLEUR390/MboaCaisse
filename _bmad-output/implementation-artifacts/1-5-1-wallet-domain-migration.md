@@ -120,8 +120,6 @@ so that le socle financier est immuable et les transactions sont tracées.
   - [x] T5.6 get_balance retourne SUM correct
   - [x] T5.7 get_ledger retourne les entrées dans l'ordre
 
-
-
 ## Review Findings
 
 ### Code Review — 2026-07-23
@@ -146,7 +144,6 @@ so that le socle financier est immuable et les transactions sont tracées.
 - [x] [Review][Defer] **Aucun test ajouté** — Le projet n'a pas de framework de test configuré.
 
 **Dismissed (3 findings):** Erreurs internes dans les messages (acceptable LAN-alpha), pas de limite phone VARCHAR (acceptable alpha), probabilité UUID collision négligeable.
-
 
 ## Review Findings
 

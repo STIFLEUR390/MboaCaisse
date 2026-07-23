@@ -27,6 +27,7 @@ export const useAuth = () => {
 	const user = ref<AuthUser | null>(null);
 	const loading = ref(false);
 	const error = ref<string | null>(null);
+	const initialized = ref(false);
 
 	const isAuthenticated = computed(() => user.value !== null);
 	const isAdmin = computed(() => user.value?.role === "admin");
@@ -119,6 +120,9 @@ export const useAuth = () => {
 		error.value = null;
 	}
 
+		initialized.value = true;
+	}
+
 	// Run init once
 	if (import.meta.client) {
 		init();
@@ -133,6 +137,7 @@ export const useAuth = () => {
 		login,
 		register,
 		logout,
-		init
+		init,
+		initialized
 	};
 };

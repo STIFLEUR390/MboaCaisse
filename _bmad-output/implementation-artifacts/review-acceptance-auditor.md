@@ -304,23 +304,23 @@ Le `unit_price` dans `order_items` est lu depuis `products.price` au moment de l
 
 ```json
 {
-  "id": "0190...",
-  "table_id": "table-1",
-  "client_id": "cli-xxx",
-  "status": "pending_payment",
-  "total": 3500,
-  "created_at": "2026-07-23T10:30:00.000Z",
-  "updated_at": "2026-07-23T10:30:00.000Z",
-  "items": [
-    {
-      "id": "0190...",
-      "product_id": "p1",
-      "quantity": 2,
-      "unit_price": 1500,
-      "notes": "sans glace",
-      "created_at": "2026-07-23T10:30:00.000Z"
-    }
-  ]
+	"id": "0190...",
+	"table_id": "table-1",
+	"client_id": "cli-xxx",
+	"status": "pending_payment",
+	"total": 3500,
+	"created_at": "2026-07-23T10:30:00.000Z",
+	"updated_at": "2026-07-23T10:30:00.000Z",
+	"items": [
+		{
+			"id": "0190...",
+			"product_id": "p1",
+			"quantity": 2,
+			"unit_price": 1500,
+			"notes": "sans glace",
+			"created_at": "2026-07-23T10:30:00.000Z"
+		}
+	]
 }
 ```
 
@@ -418,7 +418,6 @@ bmad-create-story via GPT-5 (Codex)
 
 ### Completion Notes List
 
-
 ### Completion Notes List
 
 - Migration V4__orders.sql créée avec tables orders + order_items + indexes
@@ -498,12 +497,12 @@ index d7e5885..4162923 100644
 +++ b/src-tauri/src/api/mod.rs
 @@ -23,6 +23,7 @@ use axum::{
  use tauri::AppHandle;
- 
+
  use crate::domain::product::ProductRepository;
 +use crate::domain::order::OrderRepository;
  use crate::domain::user::UserRepository;
  use crate::domain::wallet::WalletRepository;
- 
+
 @@ -47,6 +48,7 @@ pub fn app_handle() -> &'static AppHandle {
  #[derive(Clone)]
  pub struct AppApiState {
@@ -526,7 +525,7 @@ index d7e5885..4162923 100644
 +		.route("/api/orders/{id}/items/{item_id}", delete(orders::remove_order_item))
 +		.route("/api/orders/{id}", get(orders::get_order))
 +		;
- 
+
  	// Static file serving with SPA fallback.
  	if std::path::Path::new(&dist_path).exists() {
 diff --git a/src-tauri/src/api/orders.rs b/src-tauri/src/api/orders.rs
@@ -1061,16 +1060,16 @@ index aa90738..7b2d186 100644
 @@ -6,7 +6,8 @@
  use crate::domain::order::{Order, OrderItem, OrderRepository, OrderStatus};
  use crate::domain::DomainError;
- 
+
 -use super::SqlitePool;
 +use super::{SqlitePool};
 +use super::get_conn;
- 
+
  pub struct DbOrderRepository {
  	pool: SqlitePool,
 @@ -19,28 +20,203 @@ impl DbOrderRepository {
  }
- 
+
  impl OrderRepository for DbOrderRepository {
 -	fn create(&self, _order: &Order) -> Result<(), DomainError> {
 -		todo!("Story 3.2")
@@ -1297,7 +1296,7 @@ index a7d2103..c7bda2d 100644
  	pub notes: Option<String>,
 +	pub created_at: String,
  }
- 
+
  /// A customer order with its lifecycle status.
 @@ -114,4 +115,6 @@ pub trait OrderRepository: Send + Sync {
  	fn add_item(&self, item: &OrderItem) -> Result<(), DomainError>;
@@ -1311,7 +1310,7 @@ index 957a2b9..009b236 100644
 --- a/src-tauri/src/lib.rs
 +++ b/src-tauri/src/lib.rs
 @@ -31,8 +31,10 @@ use tauri::Manager;
- 
+
  use api::AppApiState;
  use db::users::DbUserRepository;
 +use db::orders::DbOrderRepository;

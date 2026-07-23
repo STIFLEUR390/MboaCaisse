@@ -156,14 +156,14 @@ This restriction also applies to `defineProps`:
 
 ```vue
 <script setup lang="ts">
+// CORRECT: Type-based only
+const props = defineProps<{ name: string }>()
+
 // CORRECT: Runtime only
 const props = defineProps({ name: String })
 
 // ERROR: Cannot mix
 const props = defineProps<{ name: string }>({ name: String })
-
-// CORRECT: Type-based only
-const props = defineProps<{ name: string }>()
 
 </script>
 ```
