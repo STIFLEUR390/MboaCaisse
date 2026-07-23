@@ -13,3 +13,4 @@ src-tauri/target
 *.txt
 *.zip
 
+src-tauri/mboacaisse.db
