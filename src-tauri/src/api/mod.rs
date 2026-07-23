@@ -23,6 +23,7 @@ use axum::{
 use tauri::AppHandle;
 
 use crate::domain::product::ProductRepository;
+use crate::domain::order::OrderRepository;
 use crate::domain::user::UserRepository;
 use crate::domain::wallet::WalletRepository;
 
@@ -47,6 +48,7 @@ pub fn app_handle() -> &'static AppHandle {
 #[derive(Clone)]
 pub struct AppApiState {
 	pub user_repo: Arc<dyn UserRepository>,
+	pub order_repo: Arc<dyn OrderRepository>,
 	pub wallet_repo: Arc<dyn WalletRepository>,
 	pub product_repo: Arc<dyn ProductRepository>,
 	pub jwt_secret: Arc<Vec<u8>>,
@@ -109,7 +111,15 @@ pub fn build_app(state: AppApiState) -> Router {
 		.route(
 			"/api/categories/{id}",
 			delete(products::delete_category),
-		);
+		)
+		// Orders CRUD (story 3.2)
+		.route("/api/orders", post(orders::create_order))
+		.route("/api/orders", get(orders::list_orders))
+		.route("/api/orders/{id}/status", patch(orders::update_order_status))
+		.route("/api/orders/{id}/items", post(orders::add_order_item))
+		.route("/api/orders/{id}/items/{item_id}", delete(orders::remove_order_item))
+		.route("/api/orders/{id}", get(orders::get_order))
+		;
 
 	// Static file serving with SPA fallback.
 	if std::path::Path::new(&dist_path).exists() {

@@ -54,6 +54,7 @@ pub struct OrderItem {
 	pub quantity: i64,
 	pub unit_price: i64,
 	pub notes: Option<String>,
+	pub created_at: String,
 }
 
 /// A customer order with its lifecycle status.
@@ -106,6 +107,8 @@ impl Order {
 /// AD-7: Defined in domain/, implemented in db/.
 pub trait OrderRepository: Send + Sync {
 	fn create(&self, order: &Order) -> Result<(), DomainError>;
+	/// Delete an order by ID. Used for cleanup on partial failure.
+	fn delete(&self, id: &str) -> Result<(), DomainError>;
 	fn update_status(&self, id: &str, status: &OrderStatus) -> Result<(), DomainError>;
 	fn find_by_id(&self, id: &str) -> Result<Option<Order>, DomainError>;
 	fn list_by_status(&self, status: &OrderStatus) -> Result<Vec<Order>, DomainError>;
@@ -113,5 +116,7 @@ pub trait OrderRepository: Send + Sync {
 
 	fn add_item(&self, item: &OrderItem) -> Result<(), DomainError>;
 	fn get_items(&self, order_id: &str) -> Result<Vec<OrderItem>, DomainError>;
-	fn remove_item(&self, item_id: &str) -> Result<(), DomainError>;
+	fn remove_item(&self, order_id: &str, item_id: &str) -> Result<(), DomainError>;
+	/// Recalculate and persist the order total from order_items.
+	fn update_total(&self, order_id: &str) -> Result<(), DomainError>;
 }

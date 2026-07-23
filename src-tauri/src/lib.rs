@@ -31,8 +31,10 @@ use tauri::Manager;
 
 use api::AppApiState;
 use db::users::DbUserRepository;
+use db::orders::DbOrderRepository;
 use db::products::DbProductRepository;
 use crate::domain::product::ProductRepository;
+use crate::domain::order::OrderRepository;
 use db::wallet_ledger::DbWalletRepository;
 use crate::domain::wallet::WalletRepository;
 use domain::user::UserRepository;
@@ -104,10 +106,12 @@ pub fn run() {
 	// Build the full application router
 	let user_repo: Arc<dyn UserRepository> = Arc::new(DbUserRepository::new(pool.clone()));
 	let wallet_repo: Arc<dyn WalletRepository> = Arc::new(DbWalletRepository::new(pool.clone()));
+	let order_repo: Arc<dyn OrderRepository> = Arc::new(DbOrderRepository::new(pool.clone()));
 	let product_repo: Arc<dyn ProductRepository> = Arc::new(DbProductRepository::new(pool.clone()));
 	let api_state = AppApiState {
 		user_repo,
 		wallet_repo,
+		order_repo,
 		product_repo,
 		jwt_secret,
 	};

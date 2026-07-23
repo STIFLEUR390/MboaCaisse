@@ -31,3 +31,11 @@
 - domain_to_http doesn't return spec error codes INVALID_NAME/INVALID_PRICE — spec secondaire
 - delete_category returns NOT_FOUND instead of CATEGORY_NOT_FOUND on race path — edge case
 - search_products uses LIKE without escaping % and _ wildcards — pas exposé via API
+
+## Deferred from: code review of 3-2-cycle-de-vie-commande (2026-07-23)
+
+- N+1 queries in list_orders — batch load items per order_ids
+- map_order_row converts DomainError to rusqlite Error — pre-existing pattern across all db mappers
+- remove_item no PendingPayment guard in DB layer — defense-in-depth, already guarded at API
+- chrono_now/uuid_v7 duplicated in db/orders.rs + api/orders.rs — extract to shared util
+- list_all without LIMIT — add pagination
