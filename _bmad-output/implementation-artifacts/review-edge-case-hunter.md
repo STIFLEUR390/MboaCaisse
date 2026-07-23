@@ -1,21 +1,37 @@
-# Edge Case Hunter — Exhaustive Path Analysis: Story 1.3
+# Edge Case Hunter — Findings
 
-## Findings
+## Unhandled edge cases identified
 
-1. **`validate_email("")`** — La fonction `validate_email` vérifie `is_empty()` puis `contains('@')`. Si l'email est `""`, le `is_empty()` déclenche l'erreur. Mais un email comme `"@"` passe car `!is_empty()` et `contains('@')` sont tous les deux true.
+### auth_middleware.rs
 
-2. **`validate_password(password)` avec des bytes non UTF-8** — Le paramètre `password: &str` est déjà un String Rust, donc pas de problème d'UTF-8. Mais la longueur est mesurée en bytes (`.len()`), pas en caractères. Un mot de passe de 4 emojis (ex: `"😀😀😀😀"`) fait 16 bytes et passe la validation, alors qu'il est faible.
+1. **Path `/api/users` suivi d'un tiret** : `path.starts_with("/api/users")` match aussi `/api/users-extra`. Si une route comme `/api/users-export` est ajoutée plus tard, elle héritera de Permission::ManageUsers au lieu du fallback Permission::All. Correction : utiliser `path == "/api/users" || path.starts_with("/api/users/")`.
 
-3. **Race condition sur `is_first`** — Entre `list_all()` et `create()`, un autre thread pourrait créer le premier utilisateur. Ça arrive dans un setup synchrone, donc improbable en pratique, mais conceptuellement non atomic.
+2. **Path `/api/settings` avec sous-route** : `path.starts_with("/api/settings")` match aussi `/api/settings-backup`. Même problème qu'au-dessus. Même correction : `path == "/api/settings" || path.starts_with("/api/settings/")`.
 
-4. **Timestamp `chrono_now()` non UTC conforme ISO** — `Utc::now()` retourne l'heure UTC, mais `format("%Y-%m-%dT%H:%M:%S%.3fZ")` génère un format qui peut parfois produire des microsecondes tronquées. Le suffixe `Z` est correct pour UTC.
+3. **Cas du path exact vs starts_with** : Les routes comme `/api/settings` sont déclarées exactes dans le router, mais le middleware utilise `starts_with`. Si une route `/api/settings-advanced` est ajoutée, elle hérite de ManageSettings. Même pattern qu'au-dessus.
 
-5. **`uuid_v7()` lève une panic si l'horloge système recule** — `Uuid::now_v7()` dépend de l'horloge système. Si elle recule (NTP, changement manuel), la génération peut panic.
+4. **Ordre des checks `required_permission`** : `/api/auth/me` est checké AVANT le fallback `starts_with("/api/")` → ✅ géré. Mais si quelqu'un réorganise les ifs plus tard, le fallback `/api/` pourrait masquer les cas spécifiques. Documenter l'ordre comme contract.
 
-6. **`should_refresh()` sousflow si `exp < now`** — `(self.exp - now)` peut underflow si `exp < now` (token expiré), car ce sont des `usize` (non signés). Rust panic en debug mode sur un underflow entier. Heureusement, `decode_token()` vérifie `exp` avant, donc le middleware ne devrait jamais arriver à `should_refresh()` avec un token expiré.
+5. **Race condition dans create_user** : La vérification `find_by_email` puis `create` n'est pas atomique. Deux requêtes POST simultanées avec le même email peuvent créer deux utilisateurs avec le même email si la première n'a pas fini d'écrire avant la seconde. La contrainte UNIQUE en BDD protège contre la duplication, donc le second INSERT échouera avec une erreur. Le handler catch détecte "UNIQUE" dans l'erreur et retourne 409. ✅ Paradoxalement géré par la BDD, pas par le code applicatif.
 
-7. **`refresh_token()` appelle `decode_token()` une seconde fois** — Le middleware a déjà décodé le token, mais `refresh_token()` le re-décode. Double travail.
+6. **PATCH /api/users/{id} avec body vide** : Tous les champs sont `Option` avec `#[serde(default)]`. Body `{}` est valide. Aucun champ n'est modifié. `updated_at` n'est pas mis à jour (car le if let Some ne match pas). C'est correct — update inutile mais pas dangereux.
 
-8. **`extract_cookie()` ignore les cookies malformés** — Si un cookie header contient `"mboa_session=token"` suivi d'un cookie sans `=` (ex: `"mboa_session=token; badcookie"`), le split `pair.split_once('=')` sur `"badcookie"` retourne `None` et le cookie est ignoré silencieusement. Correct car `badcookie` n'est pas le cookie recherché.
+7. **DELETE sur utilisateur inexistant deux fois** : Premier appel → BDD supprime, retour 200. Deuxième appel → `find_by_id` retourne None → 404. ✅ Géré.
 
-9. **Pas de vérification que le token JWT n'a pas été révoqué** — Si un admin désactive un utilisateur, le JWT reste valide jusqu'à expiration. Aucune vérification en BDD de l'état du compte.
+### Frontend — admin/users.vue
+
+8. **Échec de chargement des utilisateurs** : L'erreur est affichée dans un `UAlert`. Il n'y a pas de bouton "Réessayer" après une erreur de chargement. L'utilisateur doit recharger la page.
+
+9. **Modal de création : email déjà pris** : L'API retourne 409. Le catch affiche l'erreur dans `formError`. ✅ Mais le formulaire ne préserve pas les champs déjà saisis (c'est déjà le cas car `form` est lié via `v-model`). ✅
+
+10. **Suppression d'un admin alors qu'il reste un autre admin** : `handleDelete` appelle l'API. Le backend vérifie `admin_count > 1`. Si `admin_count == 2` au moment de la vérification mais un autre admin supprime simultanément, `admin_count` devient 1 pour le second, qui reçoit "LAST_ADMIN". ✅ C'est correct.
+
+11. **Utilisateur non connecté charge /admin/users** : Le middleware `auth` court-circuite vers `/login`. Le middleware `admin` n'est jamais atteint. ✅
+
+12. **Navigation filtrée non réactive** : `usePages()` est appelée une fois au mount du composant. Si l'utilisateur se connecte/déconnecte sans navigation, la navigation ne se met pas à jour. En pratique, après login l'utilisateur est redirigé et la page se re-rend. ✅ Acceptable.
+
+### Frontend — pages.ts
+
+13. **minRole avec un rôle qui n'existe pas** : Si un `definePageMeta` spécifie `minRole: "manager"` mais que ce rôle n'existe pas, l'utilisateur ne verra jamais la page (car `userRole !== minRole` est toujours true). C'est safe (la page est cachée) mais potentiellement confusant.
+
+14. **Catégorie "admin" dans app.config.ts sans vue correspondante** : Si la page admin est filtrée par `minRole`, la catégorie apparaît vide pour les non-admins. Le code `if (!acc[category])` crée la catégorie seulement quand une page y est ajoutée. ✅ Donc la catégorie admin n'apparaît pas du tout pour les non-admins.

@@ -54,7 +54,7 @@ development_status:
   1-2-serveur-axum-embarque-mdns: done
   1-3-authentification-register-login-jwt: done
   1-4-fenetre-native-tray-mode-headless: done
-  1-5-roles-permissions-middleware-guard-seed-admin: backlog
+  1-5-roles-permissions-middleware-guard-seed-admin: done
   epic-1-retrospective: optional
 
   # === Epic 1.5: Wallet Ledger ===

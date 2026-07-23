@@ -10,3 +10,10 @@
 - **CorsLayer::permissive() en production** [`server.rs:39`] — Sera restreint quand l'auth sera implémentée (story 1.3)
 - **resolve_port() ne lit pas le Tauri store** [`lib.rs:175`] — Le bridge Pinia + store sera fait en story 1.4
 - **0.0.0.0 expose l'API sur toutes les interfaces** [`server.rs:42`] — La sécurité réseau viendra avec l'auth JWT (story 1.3)
+
+## Deferred from: code review of story 1.5 (2026-07-22)
+
+- Race condition DELETE dernier admin [users.rs:241-250] — deux suppressions admin simultanées peuvent passer. Scénario improbable en LAN alpha.
+- Aucun test ajouté — le projet n'a pas de framework de test configuré.
+- Pas de typage Zod pour les appels API frontend [admin/users.vue] — typage manuel suffit pour l'alpha.
+- Pas de bouton "Réessayer" sur erreur chargement [admin/users.vue] — UX mineure, l'utilisateur peut recharger la page.

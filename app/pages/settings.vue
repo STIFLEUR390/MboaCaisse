@@ -160,10 +160,12 @@
 <script lang="ts" setup>
 	definePageMeta({
 		name: "Paramètres",
+		minRole: "admin",
 		icon: "i-lucide-settings",
 		description: "Configuration du système",
 		category: "system",
-		layout: "default"
+		layout: "default",
+		middleware: ["auth", "admin"]
 	});
 
 	const store = useSettingsStore();

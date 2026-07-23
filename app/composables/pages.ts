@@ -1,12 +1,28 @@
 export const usePages = () => {
 	const router = useRouter();
 	const { pageCategories } = useAppConfig();
+	const { user } = useAuth();
 
-	const routes = router.getRoutes().filter((route) => route.name !== "index" && route.name !== "all");
+	const routes = router.getRoutes().filter(
+		(route) => route.name !== "index" && route.name !== "all"
+	);
 
 	const categorizedRoutes = routes.reduce((acc, route) => {
 		const category = route.meta.category as string || "other";
 		if (!category) return acc;
+
+		// Role-based route filtering (story 1.5)
+		// If a page defines minRole, only users with that role (or admin) can see it
+		const minRole = route.meta.minRole as string | undefined;
+		if (minRole) {
+			const userRole = user.value?.role;
+			// No user logged in → hide restricted pages
+			if (!userRole) return acc;
+			// Only admin or matching role can see the page
+			if (userRole !== "admin" && userRole !== minRole) {
+				return acc;
+			}
+		}
 
 		if (!acc[category]) {
 			acc[category] = {

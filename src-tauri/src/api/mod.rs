@@ -9,6 +9,7 @@ pub mod payments;
 pub mod products;
 pub mod reports;
 pub mod settings;
+pub mod users;
 pub mod wallet;
 
 use std::sync::Arc;
@@ -16,7 +17,7 @@ use std::sync::OnceLock;
 
 use axum::{
 	middleware,
-	routing::{delete, get, patch},
+	routing::{delete, get, patch, post},
 	Router,
 };
 use tauri::AppHandle;
@@ -53,15 +54,22 @@ pub fn build_app(state: AppApiState) -> Router {
 	let dist_path = resolve_dist_path();
 
 	let api_routes = Router::new()
+		// Auth (stories 1.3, 1.5)
 		.route("/api/auth/register", axum::routing::post(auth::register))
 		.route("/api/auth/login", axum::routing::post(auth::login))
 		.route("/api/auth/logout", axum::routing::post(auth::logout))
 		.route("/api/auth/me", axum::routing::get(crate::api::auth::me))
+		// Health
 		.route("/api/health", axum::routing::get(health::health_check))
 		// Settings (story 1.4)
 		.route("/api/settings", get(settings::get_settings))
 		.route("/api/settings", patch(settings::patch_settings))
-		.route("/api/settings", delete(settings::reset_settings));
+		.route("/api/settings", delete(settings::reset_settings))
+		// Users CRUD (story 1.5)
+		.route("/api/users", get(users::list_users))
+		.route("/api/users", post(users::create_user))
+		.route("/api/users/{id}", patch(users::update_user))
+		.route("/api/users/{id}", delete(users::delete_user));
 
 	// Static file serving with SPA fallback.
 	if std::path::Path::new(&dist_path).exists() {

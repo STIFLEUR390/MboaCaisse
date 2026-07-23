@@ -12,6 +12,10 @@ export default defineAppConfig({
 			label: "System",
 			icon: "lucide:square-terminal"
 		},
+		admin: {
+			label: "Administration",
+			icon: "lucide:shield"
+		},
 		storage: {
 			label: "Storage",
 			icon: "lucide:archive"

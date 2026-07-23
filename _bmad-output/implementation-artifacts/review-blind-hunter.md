@@ -1,21 +1,21 @@
-# Blind Hunter — Adversarial Review: Story 1.3 (Auth JWT)
+# Blind Hunter — Adversarial Review Findings
 
-## Findings
+1. **Route prefix collision dans required_permission** : `/api/users` match aussi `/api/users-export` ou `/api/users-settings` via `starts_with`. Si une route future suit ce pattern, elle héritera de Permission::ManageUsers au lieu du fallback Permission::All. Utiliser `path.starts_with("/api/users/") || path == "/api/users"` pour être précis.
 
-1. **Aucun cookie JWT émis par les handlers register/login.** Les AC-1 et AC-2 stipulent qu'un cookie `mboa_session` HTTP-only doit être émis après inscription et connexion. Actuellement, `auth::register` et `auth::login` retournent uniquement un `Json<AuthResponse>` sans header `Set-Cookie`. Le frontend ne peut donc pas obtenir de JWT — toute requête ultérieure sera rejetée par le middleware (401 UNAUTHORIZED).
+2. **Permission unique pour GET et POST sur la même route** : La fonction `required_permission` ne distingue pas les verbes HTTP. `GET /api/settings` (lecture) et `PATCH /api/settings` (écriture) requièrent tous deux ManageSettings. Si on veut séparer read/write plus tard, il faudra repenser le mapping.
 
-2. **`encode_token()` défini dans `jwt.rs` mais jamais appelé.** La fonction existe mais n'est utilisée nulle part. Cela confirme le point 1 : le JWT n'est jamais signé ni transmis.
+3. **Aucune protection contre les modifications concurrentes** : `update_user` et `delete_user` n'ont pas d'optimistic locking ou de version. Deux admins modifiant le même utilisateur simultanément peuvent écraser les changements de l'autre. Acceptable pour LAN alpha, mais à documenter.
 
-3. **`name` vide dans `/api/auth/me`.** Le handler `me` retourne `name: String::new()` au lieu d'aller chercher le nom en BDD. Le prénom de l'utilisateur est perdu après le login.
+4. **DELETE expose le dernier admin protégé mais pas la race condition** : Si deux admins suppriment des comptes admin simultanément, chacun voit `admin_count > 1` mais le dernier pourrait être supprimé par les deux opérations. Ajouter une transaction atomique pour la vérification + suppression.
 
-4. **`logout()` ne détruit pas le cookie côté serveur.** AC-5 exige que le cookie soit détruit (`Set-Cookie` avec `Max-Age=0`). Actuellement, `logout()` retourne juste `{ message: "Logged out" }` sans header `Set-Cookie`. Le cookie persiste côté navigateur.
+5. **Le rôle admin est vérifié côté frontend mais pas côté API pour les pages** : `minRole` dans `definePageMeta` filtre la navigation, mais n'empêche pas un utilisateur de taper l'URL directement. Le middleware `admin.ts` protège ça ✅, mais `settings.vue` n'a que `minRole: "admin"` sans middleware admin — la route `/settings` reste accessible.
 
-5. **Validation email trop laxiste.** La fonction `validate_email` vérifie seulement que le champ contient `@`. Un email comme `"@"` ou `"a@b"` passe la validation. Aucune vérification de format RFC 5322 ou de présence de domaine valide.
+6. **Aucun test framework** : La story 1.5 n'ajoute aucun test unitaire ou d'intégration. Les middlewares de permission, les CRUD users, et les filtres frontend ne sont pas testés.
 
-6. **Aucune rate limiting / brute-force protection.** Les endpoints `/api/auth/login` et `/api/auth/register` n'ont aucune protection contre les tentatives répétées (rate limiting, account lockout, ou délai progressif).
+7. **`required_permission` en dehors du module auth_middleware ne peut pas être réutilisée** : La fonction est privée (`fn`, pas `pub fn`). Si un autre module a besoin de vérifier des permissions (ex: un helper), il ne peut pas réutiliser cette fonction. Pour l'alpha c'est correct, mais à mettre en pub si nécessaire.
 
-7. **Clé JWT non persistée entre les redémarrages.** `load_or_generate_jwt_secret()` dans `lib.rs` appelle `generate_secret()` à chaque démarrage, générant une nouvelle clé. Tous les JWT signés avant le redémarrage deviennent invalides. AD-12 spécifie le stockage dans `tauri_plugin_store` mais ce n'est pas implémenté.
+8. **La page admin/users utilise `$fetch` sans typage fort** : Les appels API utilisent `$fetch` brut sans schéma Zod. Le typage `User` est déclaré manuellement dans le composant. Si l'API change, le frontend ne détecte pas la divergence.
 
-8. **Secret JWT visible dans les logs.** En mode DEBUG ou si une erreur survient, le formatage de `jwt_secret` pourrait exposer la clé (via `tracing` ou le débug Display de `Arc<Vec<u8>>`).
+9. **PATCH /api/users/{id} ne distingue pas "undefined" de "non fourni" pour les champs optionnels** : Avec `#[serde(default)]`, si le client envoie `{"email": null}`, serde le convertit en `Option::None` (car le champ est `Option<String>`). Mais si le client envoie `{"email": ""}`, serde le dé-sérialise en `Some("")`. Le validateur `validate_email` rejette les emails vides, donc c'est géré. ✅ Cependant, un client qui envoie `{"email": null}` pour "ne pas changer l'email" fonctionne correctement.
 
-9. **Aucune gestion de CORS pour les cookies cross-origin.** Les cookies `SameSite=Lax` ne fonctionneront pas si le frontend est servi depuis un port différent du backend (ce qui arrive en dev avec `scripts/tauri-dev.ts`). Il faudrait `SameSite=None; Secure` avec CORS configuré, mais `Secure` ne fonctionne pas en HTTP.
+10. **Pas de gestion d'erreur pour les routes non-existantes sous /api/** : Si une requête arrive sur `/api/nonexistent`, le fallback `Permission::All` est retourné. Le middleware vérifie si l'utilisateur a Permission::All (admin seulement). Un admin verra une 404 (parce que la route n'existe pas dans le router), un non-admin verra une 403. Le 403 est trompeur — l'utilisateur pourrait croire qu'il n'a pas accès à une route qui existe, alors qu'elle n'existe tout simplement pas.
