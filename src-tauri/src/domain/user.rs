@@ -62,15 +62,15 @@ impl Role {
 	}
 
 	/// Parse a role from its database string representation.
-		pub fn from_str(s: &str) -> Result<Self, DomainError> {
-			match s.to_lowercase().as_str() {
-				"admin" => Ok(Self::Admin),
-				"caissier" => Ok(Self::Caissier),
-				"vendeur" => Ok(Self::Vendeur),
-				"gestionnaire_stock" | "gestionnairestock" => Ok(Self::GestionnaireStock),
-				_ => Err(DomainError::InvalidValue(format!("Unknown role: {}", s))),
-			}
+	pub fn from_str(s: &str) -> Result<Self, DomainError> {
+		match s.to_lowercase().as_str() {
+			"admin" => Ok(Self::Admin),
+			"caissier" => Ok(Self::Caissier),
+			"vendeur" => Ok(Self::Vendeur),
+			"gestionnaire_stock" | "gestionnairestock" => Ok(Self::GestionnaireStock),
+			_ => Err(DomainError::InvalidValue(format!("Unknown role: {}", s))),
 		}
+	}
 
 	/// Check whether this role has the given permission.
 	/// `Permission::All` matches every role that has any permissions.

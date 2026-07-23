@@ -141,11 +141,6 @@ pub async fn create_user(
 	validate_password(&body.password)?;
 	let role = validate_role(&body.role)?;
 
-	// Check for duplicate email
-	if let Ok(Some(_)) = state.user_repo.find_by_email(&email) {
-		return Err(error_response("Email already registered", "DUPLICATE_EMAIL", StatusCode::CONFLICT));
-	}
-
 	let password_hash = crypto::hash_password(&body.password)
 		.map_err(|e| error_response(&e.to_string(), "INTERNAL_ERROR", StatusCode::INTERNAL_SERVER_ERROR))?;
 

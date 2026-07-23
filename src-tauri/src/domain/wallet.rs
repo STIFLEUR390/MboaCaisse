@@ -34,8 +34,8 @@ impl LedgerEntryType {
 			"credit" => Ok(Self::Credit),
 			"cashback" => Ok(Self::Cashback),
 			"referral_bonus" | "referralbonus" => Ok(Self::ReferralBonus),
-				"migration" => Ok(Self::Migration),
-				_ => Err(DomainError::InvalidValue(format!("Unknown ledger entry type: {}", s))),
+			"migration" => Ok(Self::Migration),
+			_ => Err(DomainError::InvalidValue(format!("Unknown ledger entry type: {}", s))),
 		}
 	}
 

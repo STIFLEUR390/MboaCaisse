@@ -143,11 +143,6 @@ pub async fn register(
 ) -> Result<impl IntoResponse, (StatusCode, Json<ApiError>)> {
 	let phone = validate_phone(&body.phone)?;
 
-	// Check for duplicate
-	if let Ok(Some(_)) = state.wallet_repo.find_client_by_phone(&phone) {
-		return Err(error_response("Phone already registered", "DUPLICATE_PHONE", StatusCode::CONFLICT));
-	}
-
 	let now = chrono_now();
 	let client = WalletClient {
 		id: uuid_v7(),
