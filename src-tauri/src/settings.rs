@@ -1,7 +1,7 @@
 //! Configuration store — typed access to tauri_plugin_store settings.
 //!
 //! AD-12: All system configuration goes through tauri_plugin_store.
-//!         Config keys: port, hostname, backup_interval_hours, headless.
+//!         Config keys: port, hostname, backup_interval_hours, headless, wallet_negative.
 //!         No YAML/TOML files. Values persisted in `settings.json`.
 
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,13 @@ use tauri_plugin_store::StoreExt;
 use tracing::info;
 
 /// The set of keys that `Config` owns and manages.
-const KNOWN_CONFIG_KEYS: &[&str] = &["port", "hostname", "backup_interval_hours", "headless"];
+const KNOWN_CONFIG_KEYS: &[&str] = &[
+	"port",
+	"hostname",
+	"backup_interval_hours",
+	"headless",
+	"wallet_negative",
+];
 
 /// Typed representation of the persistent configuration.
 ///
@@ -25,6 +31,9 @@ pub struct Config {
 	pub backup_interval_hours: u64,
 	/// When true, no window is shown on startup; the app runs in the tray. Default: false.
 	pub headless: bool,
+	/// When true, wallet payments are accepted even if the balance would go negative.
+	/// Default: false (payments refused if balance < total).
+	pub wallet_negative: bool,
 }
 
 impl Default for Config {
@@ -34,6 +43,7 @@ impl Default for Config {
 			hostname: "mboacaisse".to_string(),
 			backup_interval_hours: 24,
 			headless: false,
+			wallet_negative: false,
 		}
 	}
 }
@@ -76,16 +86,22 @@ impl Config {
 			.and_then(|v| v.as_bool())
 			.unwrap_or(false);
 
+		let wallet_negative: bool = store
+			.get("wallet_negative")
+			.and_then(|v| v.as_bool())
+			.unwrap_or(false);
+
 		let cfg = Self {
 			port,
 			hostname,
 			backup_interval_hours,
 			headless,
+			wallet_negative,
 		};
 
 		info!(
-			"Config loaded — port: {}, hostname: {}, backup_interval: {}h, headless: {}",
-			cfg.port, cfg.hostname, cfg.backup_interval_hours, cfg.headless
+			"Config loaded — port: {}, hostname: {}, backup_interval: {}h, headless: {}, wallet_negative: {}",
+			cfg.port, cfg.hostname, cfg.backup_interval_hours, cfg.headless, cfg.wallet_negative
 		);
 		cfg
 	}

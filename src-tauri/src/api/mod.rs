@@ -22,6 +22,8 @@ use axum::{
 };
 use tauri::AppHandle;
 
+use crate::db::SqlitePool;
+use crate::domain::payment::PaymentRepository;
 use crate::domain::product::ProductRepository;
 use crate::domain::order::OrderRepository;
 use crate::domain::user::UserRepository;
@@ -45,13 +47,19 @@ pub fn app_handle() -> &'static AppHandle {
 }
 
 /// Shared state for all API handlers.
+///
+/// AD-16: The raw pool is exposed for cross-repository transactions
+///        (e.g. payment gates that must atomically write to wallet_ledger,
+///        payments, and orders in a single BEGIN/COMMIT).
 #[derive(Clone)]
 pub struct AppApiState {
 	pub user_repo: Arc<dyn UserRepository>,
 	pub order_repo: Arc<dyn OrderRepository>,
 	pub wallet_repo: Arc<dyn WalletRepository>,
 	pub product_repo: Arc<dyn ProductRepository>,
+	pub payment_repo: Arc<dyn PaymentRepository>,
 	pub jwt_secret: Arc<Vec<u8>>,
+	pub db_pool: SqlitePool,
 }
 
 /// Build the full application router including API routes, static files, and middleware.
@@ -119,6 +127,8 @@ pub fn build_app(state: AppApiState) -> Router {
 		.route("/api/orders/{id}/items", post(orders::add_order_item))
 		.route("/api/orders/{id}/items/{item_id}", delete(orders::remove_order_item))
 		.route("/api/orders/{id}", get(orders::get_order))
+		// Payments (story 3.3)
+		.route("/api/payments", post(payments::process_payment))
 		;
 
 	// Static file serving with SPA fallback.

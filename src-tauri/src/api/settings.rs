@@ -1,6 +1,6 @@
 //! Settings API — manage config via tauri_plugin_store.
 //!
-//! AD-12: Config via Tauri store (port, hostname, backup_interval, headless).
+//! AD-12: Config via Tauri store (port, hostname, backup_interval, headless, wallet_negative).
 //! Story 1.4.
 //!
 //! # Endpoints
@@ -44,6 +44,8 @@ pub struct PatchSettingsBody {
 	pub backup_interval_hours: Option<u64>,
 	#[serde(default)]
 	pub headless: Option<bool>,
+	#[serde(default)]
+	pub wallet_negative: Option<bool>,
 }
 
 /// Validation warning returned when a field value is rejected.
@@ -84,6 +86,7 @@ fn entries_from_config(cfg: &Config) -> Vec<SettingEntry> {
 		("hostname", serde_json::json!(cfg.hostname)),
 		("backup_interval_hours", serde_json::json!(cfg.backup_interval_hours)),
 		("headless", serde_json::json!(cfg.headless)),
+		("wallet_negative", serde_json::json!(cfg.wallet_negative)),
 	];
 	pairs.into_iter().map(|(key, value)| {
 		let requires_restart = if Config::requires_restart(key) { Some(true) } else { None };
@@ -182,6 +185,18 @@ pub async fn patch_settings(
 			key: "headless".into(),
 			value: serde_json::json!(headless),
 			requires_restart: Some(true),
+		});
+	}
+
+	if let Some(wallet_negative) = body.wallet_negative {
+		if let Err(e) = Config::set(app_handle, "wallet_negative", serde_json::json!(wallet_negative)) {
+			tracing::error!("Failed to persist wallet_negative: {}", e);
+			return error_response(StatusCode::INTERNAL_SERVER_ERROR, format!("Failed to save wallet_negative: {}", e));
+		}
+		updated.push(SettingEntry {
+			key: "wallet_negative".into(),
+			value: serde_json::json!(wallet_negative),
+			requires_restart: None, // Takes effect immediately
 		});
 	}
 
