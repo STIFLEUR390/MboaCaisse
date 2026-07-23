@@ -99,7 +99,12 @@ pub fn build_app(state: AppApiState) -> Router {
 			"/api/wallet/{id}/ledger",
 			get(crate::api::wallet::get_ledger),
 		)
-		// Products CRUD (story 3.1)
+			// Wallet credit (story 3.4)
+			.route(
+				"/api/wallet/{client_id}/credit",
+				post(crate::api::wallet::credit_wallet),
+			)
+			// Products CRUD (story 3.1)
 		.route("/api/products", get(products::list_products))
 		.route("/api/products", post(products::create_product))
 		.route("/api/products/{id}", get(products::get_product))

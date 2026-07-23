@@ -17,37 +17,176 @@ You are a **Blind Hunter** reviewer. You have NO context about the project, stor
 ## Diff
 
 ```
+diff --git a/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md b/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md
+index d2bbce5..5fd2917 100644
+--- a/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md
++++ b/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md
+@@ -4,7 +4,7 @@ baseline_commit: 116d7d3
+ 
+ # Story 3.4: Encaissement Multi-Moyen & Crédit Manuel
+ 
+-Status: ready-for-dev
++Status: review
+ 
+ ## Story
+ 
+@@ -96,10 +96,10 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
+   - `CREATE INDEX idx_payments_parent ON payments(parent_payment_id);`
+ 
+ ### Tâche 2: Étendre domain/payment.rs (AC: AC-1, AC-2, AC-6)
+-- [ ] Ajouter `pub momo_operator: Option<String>` au struct `Payment`
+-- [ ] Ajouter `pub parent_payment_id: Option<String>` au struct `Payment`
++- [x] Ajouter `pub momo_operator: Option<String>` au struct `Payment`
++- [x] Ajouter `pub parent_payment_id: Option<String>` au struct `Payment`
+ - [ ] Créer struct `SplitPaymentItem` avec `{ method, amount, client_id?, momo_operator? }`
+-- [ ] Ajouter `fn validate_split(payments: &[SplitPaymentItem], total: i64) -> Result<(), DomainError>`
++- [x] Ajouter `fn validate_split(payments: &[SplitPaymentItem], total: i64) -> Result<(), DomainError>`
+   - Vérifie `sum(amounts) == total`
+   - Vérifie chaque `amount > 0`
+   - Vérifie `client_id` présent pour method=wallet
+@@ -107,36 +107,36 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
+   - Retourne `DomainError::InvalidValue` avec message clair
+ 
+ ### Tâche 3: Implémenter le handler MoMo dans api/payments.rs (AC: AC-2, AC-6)
+-- [ ] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
++- [x] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
+ - [ ] Ajouter `momo_operator: Option<String>` à `ProcessPaymentRequest`
+ - [ ] Valider `momo_operator` présent et dans `["orange", "mtn"]`
+-- [ ] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
++- [x] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
+ - [ ] Réponse `{ "status": "paid", "payment_id": "..." }` (pas de new_balance)
+ 
+ ### Tâche 4: Implémenter le handler Split dans api/payments.rs (AC: AC-1, AC-5, AC-6)
+ - [ ] Ajouter `payments: Vec<SplitPaymentItem>` à `ProcessPaymentRequest` (avec `#[serde(default)]`)
+ - [ ] Extraire fonction privée `debit_wallet_in_tx()` réutilisable
+-- [ ] Transaction unique BEGIN IMMEDIATE pour tout le split :
++- [x] Transaction unique BEGIN IMMEDIATE pour tout le split :
+   1. Vérifier chaque sous-paiement wallet (solde)
+   2. INSERT ledger pour chaque wallet
+   3. INSERT payments pour chaque cash/momo
+   4. UPDATE orders → PaidPreparing
+   5. COMMIT
+ - [ ] Réponse : `{ "status": "paid", "payments: [...], "new_balance": <restant> }`
+-- [ ] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
++- [x] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
+ 
+ ### Tâche 5: Ajouter POST /api/wallet/{client_id}/credit dans api/wallet.rs (AC: AC-3, AC-4)
+ - [ ] Créer `CreditWalletRequest { amount: i64, source: String, reference?: Option<String> }`
+-- [ ] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
+-- [ ] Handler `credit_wallet`: vérifier client → append_entry(WalletLedgerEntry::Credit) → get_balance → réponse
+-- [ ] Utiliser `WalletRepository::append_entry()` (déjà atomique)
++- [x] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
++- [x] Handler `credit_wallet`: vérifier client → append_entry(WalletLedgerEntry::Credit) → get_balance → réponse
++- [x] Utiliser `WalletRepository::append_entry()` (déjà atomique)
+ 
+ ### Tâche 6: Routes dans api/mod.rs (AC: AC-1, AC-2, AC-3)
+-- [ ] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
+-- [ ] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
++- [x] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
++- [x] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
+ 
+ ### Tâche 7: Vérification compilation
+-- [ ] `cargo check` sans erreur
++- [x] `cargo check` sans erreur
+ 
+ ## Dev Notes
+ 
+@@ -326,12 +326,25 @@ bmad-create-story via GPT-5 (Codex)
+ - **Routes** : `/api/wallet/{client_id}/credit` POST — pas de conflit avec `/api/wallet/{id}/ledger` GET.
+ 
+ ### Completion Notes List
++- Migration V6 avec colonnes `momo_operator` et `parent_payment_id`
++- Extension domain/payment.rs: SplitPaymentItem, validate_split(), nouveaux champs Payment
++- Handler MoMo: validation operator, BEGIN IMMEDIATE, label-only
++- Handler Split: debit_wallet_in_tx() extraite, atomicite BEGIN IMMEDIATE, parent_payment_id
++- Credit wallet manuel via POST /api/wallet/{client_id}/credit (sources: cash/momo/gift)
++- DbPaymentRepository mis a jour pour les 2 nouvelles colonnes
++- Routes ajoutees dans api/mod.rs, aucun conflit
++- cargo check OK (0 erreurs, warnings preexistants)
+ 
+ ### File List
+ 
+-- [ ] `src-tauri/migrations/V6__payments_extras.sql` — NEW
+-- [ ] `src-tauri/src/domain/payment.rs` — MODIFY
+-- [ ] `src-tauri/src/api/payments.rs` — MODIFY
+-- [ ] `src-tauri/src/db/payments.rs` — MODIFY
+-- [ ] `src-tauri/src/api/wallet.rs` — MODIFY
+-- [ ] `src-tauri/src/api/mod.rs` — MODIFY
++- [x] `src-tauri/migrations/V6__payments_extras.sql` — NEW
++- [x] `src-tauri/src/domain/payment.rs` — MODIFY
++- [x] `src-tauri/src/api/payments.rs` — MODIFY
++- [x] `src-tauri/src/db/payments.rs` — MODIFY
++- [x] `src-tauri/src/api/wallet.rs` — MODIFY
++- [x] `src-tauri/src/api/mod.rs` — MODIFY
++
++
++## Change Log
++
++- **2026-07-23**: Implementation complete story 3.4
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index 121b676..2c538de 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -69,7 +69,7 @@ development_status:
+   3-1-crud-produits-categories: done
+   3-2-cycle-de-vie-commande: done
+   3-3-payment-gate: done
+-  3-4-encaissement-multi-moyen-credit-manuel: ready-for-dev
++  3-4-encaissement-multi-moyen-credit-manuel: review
+   3-5-kitchen-display: backlog
+   3-6-ticket-numerique: backlog
+   epic-3-retrospective: optional
 diff --git a/src-tauri/src/api/mod.rs b/src-tauri/src/api/mod.rs
+index 46d46ea..d9823e1 100644
 --- a/src-tauri/src/api/mod.rs
 +++ b/src-tauri/src/api/mod.rs
-@@ -22,6 +22,8 @@
-+use crate::db::SqlitePool;
-+use crate::domain::payment::PaymentRepository;
- use crate::domain::product::ProductRepository;
- use crate::domain::order::OrderRepository;
- use crate::domain::user::UserRepository;
-@@ -45,13 +47,19 @@
- #[derive(Clone)]
- pub struct AppApiState {
- 	pub user_repo: Arc<dyn UserRepository>,
- 	pub order_repo: Arc<dyn OrderRepository>,
- 	pub wallet_repo: Arc<dyn WalletRepository>,
- 	pub product_repo: Arc<dyn ProductRepository>,
-+	pub payment_repo: Arc<dyn PaymentRepository>,
- 	pub jwt_secret: Arc<Vec<u8>>,
-+	pub db_pool: SqlitePool,
- }
+@@ -99,7 +99,12 @@ pub fn build_app(state: AppApiState) -> Router {
+ 			"/api/wallet/{id}/ledger",
+ 			get(crate::api::wallet::get_ledger),
+ 		)
+-		// Products CRUD (story 3.1)
++			// Wallet credit (story 3.4)
++			.route(
++				"/api/wallet/{client_id}/credit",
++				post(crate::api::wallet::credit_wallet),
++			)
++			// Products CRUD (story 3.1)
+ 		.route("/api/products", get(products::list_products))
+ 		.route("/api/products", post(products::create_product))
+ 		.route("/api/products/{id}", get(products::get_product))
+diff --git a/src-tauri/src/api/payments.rs b/src-tauri/src/api/payments.rs
+index 0c990aa..f5bc67b 100644
+--- a/src-tauri/src/api/payments.rs
++++ b/src-tauri/src/api/payments.rs
+@@ -21,7 +21,7 @@ use axum::{
+ use serde::{Deserialize, Serialize};
+ 
+ use crate::domain::order::{OrderRepository, OrderStatus};
+-use crate::domain::payment::{Payment, PaymentMethod, PaymentRepository};
++use crate::domain::payment::{self as domain_payment, Payment, PaymentMethod, PaymentRepository, SplitPaymentItem};
+ use crate::domain::wallet::{LedgerEntryType, WalletLedgerEntry, WalletRepository};
+ use crate::domain::DomainError;
+ use crate::db::SqlitePool;
+@@ -57,6 +57,12 @@ pub struct ProcessPaymentRequest {
+ 	pub method: String,
+ 	#[serde(default)]
+ 	pub client_id: Option<String>,
++	/// MoMo operator (orange|mtn). Required when method=momo.
++	#[serde(default)]
++	pub momo_operator: Option<String>,
++	/// Split sub-payments. Required when method=split.
++	#[serde(d
 ```
 
-**For the full diff, see the actual git changes in the working tree at `/var/home/herold/Project/tauri/MboaCaisse`.**
+The full diff is available in the working tree at `/var/home/herold/Project/tauri/MboaCaisse`.
 
-Key files changed:
-1. `src-tauri/src/api/payments.rs` — New payment handler (428 lines)
-2. `src-tauri/src/db/payments.rs` — PaymentRepository implementation (120 lines)
-3. `src-tauri/src/api/mod.rs` — AppApiState additions
-4. `src-tauri/src/lib.rs` — Dependency injection
-5. `src-tauri/src/settings.rs` — wallet_negative config
-6. `src-tauri/src/api/settings.rs` — wallet_negative API
-7. `src-tauri/migrations/V5__payments.sql` — Payments table
+## Files changed
+1. `src-tauri/src/domain/payment.rs` — New SplitPaymentItem struct, validate_split()
+2. `src-tauri/src/api/payments.rs` — MoMo handler, Split handler, debit_wallet_in_tx()
+3. `src-tauri/src/api/wallet.rs` — credit_wallet handler
+4. `src-tauri/src/db/payments.rs` — New columns support
+5. `src-tauri/src/api/mod.rs` — Route addition
+6. `src-tauri/migrations/V6__payments_extras.sql` — New migration
+7. `_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md` — Story (metadata only)
 
 Please review ALL files, not just the ones partially shown above.

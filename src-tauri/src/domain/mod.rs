@@ -42,6 +42,11 @@ pub enum DomainError {
 		from: String,
 		to: String,
 	},
+	/// Split payment total does not match the order total.
+	SplitTotalMismatch {
+		sum: i64,
+		expected: i64,
+	},
 	/// A catch-all for internal / unexpected domain errors.
 	Internal(String),
 }
@@ -59,6 +64,9 @@ impl fmt::Display for DomainError {
 			}
 			Self::InvalidStatusTransition { from, to } => {
 				write!(f, "Invalid status transition: {} → {}", from, to)
+			}
+			Self::SplitTotalMismatch { sum, expected } => {
+				write!(f, "Split total mismatch: sum={}, expected={}", sum, expected)
 			}
 			Self::Internal(msg) => write!(f, "Internal error: {}", msg),
 		}

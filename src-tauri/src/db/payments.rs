@@ -36,6 +36,8 @@ impl DbPaymentRepository {
 			amount: row.get("amount")?,
 			client_id: row.get("client_id")?,
 			reference: row.get("reference")?,
+			momo_operator: row.get("momo_operator")?,
+			parent_payment_id: row.get("parent_payment_id")?,
 			created_at: row.get("created_at")?,
 		})
 	}
@@ -47,7 +49,7 @@ impl PaymentRepository for DbPaymentRepository {
 
 		let conn = self.conn().map_err(|e| DomainError::Internal(e.to_string()))?;
 		conn.execute(
-			"INSERT INTO payments (id, order_id, method, amount, client_id, reference, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
+			"INSERT INTO payments (id, order_id, method, amount, client_id, reference, momo_operator, parent_payment_id, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
 			rusqlite::params![
 				payment.id,
 				payment.order_id,
@@ -55,6 +57,8 @@ impl PaymentRepository for DbPaymentRepository {
 				payment.amount,
 				payment.client_id,
 				payment.reference,
+				payment.momo_operator,
+				payment.parent_payment_id,
 				payment.created_at,
 			],
 		)
@@ -66,7 +70,7 @@ impl PaymentRepository for DbPaymentRepository {
 	fn find_by_id(&self, id: &str) -> Result<Option<Payment>, DomainError> {
 		let conn = self.conn().map_err(|e| DomainError::Internal(e.to_string()))?;
 		let mut stmt = conn
-			.prepare("SELECT id, order_id, method, amount, client_id, reference, created_at FROM payments WHERE id = ?1")
+			.prepare("SELECT id, order_id, method, amount, client_id, reference, momo_operator, parent_payment_id, created_at FROM payments WHERE id = ?1")
 			.map_err(|e| DomainError::Internal(e.to_string()))?;
 
 		let mut rows = stmt
@@ -84,7 +88,7 @@ impl PaymentRepository for DbPaymentRepository {
 		let conn = self.conn().map_err(|e| DomainError::Internal(e.to_string()))?;
 		let mut stmt = conn
 			.prepare(
-				"SELECT id, order_id, method, amount, client_id, reference, created_at \
+				"SELECT id, order_id, method, amount, client_id, reference, momo_operator, parent_payment_id, created_at \
 				 FROM payments WHERE order_id = ?1 \
 				 ORDER BY created_at ASC",
 			)
@@ -103,7 +107,7 @@ impl PaymentRepository for DbPaymentRepository {
 		let conn = self.conn().map_err(|e| DomainError::Internal(e.to_string()))?;
 		let mut stmt = conn
 			.prepare(
-				"SELECT id, order_id, method, amount, client_id, reference, created_at \
+				"SELECT id, order_id, method, amount, client_id, reference, momo_operator, parent_payment_id, created_at \
 				 FROM payments WHERE client_id = ?1 \
 				 ORDER BY created_at ASC",
 			)

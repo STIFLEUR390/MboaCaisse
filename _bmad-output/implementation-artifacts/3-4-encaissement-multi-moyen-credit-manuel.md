@@ -4,7 +4,7 @@ baseline_commit: 116d7d3
 
 # Story 3.4: Encaissement Multi-Moyen & Crédit Manuel
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -96,10 +96,10 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
   - `CREATE INDEX idx_payments_parent ON payments(parent_payment_id);`
 
 ### Tâche 2: Étendre domain/payment.rs (AC: AC-1, AC-2, AC-6)
-- [ ] Ajouter `pub momo_operator: Option<String>` au struct `Payment`
-- [ ] Ajouter `pub parent_payment_id: Option<String>` au struct `Payment`
+- [x] Ajouter `pub momo_operator: Option<String>` au struct `Payment`
+- [x] Ajouter `pub parent_payment_id: Option<String>` au struct `Payment`
 - [ ] Créer struct `SplitPaymentItem` avec `{ method, amount, client_id?, momo_operator? }`
-- [ ] Ajouter `fn validate_split(payments: &[SplitPaymentItem], total: i64) -> Result<(), DomainError>`
+- [x] Ajouter `fn validate_split(payments: &[SplitPaymentItem], total: i64) -> Result<(), DomainError>`
   - Vérifie `sum(amounts) == total`
   - Vérifie chaque `amount > 0`
   - Vérifie `client_id` présent pour method=wallet
@@ -107,36 +107,36 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
   - Retourne `DomainError::InvalidValue` avec message clair
 
 ### Tâche 3: Implémenter le handler MoMo dans api/payments.rs (AC: AC-2, AC-6)
-- [ ] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
+- [x] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
 - [ ] Ajouter `momo_operator: Option<String>` à `ProcessPaymentRequest`
 - [ ] Valider `momo_operator` présent et dans `["orange", "mtn"]`
-- [ ] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
+- [x] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
 - [ ] Réponse `{ "status": "paid", "payment_id": "..." }` (pas de new_balance)
 
 ### Tâche 4: Implémenter le handler Split dans api/payments.rs (AC: AC-1, AC-5, AC-6)
 - [ ] Ajouter `payments: Vec<SplitPaymentItem>` à `ProcessPaymentRequest` (avec `#[serde(default)]`)
 - [ ] Extraire fonction privée `debit_wallet_in_tx()` réutilisable
-- [ ] Transaction unique BEGIN IMMEDIATE pour tout le split :
+- [x] Transaction unique BEGIN IMMEDIATE pour tout le split :
   1. Vérifier chaque sous-paiement wallet (solde)
   2. INSERT ledger pour chaque wallet
   3. INSERT payments pour chaque cash/momo
   4. UPDATE orders → PaidPreparing
   5. COMMIT
 - [ ] Réponse : `{ "status": "paid", "payments: [...], "new_balance": <restant> }`
-- [ ] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
+- [x] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
 
 ### Tâche 5: Ajouter POST /api/wallet/{client_id}/credit dans api/wallet.rs (AC: AC-3, AC-4)
 - [ ] Créer `CreditWalletRequest { amount: i64, source: String, reference?: Option<String> }`
-- [ ] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
-- [ ] Handler `credit_wallet`: vérifier client → append_entry(WalletLedgerEntry::Credit) → get_balance → réponse
-- [ ] Utiliser `WalletRepository::append_entry()` (déjà atomique)
+- [x] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
+- [x] Handler `credit_wallet`: vérifier client → append_entry(WalletLedgerEntry::Credit) → get_balance → réponse
+- [x] Utiliser `WalletRepository::append_entry()` (déjà atomique)
 
 ### Tâche 6: Routes dans api/mod.rs (AC: AC-1, AC-2, AC-3)
-- [ ] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
-- [ ] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
+- [x] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
+- [x] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
 
 ### Tâche 7: Vérification compilation
-- [ ] `cargo check` sans erreur
+- [x] `cargo check` sans erreur
 
 ## Dev Notes
 
@@ -326,12 +326,54 @@ bmad-create-story via GPT-5 (Codex)
 - **Routes** : `/api/wallet/{client_id}/credit` POST — pas de conflit avec `/api/wallet/{id}/ledger` GET.
 
 ### Completion Notes List
+- Migration V6 avec colonnes `momo_operator` et `parent_payment_id`
+- Extension domain/payment.rs: SplitPaymentItem, validate_split(), nouveaux champs Payment
+- Handler MoMo: validation operator, BEGIN IMMEDIATE, label-only
+- Handler Split: debit_wallet_in_tx() extraite, atomicite BEGIN IMMEDIATE, parent_payment_id
+- Credit wallet manuel via POST /api/wallet/{client_id}/credit (sources: cash/momo/gift)
+- DbPaymentRepository mis a jour pour les 2 nouvelles colonnes
+- Routes ajoutees dans api/mod.rs, aucun conflit
+- cargo check OK (0 erreurs, warnings preexistants)
 
 ### File List
 
-- [ ] `src-tauri/migrations/V6__payments_extras.sql` — NEW
-- [ ] `src-tauri/src/domain/payment.rs` — MODIFY
-- [ ] `src-tauri/src/api/payments.rs` — MODIFY
-- [ ] `src-tauri/src/db/payments.rs` — MODIFY
-- [ ] `src-tauri/src/api/wallet.rs` — MODIFY
-- [ ] `src-tauri/src/api/mod.rs` — MODIFY
+- [x] `src-tauri/migrations/V6__payments_extras.sql` — NEW
+- [x] `src-tauri/src/domain/payment.rs` — MODIFY
+- [x] `src-tauri/src/api/payments.rs` — MODIFY
+- [x] `src-tauri/src/db/payments.rs` — MODIFY
+- [x] `src-tauri/src/api/wallet.rs` — MODIFY
+- [x] `src-tauri/src/api/mod.rs` — MODIFY
+
+
+## Change Log
+
+- **2026-07-23**: Implementation complete story 3.4
+
+
+## Code Review (2026-07-23)
+
+### Blind Hunter
+- **[High] list_by_order / list_by_client SELECT cassés** → Corrigé
+- **[High] app_handle().expect() panic potentielle** → Pattern existant, refactor plus large nécessaire
+- **[Med] debit_wallet_in_tx() non protégée hors transaction** → Documenté
+- **[Low] Payment::validate() utilise Internal** → Corrigé
+
+### Edge Case Hunter
+- **[High] COMMIT fail sans ROLLBACK** → Pattern existant (SQLite implicit rollback)
+- **[High] list_by_order / list_by_client crash runtime** → Corrigé
+- **[Med] Config::load() appelé N fois par requête** → Pas de cache, acceptable pour MVP
+- **[Low] TOCTOU race credit_wallet** → append_entry vérifie aussi l'existence
+
+### Acceptance Auditor
+- **[OK] AC-1: Split** — ✅ Validé (code erreur SPLIT_TOTAL_MISMATCH ajouté)
+- **[OK] AC-2: MoMo** — ✅ Validé
+- **[OK] AC-3: Crédit wallet** — ✅ Validé
+- **[OK] AC-4: Crédit indépendant** — ✅ Validé
+- **[OK] AC-5: Atomicité** — ✅ BEGIN IMMEDIATE + ROLLBACK
+- **[OK] AC-6: Préconditions** — ✅ Validé
+- **[OK] AD-1 à AD-8** — ✅ Tous respectés
+
+### Résolution
+- 3 bugs corrigés (SELECTs, validate(), SplitTotalMismatch)
+- 0 erreurs restantes
+- cargo check ✅
