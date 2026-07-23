@@ -60,7 +60,7 @@ development_status:
   # === Epic 1.5: Wallet Ledger ===
   epic-1-5: in-progress
   1-5-1-wallet-domain-migration: done
-  1-5-2-api-wallet-identification-solde: backlog
+  1-5-2-api-wallet-identification-solde: done
   1-5-3-migration-wallet-ledger: backlog
   epic-1-5-retrospective: optional
 

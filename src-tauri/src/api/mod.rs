@@ -71,7 +71,11 @@ pub fn build_app(state: AppApiState) -> Router {
 		.route("/api/users", get(users::list_users))
 		.route("/api/users", post(users::create_user))
 		.route("/api/users/{id}", patch(users::update_user))
-		.route("/api/users/{id}", delete(users::delete_user));
+		.route("/api/users/{id}", delete(users::delete_user))
+		// Wallet API (story 1.5.2)
+		.route("/api/wallet/register", post(crate::api::wallet::register))
+		.route("/api/wallet/by-phone/{phone}", get(crate::api::wallet::get_by_phone))
+		.route("/api/wallet/{id}/ledger", get(crate::api::wallet::get_ledger));
 
 	// Static file serving with SPA fallback.
 	if std::path::Path::new(&dist_path).exists() {
