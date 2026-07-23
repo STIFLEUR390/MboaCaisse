@@ -49,6 +49,7 @@ export const useAuth = () => {
 				user.value = null;
 			}
 		}
+		initialized.value = true;
 	}
 
 	async function login(email: string, password: string): Promise<AuthUser> {
@@ -120,9 +121,6 @@ export const useAuth = () => {
 		error.value = null;
 	}
 
-		initialized.value = true;
-	}
-
 	// Run init once
 	if (import.meta.client) {
 		init();
@@ -140,4 +138,4 @@ export const useAuth = () => {
 		init,
 		initialized
 	};
-};
+}
