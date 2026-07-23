@@ -39,9 +39,6 @@ export type Status = "pending" | "active" | "completed";
 <script setup lang="ts">
 	import type { Status, User } from "@/types/user";
 
-	// WORKS: Direct imported interface
-	defineProps<User>();
-
 	// WORKS: Simple imported interface
 	defineProps<{
 		user: User
@@ -51,6 +48,9 @@ export type Status = "pending" | "active" | "completed";
 	defineProps<{
 		status: Status
 	}>();
+
+	// WORKS: Direct imported interface
+	defineProps<User>();
 
 </script>
 ```

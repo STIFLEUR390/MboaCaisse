@@ -70,7 +70,7 @@ development_status:
   3-2-cycle-de-vie-commande: done
   3-3-payment-gate: done
   3-4-encaissement-multi-moyen-credit-manuel: done
-  3-5-kitchen-display: backlog
+  3-5-kitchen-display: review
   3-6-ticket-numerique: backlog
   epic-3-retrospective: optional
 

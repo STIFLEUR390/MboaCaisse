@@ -344,11 +344,9 @@ bmad-create-story via GPT-5 (Codex)
 - [x] `src-tauri/src/api/wallet.rs` — MODIFY
 - [x] `src-tauri/src/api/mod.rs` — MODIFY
 
-
 ## Change Log
 
 - **2026-07-23**: Implementation complete story 3.4
-
 
 ## Code Review (2026-07-23)
 

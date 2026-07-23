@@ -134,6 +134,8 @@ pub fn build_app(state: AppApiState) -> Router {
 		.route("/api/orders/{id}", get(orders::get_order))
 		// Payments (story 3.3)
 		.route("/api/payments", post(payments::process_payment))
+		// Kitchen display (story 3.5)
+		.route("/api/kitchen/orders", get(crate::api::kitchen::list_kitchen_orders))
 		;
 
 	// Static file serving with SPA fallback.

@@ -138,4 +138,4 @@ export const useAuth = () => {
 		init,
 		initialized
 	};
-}
+};

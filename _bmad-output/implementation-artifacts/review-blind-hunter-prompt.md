@@ -22,17 +22,17 @@ index d2bbce5..5fd2917 100644
 --- a/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md
 +++ b/_bmad-output/implementation-artifacts/3-4-encaissement-multi-moyen-credit-manuel.md
 @@ -4,7 +4,7 @@ baseline_commit: 116d7d3
- 
+
  # Story 3.4: Encaissement Multi-Moyen & Crédit Manuel
- 
+
 -Status: ready-for-dev
 +Status: review
- 
+
  ## Story
- 
+
 @@ -96,10 +96,10 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
    - `CREATE INDEX idx_payments_parent ON payments(parent_payment_id);`
- 
+
  ### Tâche 2: Étendre domain/payment.rs (AC: AC-1, AC-2, AC-6)
 -- [ ] Ajouter `pub momo_operator: Option<String>` au struct `Payment`
 -- [ ] Ajouter `pub parent_payment_id: Option<String>` au struct `Payment`
@@ -46,7 +46,7 @@ index d2bbce5..5fd2917 100644
    - Vérifie `client_id` présent pour method=wallet
 @@ -107,36 +107,36 @@ so that le client paie comme il veut et le caissier peut approvisionner un walle
    - Retourne `DomainError::InvalidValue` avec message clair
- 
+
  ### Tâche 3: Implémenter le handler MoMo dans api/payments.rs (AC: AC-2, AC-6)
 -- [ ] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
 +- [x] Remplacer le `_ =>` match arm pour `PaymentMethod::MoMo`
@@ -55,7 +55,7 @@ index d2bbce5..5fd2917 100644
 -- [ ] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
 +- [x] Transaction atomique (BEGIN IMMEDIATE) : INSERT payments + UPDATE order
  - [ ] Réponse `{ "status": "paid", "payment_id": "..." }` (pas de new_balance)
- 
+
  ### Tâche 4: Implémenter le handler Split dans api/payments.rs (AC: AC-1, AC-5, AC-6)
  - [ ] Ajouter `payments: Vec<SplitPaymentItem>` à `ProcessPaymentRequest` (avec `#[serde(default)]`)
  - [ ] Extraire fonction privée `debit_wallet_in_tx()` réutilisable
@@ -69,7 +69,7 @@ index d2bbce5..5fd2917 100644
  - [ ] Réponse : `{ "status": "paid", "payments: [...], "new_balance": <restant> }`
 -- [ ] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
 +- [x] Tous les sous-paiements ont `parent_payment_id` = UUID du paiement parent
- 
+
  ### Tâche 5: Ajouter POST /api/wallet/{client_id}/credit dans api/wallet.rs (AC: AC-3, AC-4)
  - [ ] Créer `CreditWalletRequest { amount: i64, source: String, reference?: Option<String> }`
 -- [ ] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
@@ -78,22 +78,22 @@ index d2bbce5..5fd2917 100644
 +- [x] Valider `amount > 0`, `source` dans `["cash", "momo", "gift"]`
 +- [x] Handler `credit_wallet`: vérifier client → append_entry(WalletLedgerEntry::Credit) → get_balance → réponse
 +- [x] Utiliser `WalletRepository::append_entry()` (déjà atomique)
- 
+
  ### Tâche 6: Routes dans api/mod.rs (AC: AC-1, AC-2, AC-3)
 -- [ ] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
 -- [ ] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
 +- [x] Ajouter `.route("/api/wallet/{client_id}/credit", post(wallet::credit_wallet))`
 +- [x] S'assurer qu'aucun conflit avec `/api/wallet/{id}/ledger` (GET vs POST)
- 
+
  ### Tâche 7: Vérification compilation
 -- [ ] `cargo check` sans erreur
 +- [x] `cargo check` sans erreur
- 
+
  ## Dev Notes
- 
+
 @@ -326,12 +326,25 @@ bmad-create-story via GPT-5 (Codex)
  - **Routes** : `/api/wallet/{client_id}/credit` POST — pas de conflit avec `/api/wallet/{id}/ledger` GET.
- 
+
  ### Completion Notes List
 +- Migration V6 avec colonnes `momo_operator` et `parent_payment_id`
 +- Extension domain/payment.rs: SplitPaymentItem, validate_split(), nouveaux champs Payment
@@ -103,9 +103,9 @@ index d2bbce5..5fd2917 100644
 +- DbPaymentRepository mis a jour pour les 2 nouvelles colonnes
 +- Routes ajoutees dans api/mod.rs, aucun conflit
 +- cargo check OK (0 erreurs, warnings preexistants)
- 
+
  ### File List
- 
+
 -- [ ] `src-tauri/migrations/V6__payments_extras.sql` — NEW
 -- [ ] `src-tauri/src/domain/payment.rs` — MODIFY
 -- [ ] `src-tauri/src/api/payments.rs` — MODIFY
@@ -160,7 +160,7 @@ index 0c990aa..f5bc67b 100644
 +++ b/src-tauri/src/api/payments.rs
 @@ -21,7 +21,7 @@ use axum::{
  use serde::{Deserialize, Serialize};
- 
+
  use crate::domain::order::{OrderRepository, OrderStatus};
 -use crate::domain::payment::{Payment, PaymentMethod, PaymentRepository};
 +use crate::domain::payment::{self as domain_payment, Payment, PaymentMethod, PaymentRepository, SplitPaymentItem};
