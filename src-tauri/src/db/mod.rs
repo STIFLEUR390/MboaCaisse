@@ -11,6 +11,7 @@ pub mod products;
 pub mod orders;
 pub mod payments;
 pub mod wallet_ledger;
+pub mod migration_wallet;
 
 use std::fmt;
 

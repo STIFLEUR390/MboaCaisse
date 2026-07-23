@@ -91,6 +91,7 @@ pub fn run() {
 		let mut conn = pool.get().expect("Failed to acquire connection for migrations");
 		migrations::run(&mut conn).expect("Database migrations failed");
 		db::seed::run(&mut conn).expect("Database seed failed");
+	db::migration_wallet::run(&mut conn).expect("Wallet migration failed");
 	}
 	let app_state = AppState { db_pool: pool.clone() };
 
